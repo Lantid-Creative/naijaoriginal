@@ -1,0 +1,81 @@
+import { MapPin, Mail, Instagram, Twitter } from "lucide-react";
+
+const Footer = () => {
+  return (
+    <footer className="border-t border-border py-16">
+      <div className="container mx-auto px-6">
+        <div className="grid md:grid-cols-4 gap-10 mb-12">
+          {/* Brand */}
+          <div className="md:col-span-1">
+            <h3 className="font-display text-2xl font-black naija-gradient-text mb-3">
+              🇳🇬 NAIJA ORIGINALS
+            </h3>
+            <p className="font-body text-sm text-muted-foreground mb-4">
+              Authenticated Culture. Wearable Pride.
+            </p>
+            <div className="flex gap-3">
+              {[Instagram, Twitter].map((Icon, i) => (
+                <a key={i} href="#" className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
+                  <Icon className="w-4 h-4" />
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Shop */}
+          <div>
+            <h4 className="font-body font-semibold text-foreground mb-4 text-sm uppercase tracking-wider">Shop</h4>
+            <ul className="space-y-2.5 font-body text-sm text-muted-foreground">
+              {["Apparel", "Accessories", "Footwear", "Limited Drops", "Gift Cards"].map((item) => (
+                <li key={item}>
+                  <a href="#" className="hover:text-primary transition-colors">{item}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Company */}
+          <div>
+            <h4 className="font-body font-semibold text-foreground mb-4 text-sm uppercase tracking-wider">Company</h4>
+            <ul className="space-y-2.5 font-body text-sm text-muted-foreground">
+              {["Our Story", "The Culture Blog", "Wholesale Partners", "Careers", "Press Kit"].map((item) => (
+                <li key={item}>
+                  <a href="#" className="hover:text-primary transition-colors">{item}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contact */}
+          <div>
+            <h4 className="font-body font-semibold text-foreground mb-4 text-sm uppercase tracking-wider">Contact</h4>
+            <div className="space-y-3 font-body text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <Mail className="w-4 h-4 text-secondary" />
+                info@naija-originals.com
+              </div>
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-secondary" />
+                Lagos • London • Houston
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="naija-section-divider mb-6" />
+
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="font-accent text-xs text-muted-foreground">
+            © 2026 Naija Originals. All rights reserved. E go be! 🇳🇬
+          </p>
+          <div className="flex gap-6 font-accent text-xs text-muted-foreground">
+            <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
+            <a href="#" className="hover:text-primary transition-colors">Terms of Service</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
+export default Footer;
