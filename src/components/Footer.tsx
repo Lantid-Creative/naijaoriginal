@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { MapPin, Mail, Instagram, Twitter } from "lucide-react";
 
 const Footer = () => {
@@ -7,9 +8,9 @@ const Footer = () => {
         <div className="grid md:grid-cols-4 gap-10 mb-12">
           {/* Brand */}
           <div className="md:col-span-1">
-            <h3 className="font-display text-2xl font-black naija-gradient-text mb-3">
+            <Link to="/" className="font-display text-2xl font-black naija-gradient-text mb-3 block">
               🇳🇬 NAIJA ORIGINALS
-            </h3>
+            </Link>
             <p className="font-body text-sm text-muted-foreground mb-4">
               Authenticated Culture. Wearable Pride.
             </p>
@@ -26,21 +27,29 @@ const Footer = () => {
           <div>
             <h4 className="font-body font-semibold text-foreground mb-4 text-sm uppercase tracking-wider">Shop</h4>
             <ul className="space-y-2.5 font-body text-sm text-muted-foreground">
-              {["Apparel", "Accessories", "Footwear", "Limited Drops", "Gift Cards"].map((item) => (
-                <li key={item}>
-                  <a href="#" className="hover:text-primary transition-colors">{item}</a>
+              {[
+                { label: "All Products", to: "/shop" },
+                { label: "Limited Drops", to: "/shop?category=limited" },
+                { label: "Verify Product", to: "/verify" },
+              ].map((item) => (
+                <li key={item.label}>
+                  <Link to={item.to} className="hover:text-primary transition-colors">{item.label}</Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Company */}
+          {/* Account */}
           <div>
-            <h4 className="font-body font-semibold text-foreground mb-4 text-sm uppercase tracking-wider">Company</h4>
+            <h4 className="font-body font-semibold text-foreground mb-4 text-sm uppercase tracking-wider">Account</h4>
             <ul className="space-y-2.5 font-body text-sm text-muted-foreground">
-              {["Our Story", "The Culture Blog", "Wholesale Partners", "Careers", "Press Kit"].map((item) => (
-                <li key={item}>
-                  <a href="#" className="hover:text-primary transition-colors">{item}</a>
+              {[
+                { label: "Sign In", to: "/auth" },
+                { label: "My Orders", to: "/orders" },
+                { label: "Cart", to: "/cart" },
+              ].map((item) => (
+                <li key={item.label}>
+                  <Link to={item.to} className="hover:text-primary transition-colors">{item.label}</Link>
                 </li>
               ))}
             </ul>

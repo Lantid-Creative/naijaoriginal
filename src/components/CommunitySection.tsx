@@ -1,8 +1,9 @@
+import { Link } from "react-router-dom";
 import communityImage from "@/assets/community.jpg";
 
 const CommunitySection = () => {
   return (
-    <section className="py-24 ankara-pattern-bg">
+    <section id="story" className="py-24 ankara-pattern-bg">
       <div className="container mx-auto px-6">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Text */}
@@ -31,12 +32,12 @@ const CommunitySection = () => {
               ))}
             </div>
 
-            <a
-              href="#"
+            <Link
+              to="/auth"
               className="inline-flex px-8 py-4 rounded-lg font-body font-semibold text-base bg-secondary text-secondary-foreground hover:brightness-110 transition-all duration-300"
             >
               Join the Community
-            </a>
+            </Link>
           </div>
 
           {/* Image */}
