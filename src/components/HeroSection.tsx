@@ -1,4 +1,5 @@
 import { QrCode, ShieldCheck, Users, Globe } from "lucide-react";
+import { Link } from "react-router-dom";
 import heroImage from "@/assets/hero-image.jpg";
 
 const HeroSection = () => {
@@ -37,19 +38,19 @@ const HeroSection = () => {
         </p>
 
         <div className="animate-slide-up-delay-3 flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <a
-            href="#shop"
+          <Link
+            to="/shop"
             className="px-8 py-4 rounded-lg font-body font-semibold text-base bg-primary text-primary-foreground hover:bg-naija-green-glow transition-all duration-300 hover:shadow-[var(--shadow-glow-green)]"
           >
             Shop the Culture
-          </a>
-          <a
-            href="#verify"
+          </Link>
+          <Link
+            to="/verify"
             className="px-8 py-4 rounded-lg font-body font-semibold text-base border border-secondary/40 text-secondary hover:border-secondary transition-all duration-300 flex items-center gap-2"
           >
             <QrCode className="w-5 h-5" />
             Scan & Verify
-          </a>
+          </Link>
         </div>
 
         {/* Stats */}
