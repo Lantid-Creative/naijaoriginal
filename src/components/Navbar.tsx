@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, QrCode, ShoppingCart, User, LogOut, Shield } from "lucide-react";
+import { Menu, X, ShoppingCart, User, LogOut, Shield } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 
@@ -16,35 +16,38 @@ const Navbar = () => {
   const { itemCount } = useCart();
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
       <div className="container mx-auto px-6 flex items-center justify-between h-16">
-        {/* Logo */}
-        <Link to="/" className="font-display text-xl font-black naija-gradient-text">
-          🇳🇬 NAIJA ORIGINALS
-        </Link>
-
-        {/* Desktop Links */}
+        {/* Left nav */}
         <div className="hidden md:flex items-center gap-6">
           {navLinks.map((link) => (
             <Link
               key={link.label}
               to={link.href}
-              className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="font-accent text-sm font-medium text-muted-foreground hover:text-foreground transition-colors uppercase tracking-wide"
             >
               {link.label}
             </Link>
           ))}
+        </div>
 
+        {/* Center Logo */}
+        <Link to="/" className="font-accent text-xl font-black text-foreground tracking-tight uppercase">
+          Naija Originals
+        </Link>
+
+        {/* Right nav */}
+        <div className="hidden md:flex items-center gap-5">
           {isAdmin && (
-            <Link to="/admin" className="font-body text-sm text-secondary hover:text-secondary/80 transition-colors flex items-center gap-1">
+            <Link to="/admin" className="font-accent text-sm font-medium text-primary hover:text-primary/80 transition-colors flex items-center gap-1 uppercase tracking-wide">
               <Shield className="w-3.5 h-3.5" /> Admin
             </Link>
           )}
 
-          <Link to="/cart" className="relative text-muted-foreground hover:text-foreground transition-colors">
+          <Link to="/cart" className="relative text-foreground hover:text-primary transition-colors">
             <ShoppingCart className="w-5 h-5" />
             {itemCount > 0 && (
-              <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-secondary text-secondary-foreground font-accent text-[10px] font-bold flex items-center justify-center">
+              <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-primary text-primary-foreground font-accent text-[10px] font-bold flex items-center justify-center">
                 {itemCount}
               </span>
             )}
@@ -52,7 +55,7 @@ const Navbar = () => {
 
           {user ? (
             <div className="flex items-center gap-3">
-              <Link to="/orders" className="text-muted-foreground hover:text-foreground transition-colors">
+              <Link to="/orders" className="text-foreground hover:text-primary transition-colors">
                 <User className="w-5 h-5" />
               </Link>
               <button onClick={signOut} className="text-muted-foreground hover:text-foreground transition-colors">
@@ -62,9 +65,9 @@ const Navbar = () => {
           ) : (
             <Link
               to="/auth"
-              className="px-5 py-2 rounded-lg font-body font-semibold text-sm bg-primary text-primary-foreground hover:bg-naija-green-glow transition-all duration-300"
+              className="px-5 py-2 rounded-full font-accent font-semibold text-sm bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-all duration-300 uppercase tracking-wide"
             >
-              Sign In
+              Sign In / Up
             </Link>
           )}
         </div>
@@ -74,7 +77,7 @@ const Navbar = () => {
           <Link to="/cart" className="relative text-foreground">
             <ShoppingCart className="w-5 h-5" />
             {itemCount > 0 && (
-              <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-secondary text-secondary-foreground font-accent text-[10px] font-bold flex items-center justify-center">
+              <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-primary text-primary-foreground font-accent text-[10px] font-bold flex items-center justify-center">
                 {itemCount}
               </span>
             )}
@@ -93,28 +96,28 @@ const Navbar = () => {
               key={link.label}
               to={link.href}
               onClick={() => setOpen(false)}
-              className="block font-body text-base text-muted-foreground hover:text-foreground transition-colors"
+              className="block font-accent text-base text-foreground hover:text-primary transition-colors uppercase tracking-wide"
             >
               {link.label}
             </Link>
           ))}
           {isAdmin && (
-            <Link to="/admin" onClick={() => setOpen(false)} className="block font-body text-base text-secondary">
+            <Link to="/admin" onClick={() => setOpen(false)} className="block font-accent text-base text-primary uppercase">
               Admin Dashboard
             </Link>
           )}
           {user ? (
             <>
-              <Link to="/orders" onClick={() => setOpen(false)} className="block font-body text-base text-muted-foreground hover:text-foreground">My Orders</Link>
-              <button onClick={() => { signOut(); setOpen(false); }} className="block font-body text-base text-muted-foreground hover:text-foreground">Sign Out</button>
+              <Link to="/orders" onClick={() => setOpen(false)} className="block font-accent text-base text-foreground">My Orders</Link>
+              <button onClick={() => { signOut(); setOpen(false); }} className="block font-accent text-base text-muted-foreground">Sign Out</button>
             </>
           ) : (
             <Link
               to="/auth"
               onClick={() => setOpen(false)}
-              className="inline-flex px-5 py-2.5 rounded-lg font-body font-semibold text-sm bg-primary text-primary-foreground items-center gap-2"
+              className="inline-flex px-5 py-2.5 rounded-full font-accent font-semibold text-sm bg-secondary text-secondary-foreground uppercase tracking-wide"
             >
-              Sign In
+              Sign In / Up
             </Link>
           )}
         </div>
