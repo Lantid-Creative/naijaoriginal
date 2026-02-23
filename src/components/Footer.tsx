@@ -1,13 +1,20 @@
 import { Link } from "react-router-dom";
 import { MapPin, Mail, Instagram, Twitter } from "lucide-react";
+import { motion } from "framer-motion";
 
 const Footer = () => {
   return (
-    <footer className="border-t border-border py-16 bg-card">
-      <div className="container mx-auto px-6">
-        <div className="grid md:grid-cols-4 gap-10 mb-12">
+    <motion.footer
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5 }}
+      className="border-t border-border py-12 md:py-16 bg-card"
+    >
+      <div className="container mx-auto px-4 md:px-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10 mb-10 md:mb-12">
           {/* Brand */}
-          <div className="md:col-span-1">
+          <div className="col-span-2 md:col-span-1">
             <Link to="/" className="font-accent text-xl font-black text-foreground mb-3 block uppercase tracking-tight">
               Naija Originals
             </Link>
@@ -25,8 +32,8 @@ const Footer = () => {
 
           {/* Shop */}
           <div>
-            <h4 className="font-accent font-bold text-foreground mb-4 text-sm uppercase tracking-wider">Shop</h4>
-            <ul className="space-y-2.5 font-body text-sm text-muted-foreground">
+            <h4 className="font-accent font-bold text-foreground mb-3 md:mb-4 text-sm uppercase tracking-wider">Shop</h4>
+            <ul className="space-y-2 font-body text-sm text-muted-foreground">
               {[
                 { label: "All Products", to: "/shop" },
                 { label: "Limited Drops", to: "/shop?category=limited" },
@@ -41,8 +48,8 @@ const Footer = () => {
 
           {/* Account */}
           <div>
-            <h4 className="font-accent font-bold text-foreground mb-4 text-sm uppercase tracking-wider">Account</h4>
-            <ul className="space-y-2.5 font-body text-sm text-muted-foreground">
+            <h4 className="font-accent font-bold text-foreground mb-3 md:mb-4 text-sm uppercase tracking-wider">Account</h4>
+            <ul className="space-y-2 font-body text-sm text-muted-foreground">
               {[
                 { label: "Sign In", to: "/auth" },
                 { label: "My Orders", to: "/orders" },
@@ -57,11 +64,11 @@ const Footer = () => {
 
           {/* Contact */}
           <div>
-            <h4 className="font-accent font-bold text-foreground mb-4 text-sm uppercase tracking-wider">Contact</h4>
-            <div className="space-y-3 font-body text-sm text-muted-foreground">
+            <h4 className="font-accent font-bold text-foreground mb-3 md:mb-4 text-sm uppercase tracking-wider">Contact</h4>
+            <div className="space-y-2.5 font-body text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-primary" />
-                info@naija-originals.com
+                <span className="break-all">info@naija-originals.com</span>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-primary" />
@@ -73,7 +80,7 @@ const Footer = () => {
 
         <div className="naija-section-divider mb-6" />
 
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-3">
           <p className="font-accent text-xs text-muted-foreground">
             © 2026 Naija Originals. All rights reserved.
           </p>
@@ -83,7 +90,7 @@ const Footer = () => {
           </div>
         </div>
       </div>
-    </footer>
+    </motion.footer>
   );
 };
 
