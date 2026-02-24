@@ -1,19 +1,23 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, ShoppingCart, User, LogOut, Shield } from "lucide-react";
+import { Menu, X, ShoppingCart, User, LogOut, Shield, Heart, Scale } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
+import { useCompare } from "@/contexts/CompareContext";
 
 const navLinks = [
   { label: "Shop", href: "/shop" },
   { label: "Verify", href: "/verify" },
-  { label: "Our Story", href: "/#story" },
+  { label: "Track Order", href: "/track" },
 ];
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const { user, isAdmin, signOut } = useAuth();
   const { itemCount } = useCart();
+  const { wishlistCount } = useWishlist();
+  const { compareCount } = useCompare();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
@@ -37,14 +41,35 @@ const Navbar = () => {
         </Link>
 
         {/* Right nav */}
-        <div className="hidden md:flex items-center gap-5">
+        <div className="hidden md:flex items-center gap-4">
           {isAdmin && (
             <Link to="/admin" className="font-accent text-sm font-medium text-primary hover:text-primary/80 transition-colors flex items-center gap-1 uppercase tracking-wide">
               <Shield className="w-3.5 h-3.5" /> Admin
             </Link>
           )}
 
-          <Link to="/cart" className="relative text-foreground hover:text-primary transition-colors">
+          {/* Compare */}
+          <Link to="/compare" className="relative text-foreground hover:text-primary transition-colors" title="Compare">
+            <Scale className="w-5 h-5" />
+            {compareCount > 0 && (
+              <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-secondary text-secondary-foreground font-accent text-[10px] font-bold flex items-center justify-center">
+                {compareCount}
+              </span>
+            )}
+          </Link>
+
+          {/* Wishlist */}
+          <Link to="/wishlist" className="relative text-foreground hover:text-primary transition-colors" title="Wishlist">
+            <Heart className="w-5 h-5" />
+            {wishlistCount > 0 && (
+              <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-destructive text-destructive-foreground font-accent text-[10px] font-bold flex items-center justify-center">
+                {wishlistCount}
+              </span>
+            )}
+          </Link>
+
+          {/* Cart */}
+          <Link to="/cart" className="relative text-foreground hover:text-primary transition-colors" title="Cart">
             <ShoppingCart className="w-5 h-5" />
             {itemCount > 0 && (
               <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-primary text-primary-foreground font-accent text-[10px] font-bold flex items-center justify-center">
@@ -55,10 +80,10 @@ const Navbar = () => {
 
           {user ? (
             <div className="flex items-center gap-3">
-              <Link to="/orders" className="text-foreground hover:text-primary transition-colors">
+              <Link to="/account" className="text-foreground hover:text-primary transition-colors" title="My Account">
                 <User className="w-5 h-5" />
               </Link>
-              <button onClick={signOut} className="text-muted-foreground hover:text-foreground transition-colors">
+              <button onClick={signOut} className="text-muted-foreground hover:text-foreground transition-colors" title="Sign Out">
                 <LogOut className="w-5 h-5" />
               </button>
             </div>
@@ -74,6 +99,14 @@ const Navbar = () => {
 
         {/* Mobile Toggle */}
         <div className="flex items-center gap-3 md:hidden">
+          <Link to="/wishlist" className="relative text-foreground">
+            <Heart className="w-5 h-5" />
+            {wishlistCount > 0 && (
+              <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-destructive text-destructive-foreground font-accent text-[10px] font-bold flex items-center justify-center">
+                {wishlistCount}
+              </span>
+            )}
+          </Link>
           <Link to="/cart" className="relative text-foreground">
             <ShoppingCart className="w-5 h-5" />
             {itemCount > 0 && (
@@ -101,6 +134,9 @@ const Navbar = () => {
               {link.label}
             </Link>
           ))}
+          <Link to="/compare" onClick={() => setOpen(false)} className="block font-accent text-base text-foreground hover:text-primary uppercase tracking-wide">
+            Compare {compareCount > 0 && `(${compareCount})`}
+          </Link>
           {isAdmin && (
             <Link to="/admin" onClick={() => setOpen(false)} className="block font-accent text-base text-primary uppercase">
               Admin Dashboard
@@ -108,6 +144,7 @@ const Navbar = () => {
           )}
           {user ? (
             <>
+              <Link to="/account" onClick={() => setOpen(false)} className="block font-accent text-base text-foreground">My Account</Link>
               <Link to="/orders" onClick={() => setOpen(false)} className="block font-accent text-base text-foreground">My Orders</Link>
               <button onClick={() => { signOut(); setOpen(false); }} className="block font-accent text-base text-muted-foreground">Sign Out</button>
             </>
