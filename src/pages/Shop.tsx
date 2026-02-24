@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { ShoppingBag, SlidersHorizontal, X, Search } from "lucide-react";
+import { ShoppingBag, SlidersHorizontal, X, Search, Heart, Scale } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useWishlist } from "@/contexts/WishlistContext";
+import { useCompare } from "@/contexts/CompareContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -37,6 +41,10 @@ const Shop = () => {
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("featured");
+  const { user } = useAuth();
+  const { toggleWishlist, isInWishlist } = useWishlist();
+  const { addToCompare, removeFromCompare, isInCompare } = useCompare();
+  const { toast } = useToast();
 
   useEffect(() => {
     const catParam = searchParams.get("category");
@@ -270,6 +278,37 @@ const Shop = () => {
                               SALE
                             </span>
                           )}
+                          {/* Quick actions */}
+                          <div className="absolute bottom-2 right-2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                if (!user) { toast({ title: "Sign in to use wishlist", variant: "destructive" }); return; }
+                                toggleWishlist(product.id);
+                              }}
+                              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                                isInWishlist(product.id) ? "bg-destructive text-destructive-foreground" : "bg-background/90 text-foreground hover:bg-destructive hover:text-destructive-foreground"
+                              }`}
+                            >
+                              <Heart className="w-3.5 h-3.5" fill={isInWishlist(product.id) ? "currentColor" : "none"} />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                if (isInCompare(product.id)) {
+                                  removeFromCompare(product.id);
+                                } else {
+                                  addToCompare(product.id);
+                                  toast({ title: "Added to compare" });
+                                }
+                              }}
+                              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                                isInCompare(product.id) ? "bg-primary text-primary-foreground" : "bg-background/90 text-foreground hover:bg-primary hover:text-primary-foreground"
+                              }`}
+                            >
+                              <Scale className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
                         <div className="p-3 md:p-4">
                           <h3 className="font-accent text-sm md:text-base font-bold text-foreground mb-0.5 group-hover:text-primary transition-colors line-clamp-1">

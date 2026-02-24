@@ -1,6 +1,12 @@
 import { Link } from "react-router-dom";
-import { MapPin, Mail, Instagram, Twitter } from "lucide-react";
+import { MapPin, Mail, Instagram } from "lucide-react";
 import { motion } from "framer-motion";
+
+const XIcon = () => (
+  <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+  </svg>
+);
 
 const Footer = () => {
   return (
@@ -22,11 +28,12 @@ const Footer = () => {
               Authenticated Culture. Wearable Pride.
             </p>
             <div className="flex gap-3">
-              {[Instagram, Twitter].map((Icon, i) => (
-                <a key={i} href="#" className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
-                  <Icon className="w-4 h-4" />
-                </a>
-              ))}
+              <a href="#" className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
+                <Instagram className="w-4 h-4" />
+              </a>
+              <a href="#" className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
+                <XIcon />
+              </a>
             </div>
           </div>
 
@@ -38,6 +45,7 @@ const Footer = () => {
                 { label: "All Products", to: "/shop" },
                 { label: "Limited Drops", to: "/shop?category=limited" },
                 { label: "Verify Product", to: "/verify" },
+                { label: "Compare", to: "/compare" },
               ].map((item) => (
                 <li key={item.label}>
                   <Link to={item.to} className="hover:text-primary transition-colors">{item.label}</Link>
@@ -51,8 +59,10 @@ const Footer = () => {
             <h4 className="font-accent font-bold text-foreground mb-3 md:mb-4 text-sm uppercase tracking-wider">Account</h4>
             <ul className="space-y-2 font-body text-sm text-muted-foreground">
               {[
-                { label: "Sign In", to: "/auth" },
+                { label: "My Account", to: "/account" },
                 { label: "My Orders", to: "/orders" },
+                { label: "Track Order", to: "/track" },
+                { label: "Wishlist", to: "/wishlist" },
                 { label: "Cart", to: "/cart" },
               ].map((item) => (
                 <li key={item.label}>
@@ -68,7 +78,7 @@ const Footer = () => {
             <div className="space-y-2.5 font-body text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-primary" />
-                <span className="break-all">info@naija-originals.com</span>
+                <a href="mailto:howfar@naijaoriginal.com" className="hover:text-primary transition-colors break-all">howfar@naijaoriginal.com</a>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-primary" />

@@ -3,9 +3,12 @@ import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
-import { ShieldCheck, Minus, Plus, ShoppingCart, ArrowLeft, Sparkles } from "lucide-react";
+import { ShieldCheck, Minus, Plus, ShoppingCart, ArrowLeft, Sparkles, Heart, Scale } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
+import { useWishlist } from "@/contexts/WishlistContext";
+import { useCompare } from "@/contexts/CompareContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -38,6 +41,9 @@ const ProductDetail = () => {
   const [adding, setAdding] = useState(false);
   const { addToCart } = useCart();
   const { toast } = useToast();
+  const { user } = useAuth();
+  const { toggleWishlist, isInWishlist } = useWishlist();
+  const { addToCompare, removeFromCompare, isInCompare } = useCompare();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -247,15 +253,43 @@ const ProductDetail = () => {
                 </div>
               </div>
 
-              <Button
-                onClick={handleAddToCart}
-                disabled={adding || product.stock === 0}
-                className="w-full py-6 text-base font-accent font-semibold gap-2 rounded-xl"
-                size="lg"
-              >
-                <ShoppingCart className="w-5 h-5" />
-                {product.stock === 0 ? "Out of Stock" : adding ? "Adding..." : "Add to Cart"}
-              </Button>
+              <div className="flex gap-3">
+                <Button
+                  onClick={handleAddToCart}
+                  disabled={adding || product.stock === 0}
+                  className="flex-1 py-6 text-base font-accent font-semibold gap-2 rounded-xl"
+                  size="lg"
+                >
+                  <ShoppingCart className="w-5 h-5" />
+                  {product.stock === 0 ? "Out of Stock" : adding ? "Adding..." : "Add to Cart"}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="py-6 rounded-xl"
+                  onClick={() => {
+                    if (!user) { toast({ title: "Sign in to use wishlist", variant: "destructive" }); return; }
+                    toggleWishlist(product.id);
+                  }}
+                >
+                  <Heart className="w-5 h-5" fill={isInWishlist(product.id) ? "currentColor" : "none"} />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="py-6 rounded-xl"
+                  onClick={() => {
+                    if (isInCompare(product.id)) {
+                      removeFromCompare(product.id);
+                    } else {
+                      addToCompare(product.id);
+                      toast({ title: "Added to compare" });
+                    }
+                  }}
+                >
+                  <Scale className="w-5 h-5" />
+                </Button>
+              </div>
 
               <div className="mt-5 md:mt-6 flex items-center gap-2 text-muted-foreground font-body text-sm">
                 <ShieldCheck className="w-5 h-5 text-primary" />
