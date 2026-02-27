@@ -37,7 +37,7 @@ const Navbar = () => {
 
         {/* Center Logo */}
         <Link to="/" className="font-accent text-xl font-black text-foreground tracking-tight uppercase">
-          Naija Originals
+          Naija Original
         </Link>
 
         {/* Right nav */}

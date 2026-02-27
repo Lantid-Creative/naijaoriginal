@@ -54,7 +54,7 @@ const Orders = () => {
         <div className="container mx-auto px-6">
           <div className="py-12">
             <h1 className="font-display text-3xl font-black text-foreground mb-2">My Orders 📦</h1>
-            <p className="font-body text-muted-foreground">Track your Naija Originals orders</p>
+            <p className="font-body text-muted-foreground">Track your Naija Original orders</p>
           </div>
 
           {loading ? (

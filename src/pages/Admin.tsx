@@ -134,7 +134,7 @@ const Admin = () => {
         <div className="container mx-auto px-6">
           <div className="py-8">
             <h1 className="font-display text-3xl font-black text-foreground mb-2">Admin Dashboard 🔐</h1>
-            <p className="font-body text-muted-foreground">Manage your Naija Originals store</p>
+            <p className="font-body text-muted-foreground">Manage your Naija Original store</p>
           </div>
 
           {/* Stats */}
