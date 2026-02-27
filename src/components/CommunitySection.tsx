@@ -62,7 +62,7 @@ const CommunitySection = () => {
             <div className="relative min-h-[280px] md:min-h-[400px]">
               <img
                 src={communityImage}
-                alt="Naija Originals community wearing cultural fashion"
+                alt="Naija Original community wearing cultural fashion"
                 className="absolute inset-0 w-full h-full object-cover"
                 loading="lazy"
               />

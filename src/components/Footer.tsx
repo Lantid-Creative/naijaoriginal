@@ -22,7 +22,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="font-accent text-xl font-black text-foreground mb-3 block uppercase tracking-tight">
-              Naija Originals
+              Naija Original
             </Link>
             <p className="font-body text-sm text-muted-foreground mb-4">
               Authenticated Culture. Wearable Pride.
@@ -92,7 +92,7 @@ const Footer = () => {
 
         <div className="flex flex-col md:flex-row justify-between items-center gap-3">
           <p className="font-accent text-xs text-muted-foreground">
-            © 2026 Naija Originals. All rights reserved.
+            © 2026 Naija Original. All rights reserved.
           </p>
           <div className="flex gap-6 font-accent text-xs text-muted-foreground">
             <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>

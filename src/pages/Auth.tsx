@@ -50,7 +50,7 @@ const Auth = () => {
               {isLogin ? "Welcome Back" : "Join the Family"} 🇳🇬
             </h1>
             <p className="font-body text-muted-foreground">
-              {isLogin ? "Enter your details make we carry go!" : "Create account, join the Naija Originals movement!"}
+              {isLogin ? "Enter your details make we carry go!" : "Create account, join the Naija Original movement!"}
             </p>
           </div>
 
