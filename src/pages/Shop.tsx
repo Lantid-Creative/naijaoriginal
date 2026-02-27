@@ -7,6 +7,7 @@ import { useWishlist } from "@/contexts/WishlistContext";
 import { useCompare } from "@/contexts/CompareContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { formatNaira } from "@/lib/format";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -81,7 +82,6 @@ const Shop = () => {
     }
   };
 
-  // Filter & sort
   let filtered = selectedCategory
     ? products.filter((p) => p.category_id === selectedCategory)
     : products;
@@ -99,8 +99,8 @@ const Shop = () => {
     switch (sortBy) {
       case "price-low": return a.price - b.price;
       case "price-high": return b.price - a.price;
-      case "newest": return 0; // already sorted by created_at desc
-      default: return 0; // featured already sorted
+      case "newest": return 0;
+      default: return 0;
     }
   });
 
@@ -130,18 +130,17 @@ const Shop = () => {
               {selectedCatName || "All Products"}
             </h1>
             <p className="font-body text-muted-foreground max-w-lg text-sm md:text-base">
-              Every product na a piece of Nigeria. Real talk, real culture, real QR-verified drip.
+              Every product na a piece of Nigeria. Real talk, real culture, real QR-verified drip. 🇳🇬
             </p>
           </motion.div>
 
           {/* Search + Sort + Filter Bar */}
           <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 mb-6">
-            {/* Search */}
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Search products..."
+                placeholder="Search products... wetin you dey find?"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-card border border-border font-body text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
@@ -153,7 +152,6 @@ const Shop = () => {
               )}
             </div>
 
-            {/* Sort */}
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortOption)}
@@ -165,7 +163,6 @@ const Shop = () => {
               <option value="newest">Newest</option>
             </select>
 
-            {/* Mobile filter toggle */}
             <button
               onClick={() => setShowMobileFilters(!showMobileFilters)}
               className="md:hidden flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-card border border-border text-foreground font-body text-sm"
@@ -175,7 +172,7 @@ const Shop = () => {
           </div>
 
           <div className="flex gap-8">
-            {/* Desktop sidebar filters */}
+            {/* Desktop sidebar */}
             <div className="hidden md:block w-52 flex-shrink-0">
               <div className="sticky top-24 space-y-1">
                 <p className="font-accent text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">Categories</p>
@@ -241,8 +238,8 @@ const Shop = () => {
               ) : filtered.length === 0 ? (
                 <div className="text-center py-20">
                   <ShoppingBag className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="font-accent text-xl font-bold text-foreground mb-2">No products found</h3>
-                  <p className="font-body text-muted-foreground text-sm">Try another category or search term!</p>
+                  <h3 className="font-accent text-xl font-bold text-foreground mb-2">No products dey here o!</h3>
+                  <p className="font-body text-muted-foreground text-sm">Try another category or search term abeg!</p>
                 </div>
               ) : (
                 <motion.div
@@ -278,12 +275,11 @@ const Shop = () => {
                               SALE
                             </span>
                           )}
-                          {/* Quick actions */}
                           <div className="absolute bottom-2 right-2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                             <button
                               onClick={(e) => {
                                 e.preventDefault();
-                                if (!user) { toast({ title: "Sign in to use wishlist", variant: "destructive" }); return; }
+                                if (!user) { toast({ title: "Sign in first make you save items", variant: "destructive" }); return; }
                                 toggleWishlist(product.id);
                               }}
                               className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
@@ -299,7 +295,7 @@ const Shop = () => {
                                   removeFromCompare(product.id);
                                 } else {
                                   addToCompare(product.id);
-                                  toast({ title: "Added to compare" });
+                                  toast({ title: "E don enter compare list!" });
                                 }
                               }}
                               className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
@@ -320,10 +316,10 @@ const Shop = () => {
                             </p>
                           )}
                           <div className="flex items-center gap-2">
-                            <span className="font-accent font-bold text-sm md:text-base text-foreground">${product.price.toFixed(2)}</span>
+                            <span className="font-accent font-bold text-sm md:text-base text-foreground">{formatNaira(product.price)}</span>
                             {product.compare_at_price && (
                               <span className="font-body text-xs text-muted-foreground line-through">
-                                ${product.compare_at_price.toFixed(2)}
+                                {formatNaira(product.compare_at_price)}
                               </span>
                             )}
                           </div>

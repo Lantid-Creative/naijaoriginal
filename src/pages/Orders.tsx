@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { formatNaira } from "@/lib/format";
 import { Package, ArrowRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -39,7 +40,7 @@ const Orders = () => {
       <div className="min-h-screen bg-background">
         <Navbar />
         <div className="pt-24 container mx-auto px-6 text-center py-20">
-          <h1 className="font-display text-3xl font-black text-foreground mb-4">Sign in to view orders</h1>
+          <h1 className="font-display text-3xl font-black text-foreground mb-4">Sign in to see your orders</h1>
           <Link to="/auth" className="text-primary hover:underline font-body">Sign In →</Link>
         </div>
         <Footer />
@@ -54,7 +55,7 @@ const Orders = () => {
         <div className="container mx-auto px-6">
           <div className="py-12">
             <h1 className="font-display text-3xl font-black text-foreground mb-2">My Orders 📦</h1>
-            <p className="font-body text-muted-foreground">Track your Naija Original orders</p>
+            <p className="font-body text-muted-foreground">Track your Naija Original orders dem</p>
           </div>
 
           {loading ? (
@@ -69,8 +70,8 @@ const Orders = () => {
           ) : orders.length === 0 ? (
             <div className="text-center py-20">
               <Package className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="font-display text-xl font-bold text-foreground mb-2">No orders yet</h3>
-              <p className="font-body text-muted-foreground mb-6">Time to cop some Naija drip!</p>
+              <h3 className="font-display text-xl font-bold text-foreground mb-2">No orders yet o!</h3>
+              <p className="font-body text-muted-foreground mb-6">Time to cop some Naija drip! 🔥</p>
               <Link to="/shop" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground font-body font-semibold hover:bg-primary/90 transition-colors">
                 Shop Now <ArrowRight className="w-4 h-4" />
               </Link>
@@ -90,7 +91,7 @@ const Orders = () => {
                       <span className={`px-3 py-1 rounded-full font-accent text-xs font-semibold capitalize ${statusColors[order.status] || "bg-muted text-muted-foreground"}`}>
                         {order.status}
                       </span>
-                      <span className="font-body font-bold text-foreground">${Number(order.total).toFixed(2)}</span>
+                      <span className="font-body font-bold text-foreground">{formatNaira(Number(order.total))}</span>
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -100,7 +101,7 @@ const Orders = () => {
                           {item.products?.name || item.product_name} × {item.quantity}
                           {item.selected_size && ` (${item.selected_size})`}
                         </span>
-                        <span className="text-foreground">${(Number(item.price) * item.quantity).toFixed(2)}</span>
+                        <span className="text-foreground">{formatNaira(Number(item.price) * item.quantity)}</span>
                       </div>
                     ))}
                   </div>

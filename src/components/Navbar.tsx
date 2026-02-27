@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, ShoppingCart, User, LogOut, Shield, Heart, Scale } from "lucide-react";
+import { Menu, X, ShoppingCart, User, LogOut, Shield, Heart, Scale, Calculator } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
@@ -10,6 +10,7 @@ const navLinks = [
   { label: "Shop", href: "/shop" },
   { label: "Verify", href: "/verify" },
   { label: "Track Order", href: "/track" },
+  { label: "Custom Orders", href: "/estimate" },
 ];
 
 const Navbar = () => {
@@ -48,7 +49,6 @@ const Navbar = () => {
             </Link>
           )}
 
-          {/* Compare */}
           <Link to="/compare" className="relative text-foreground hover:text-primary transition-colors" title="Compare">
             <Scale className="w-5 h-5" />
             {compareCount > 0 && (
@@ -58,7 +58,6 @@ const Navbar = () => {
             )}
           </Link>
 
-          {/* Wishlist */}
           <Link to="/wishlist" className="relative text-foreground hover:text-primary transition-colors" title="Wishlist">
             <Heart className="w-5 h-5" />
             {wishlistCount > 0 && (
@@ -68,7 +67,6 @@ const Navbar = () => {
             )}
           </Link>
 
-          {/* Cart */}
           <Link to="/cart" className="relative text-foreground hover:text-primary transition-colors" title="Cart">
             <ShoppingCart className="w-5 h-5" />
             {itemCount > 0 && (

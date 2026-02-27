@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Lock } from "lucide-react";
+import { formatNaira } from "@/lib/format";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -27,7 +28,7 @@ const Checkout = () => {
     zip: "",
   });
 
-  const shipping = total > 100 ? 0 : 10;
+  const shipping = total > 50000 ? 0 : 3500;
   const orderTotal = total + shipping;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,7 +41,6 @@ const Checkout = () => {
     setLoading(true);
 
     try {
-      // Create order
       const orderPayload: any = {
         subtotal: total,
         shipping_cost: shipping,
@@ -70,7 +70,6 @@ const Checkout = () => {
 
       if (orderError) throw orderError;
 
-      // Create order items
       const orderItems = items.map((item) => ({
         order_id: order.id,
         product_id: item.product_id,
@@ -84,19 +83,17 @@ const Checkout = () => {
       const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
       if (itemsError) throw itemsError;
 
-      // Initialize Paystack payment
       const { data: paymentData, error: paymentError } = await supabase.functions.invoke("initialize-payment", {
         body: {
           email: user?.email || form.email,
-          amount: Math.round(orderTotal * 100), // Convert to kobo
+          amount: Math.round(orderTotal * 100),
           order_id: order.id,
           order_number: order.order_number,
         },
       });
 
       if (paymentError || !paymentData?.authorization_url) {
-        // If Paystack isn't set up yet, just mark as pending
-        toast({ title: "Order placed! 🎉", description: `Order ${order.order_number} created. Payment processing coming soon!` });
+        toast({ title: "Order don place! 🎉", description: `Order ${order.order_number} don create. Payment processing dey come soon!` });
         await clearCart();
         navigate(`/order-confirmation/${order.order_number}`);
         return;
@@ -116,7 +113,7 @@ const Checkout = () => {
       <div className="min-h-screen bg-background">
         <Navbar />
         <div className="pt-24 container mx-auto px-6 text-center py-20">
-          <h1 className="font-display text-3xl font-black text-foreground mb-4">No items to checkout</h1>
+          <h1 className="font-display text-3xl font-black text-foreground mb-4">Nothing dey here to checkout</h1>
           <Link to="/shop" className="text-primary hover:underline font-body">← Back to Shop</Link>
         </div>
         <Footer />
@@ -136,14 +133,13 @@ const Checkout = () => {
           <h1 className="font-display text-3xl font-black text-foreground mb-8">Checkout 🛍️</h1>
 
           <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-8">
-            {/* Shipping Info */}
             <div className="lg:col-span-2 space-y-6">
               {!user && (
                 <div className="naija-card p-6">
                   <p className="font-body text-sm text-muted-foreground mb-3">
-                    Got an account?{" "}
+                    You get account?{" "}
                     <Link to="/auth" className="text-primary hover:underline font-semibold">Sign in</Link>
-                    {" "}for faster checkout!
+                    {" "}make checkout fast!
                   </p>
                 </div>
               )}
@@ -161,7 +157,7 @@ const Checkout = () => {
                   </div>
                   <div>
                     <label className="font-body text-sm text-foreground block mb-1.5">Phone *</label>
-                    <Input name="phone" value={form.phone} onChange={handleChange} required className="bg-background border-border" />
+                    <Input name="phone" value={form.phone} onChange={handleChange} required placeholder="+234..." className="bg-background border-border" />
                   </div>
                   <div>
                     <label className="font-body text-sm text-foreground block mb-1.5">Country</label>
@@ -183,7 +179,6 @@ const Checkout = () => {
               </div>
             </div>
 
-            {/* Order Summary */}
             <div className="lg:col-span-1">
               <div className="naija-card p-6 sticky top-24">
                 <h3 className="font-display text-lg font-bold text-foreground mb-4">Order Summary</h3>
@@ -193,7 +188,7 @@ const Checkout = () => {
                       <span className="text-muted-foreground truncate mr-2">
                         {item.product?.name} × {item.quantity}
                       </span>
-                      <span className="text-foreground flex-shrink-0">${((item.product?.price || 0) * item.quantity).toFixed(2)}</span>
+                      <span className="text-foreground flex-shrink-0">{formatNaira((item.product?.price || 0) * item.quantity)}</span>
                     </div>
                   ))}
                 </div>
@@ -201,25 +196,25 @@ const Checkout = () => {
                 <div className="space-y-2 mb-4">
                   <div className="flex justify-between font-body text-sm">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span className="text-foreground">${total.toFixed(2)}</span>
+                    <span className="text-foreground">{formatNaira(total)}</span>
                   </div>
                   <div className="flex justify-between font-body text-sm">
                     <span className="text-muted-foreground">Shipping</span>
-                    <span className="text-foreground">{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span>
+                    <span className="text-foreground">{shipping === 0 ? "Free 🎉" : formatNaira(shipping)}</span>
                   </div>
                   <div className="naija-section-divider" />
                   <div className="flex justify-between font-body font-bold text-lg">
                     <span className="text-foreground">Total</span>
-                    <span className="text-foreground">${orderTotal.toFixed(2)}</span>
+                    <span className="text-foreground">{formatNaira(orderTotal)}</span>
                   </div>
                 </div>
                 <Button type="submit" className="w-full font-body font-semibold gap-2" size="lg" disabled={loading}>
                   <Lock className="w-4 h-4" />
-                  {loading ? "Processing..." : "Place Order & Pay"}
+                  {loading ? "Dey process..." : "Place Order & Pay"}
                 </Button>
-                {total < 100 && (
+                {total < 50000 && (
                   <p className="font-accent text-xs text-muted-foreground text-center mt-3">
-                    Free shipping on orders over $100!
+                    Free shipping for orders above {formatNaira(50000)}! 🚚
                   </p>
                 )}
               </div>

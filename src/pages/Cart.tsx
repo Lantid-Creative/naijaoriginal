@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { formatNaira } from "@/lib/format";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -16,7 +17,7 @@ const Cart = () => {
           <div className="py-12">
             <h1 className="font-display text-3xl md:text-4xl font-black text-foreground mb-2">Your Cart 🛒</h1>
             <p className="font-body text-muted-foreground">
-              {itemCount === 0 ? "Your cart dey empty o!" : `${itemCount} item${itemCount > 1 ? "s" : ""} for your cart`}
+              {itemCount === 0 ? "Your cart dey empty o!" : `${itemCount} item${itemCount > 1 ? "s" : ""} dey your cart`}
             </p>
           </div>
 
@@ -36,7 +37,7 @@ const Cart = () => {
             <div className="text-center py-20">
               <ShoppingBag className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="font-display text-xl font-bold text-foreground mb-2">Cart dey empty!</h3>
-              <p className="font-body text-muted-foreground mb-6">Go shop make you add some Naija drip</p>
+              <p className="font-body text-muted-foreground mb-6">Go shop make you add some Naija drip 🇳🇬</p>
               <Link to="/shop">
                 <Button className="font-body font-semibold gap-2">
                   Shop Now <ArrowRight className="w-4 h-4" />
@@ -45,7 +46,6 @@ const Cart = () => {
             </div>
           ) : (
             <div className="grid lg:grid-cols-3 gap-8">
-              {/* Cart Items */}
               <div className="lg:col-span-2 space-y-4">
                 {items.map((item) => (
                   <div key={item.id} className="naija-card p-4 flex gap-4">
@@ -75,7 +75,7 @@ const Cart = () => {
                           </button>
                         </div>
                         <div className="flex items-center gap-4">
-                          <span className="font-body font-bold text-foreground">${((item.product?.price || 0) * item.quantity).toFixed(2)}</span>
+                          <span className="font-body font-bold text-foreground">{formatNaira((item.product?.price || 0) * item.quantity)}</span>
                           <button onClick={() => removeFromCart(item.id)} className="text-muted-foreground hover:text-destructive transition-colors">
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -86,23 +86,22 @@ const Cart = () => {
                 ))}
               </div>
 
-              {/* Order Summary */}
               <div className="lg:col-span-1">
                 <div className="naija-card p-6 sticky top-24">
                   <h3 className="font-display text-lg font-bold text-foreground mb-4">Order Summary</h3>
                   <div className="space-y-3 mb-6">
                     <div className="flex justify-between font-body text-sm">
                       <span className="text-muted-foreground">Subtotal</span>
-                      <span className="text-foreground">${total.toFixed(2)}</span>
+                      <span className="text-foreground">{formatNaira(total)}</span>
                     </div>
                     <div className="flex justify-between font-body text-sm">
                       <span className="text-muted-foreground">Shipping</span>
-                      <span className="text-foreground">Calculated at checkout</span>
+                      <span className="text-foreground">We go calculate am for checkout</span>
                     </div>
                     <div className="naija-section-divider" />
                     <div className="flex justify-between font-body font-bold">
                       <span className="text-foreground">Total</span>
-                      <span className="text-foreground">${total.toFixed(2)}</span>
+                      <span className="text-foreground">{formatNaira(total)}</span>
                     </div>
                   </div>
                   <Link to="/checkout">

@@ -15,14 +15,14 @@ const OrderConfirmation = () => {
           <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-10 h-10 text-primary" />
           </div>
-          <h1 className="font-display text-3xl font-black text-foreground mb-2">Order Confirmed! 🎉</h1>
+          <h1 className="font-display text-3xl font-black text-foreground mb-2">Order Don Confirm! 🎉</h1>
           <p className="font-body text-muted-foreground mb-2">E don happen! Your Naija drip dey on the way.</p>
           <p className="font-body text-sm text-muted-foreground mb-8">
             Order number: <span className="font-semibold text-foreground">{orderNumber}</span>
           </p>
 
           <div className="naija-card p-6 text-left mb-8">
-            <h3 className="font-display text-base font-bold text-foreground mb-3">What happens next?</h3>
+            <h3 className="font-display text-base font-bold text-foreground mb-3">Wetin go happen next?</h3>
             <ul className="space-y-2 font-body text-sm text-muted-foreground">
               <li>✅ We go verify your payment</li>
               <li>📦 We go prepare your order with care</li>

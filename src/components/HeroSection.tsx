@@ -29,7 +29,7 @@ const HeroSection = () => {
                 custom={0}
                 className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary font-accent text-xs font-semibold tracking-widest uppercase mb-4 md:mb-6 w-fit"
               >
-                Authenticated Culture
+                Authenticated Culture 🇳🇬
               </motion.span>
 
               <motion.h1
@@ -43,7 +43,7 @@ const HeroSection = () => {
                 <br />
                 <span className="text-primary">NAIJA</span>
                 <br />
-                ORIGINALS
+                ORIGINAL
               </motion.h1>
 
               <motion.p
@@ -53,7 +53,7 @@ const HeroSection = () => {
                 custom={2}
                 className="font-body text-base md:text-lg text-muted-foreground max-w-md mb-6 md:mb-10"
               >
-                Wearable culture. QR-verified authenticity. Every piece tells a Nigerian story you can prove.
+                Wearable culture wey you fit prove. QR-verified authenticity. Every piece tell Nigerian story wey nobody fit deny. 🔥
               </motion.p>
 
               <motion.div
@@ -73,7 +73,7 @@ const HeroSection = () => {
                   to="/verify"
                   className="px-8 py-3.5 md:py-4 rounded-full font-accent font-semibold text-sm border-2 border-foreground text-foreground hover:bg-foreground hover:text-background transition-all duration-300 uppercase tracking-wide text-center"
                 >
-                  Explore All
+                  Verify Product
                 </Link>
               </motion.div>
 
@@ -93,7 +93,7 @@ const HeroSection = () => {
                 </div>
                 <div>
                   <p className="font-accent text-sm font-semibold text-foreground">15M+ Diaspora</p>
-                  <p className="font-body text-xs text-muted-foreground">Rocking verified culture worldwide</p>
+                  <p className="font-body text-xs text-muted-foreground">Dey rock verified culture worldwide</p>
                 </div>
               </motion.div>
             </div>

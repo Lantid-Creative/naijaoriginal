@@ -2,8 +2,8 @@ import { Link } from "react-router-dom";
 import { MapPin, Mail, Instagram } from "lucide-react";
 import { motion } from "framer-motion";
 
-const XIcon = () => (
-  <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
+const XIcon = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" className={className || "w-4 h-4"} fill="currentColor">
     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
   </svg>
 );
@@ -25,14 +25,14 @@ const Footer = () => {
               Naija Original
             </Link>
             <p className="font-body text-sm text-muted-foreground mb-4">
-              Authenticated Culture. Wearable Pride.
+              Authenticated Culture. Wearable Pride. 🇳🇬
             </p>
             <div className="flex gap-3">
               <a href="#" className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
                 <Instagram className="w-4 h-4" />
               </a>
               <a href="#" className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
-                <XIcon />
+                <XIcon className="w-4 h-4" />
               </a>
             </div>
           </div>
@@ -46,6 +46,7 @@ const Footer = () => {
                 { label: "Limited Drops", to: "/shop?category=limited" },
                 { label: "Verify Product", to: "/verify" },
                 { label: "Compare", to: "/compare" },
+                { label: "Custom Orders", to: "/estimate" },
               ].map((item) => (
                 <li key={item.label}>
                   <Link to={item.to} className="hover:text-primary transition-colors">{item.label}</Link>
@@ -95,8 +96,8 @@ const Footer = () => {
             © 2026 Naija Original. All rights reserved.
           </p>
           <div className="flex gap-6 font-accent text-xs text-muted-foreground">
-            <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-primary transition-colors">Terms of Service</a>
+            <Link to="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
+            <Link to="/terms" className="hover:text-primary transition-colors">Terms of Service</Link>
           </div>
         </div>
       </div>

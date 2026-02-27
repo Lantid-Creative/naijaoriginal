@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useCompare } from "@/contexts/CompareContext";
+import { formatNaira } from "@/lib/format";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -66,7 +67,7 @@ const ProductDetail = () => {
     if (!product) return;
     setAdding(true);
     await addToCart(product.id, selectedSize, selectedColor, quantity);
-    toast({ title: "Added to cart! 🛒", description: `${product.name} don enter your cart.` });
+    toast({ title: "E don enter cart! 🛒", description: `${product.name} don enter your cart.` });
     setAdding(false);
   };
 
@@ -93,7 +94,7 @@ const ProductDetail = () => {
       <div className="min-h-screen bg-background">
         <Navbar />
         <div className="pt-24 container mx-auto px-4 md:px-6 text-center py-20">
-          <h1 className="font-accent text-3xl font-black text-foreground mb-4">Product Not Found</h1>
+          <h1 className="font-accent text-3xl font-black text-foreground mb-4">Product No Dey Here</h1>
           <Link to="/shop" className="text-primary hover:underline font-body">← Back to Shop</Link>
         </div>
         <Footer />
@@ -164,7 +165,7 @@ const ProductDetail = () => {
             >
               {product.is_limited_edition && (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary font-accent text-xs font-bold uppercase tracking-wider mb-4">
-                  <Sparkles className="w-3 h-3" /> Limited Edition — {product.edition_total} pieces
+                  <Sparkles className="w-3 h-3" /> Limited Edition — {product.edition_total} pieces only
                 </span>
               )}
 
@@ -175,9 +176,9 @@ const ProductDetail = () => {
               )}
 
               <div className="flex items-center gap-3 mb-6">
-                <span className="font-accent text-2xl md:text-3xl font-bold text-foreground">${product.price.toFixed(2)}</span>
+                <span className="font-accent text-2xl md:text-3xl font-bold text-foreground">{formatNaira(product.price)}</span>
                 {product.compare_at_price && (
-                  <span className="font-body text-base md:text-lg text-muted-foreground line-through">${product.compare_at_price.toFixed(2)}</span>
+                  <span className="font-body text-base md:text-lg text-muted-foreground line-through">{formatNaira(product.compare_at_price)}</span>
                 )}
                 {product.compare_at_price && (
                   <span className="px-2 py-0.5 rounded-lg bg-destructive/10 text-destructive font-accent text-xs font-bold">
@@ -249,7 +250,7 @@ const ProductDetail = () => {
                   >
                     <Plus className="w-4 h-4" />
                   </button>
-                  <span className="font-accent text-xs text-muted-foreground">{product.stock} in stock</span>
+                  <span className="font-accent text-xs text-muted-foreground">{product.stock} dey stock</span>
                 </div>
               </div>
 
@@ -261,14 +262,14 @@ const ProductDetail = () => {
                   size="lg"
                 >
                   <ShoppingCart className="w-5 h-5" />
-                  {product.stock === 0 ? "Out of Stock" : adding ? "Adding..." : "Add to Cart"}
+                  {product.stock === 0 ? "E Don Finish" : adding ? "Dey Add..." : "Add to Cart"}
                 </Button>
                 <Button
                   variant="outline"
                   size="lg"
                   className="py-6 rounded-xl"
                   onClick={() => {
-                    if (!user) { toast({ title: "Sign in to use wishlist", variant: "destructive" }); return; }
+                    if (!user) { toast({ title: "Sign in first make you save items", variant: "destructive" }); return; }
                     toggleWishlist(product.id);
                   }}
                 >
@@ -283,7 +284,7 @@ const ProductDetail = () => {
                       removeFromCompare(product.id);
                     } else {
                       addToCompare(product.id);
-                      toast({ title: "Added to compare" });
+                      toast({ title: "E don enter compare list!" });
                     }
                   }}
                 >
@@ -293,7 +294,7 @@ const ProductDetail = () => {
 
               <div className="mt-5 md:mt-6 flex items-center gap-2 text-muted-foreground font-body text-sm">
                 <ShieldCheck className="w-5 h-5 text-primary" />
-                QR Authenticated — Every piece is verified original
+                QR Authenticated — Every piece na verified original 🔐
               </div>
             </motion.div>
           </div>
