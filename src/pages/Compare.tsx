@@ -6,6 +6,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import { X, ShoppingCart, ArrowRight, Scale } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { formatNaira } from "@/lib/format";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -59,11 +60,11 @@ const Compare = () => {
         <Navbar />
         <div className="pt-24 container mx-auto px-6 text-center py-20">
           <Scale className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-          <h1 className="font-accent text-3xl font-black text-foreground mb-4">No products to compare</h1>
-          <p className="font-body text-muted-foreground mb-6">Add products from the shop to compare them side by side.</p>
+          <h1 className="font-accent text-3xl font-black text-foreground mb-4">Nothing dey here to compare</h1>
+          <p className="font-body text-muted-foreground mb-6">Add products from the shop make you compare dem side by side.</p>
           <Link to="/shop">
             <Button className="font-body font-semibold gap-2">
-              Browse Shop <ArrowRight className="w-4 h-4" />
+              Go Shop <ArrowRight className="w-4 h-4" />
             </Button>
           </Link>
         </div>
@@ -113,8 +114,8 @@ const Compare = () => {
                     <td className="font-accent text-xs uppercase tracking-wider text-muted-foreground p-3">Price</td>
                     {products.map((p) => (
                       <td key={p.id} className="p-3 text-center">
-                        <span className="font-accent font-bold text-foreground">${p.price.toFixed(2)}</span>
-                        {p.compare_at_price && <span className="block font-body text-xs text-muted-foreground line-through">${p.compare_at_price.toFixed(2)}</span>}
+                        <span className="font-accent font-bold text-foreground">{formatNaira(p.price)}</span>
+                        {p.compare_at_price && <span className="block font-body text-xs text-muted-foreground line-through">{formatNaira(p.compare_at_price)}</span>}
                       </td>
                     ))}
                   </tr>
@@ -146,7 +147,7 @@ const Compare = () => {
                     <td className="font-accent text-xs uppercase tracking-wider text-muted-foreground p-3">Stock</td>
                     {products.map((p) => (
                       <td key={p.id} className="p-3 text-center font-body text-sm">
-                        <span className={p.stock > 0 ? "text-primary" : "text-destructive"}>{p.stock > 0 ? `${p.stock} available` : "Out of stock"}</span>
+                        <span className={p.stock > 0 ? "text-primary" : "text-destructive"}>{p.stock > 0 ? `${p.stock} dey` : "E don finish"}</span>
                       </td>
                     ))}
                   </tr>
@@ -154,7 +155,7 @@ const Compare = () => {
                     <td className="font-accent text-xs uppercase tracking-wider text-muted-foreground p-3">Edition</td>
                     {products.map((p) => (
                       <td key={p.id} className="p-3 text-center font-body text-sm text-foreground">
-                        {p.is_limited_edition ? "Limited Edition" : "Standard"}
+                        {p.is_limited_edition ? "Limited Edition 🔥" : "Standard"}
                       </td>
                     ))}
                   </tr>
@@ -166,7 +167,7 @@ const Compare = () => {
                           size="sm"
                           onClick={async () => {
                             await addToCart(p.id);
-                            toast({ title: "Added to cart! 🛒" });
+                            toast({ title: "E don enter cart! 🛒" });
                           }}
                           disabled={p.stock === 0}
                           className="font-body text-xs gap-1"

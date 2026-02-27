@@ -7,6 +7,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import { Heart, ShoppingCart, Trash2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { formatNaira } from "@/lib/format";
 import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -52,7 +53,7 @@ const Wishlist = () => {
 
   const handleAddToCart = async (product: WishlistProduct) => {
     await addToCart(product.id);
-    toast({ title: "Added to cart! 🛒", description: `${product.name} don enter your cart.` });
+    toast({ title: "E don enter cart! 🛒", description: `${product.name} don enter your cart.` });
   };
 
   if (!user) {
@@ -61,7 +62,7 @@ const Wishlist = () => {
         <Navbar />
         <div className="pt-24 container mx-auto px-6 text-center py-20">
           <Heart className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-          <h1 className="font-accent text-3xl font-black text-foreground mb-4">Sign in to view wishlist</h1>
+          <h1 className="font-accent text-3xl font-black text-foreground mb-4">Sign in to see your wishlist</h1>
           <Link to="/auth" className="text-primary hover:underline font-body">Sign In →</Link>
         </div>
         <Footer />
@@ -76,7 +77,7 @@ const Wishlist = () => {
         <div className="container mx-auto px-4 md:px-6">
           <div className="py-8 md:py-12">
             <h1 className="font-accent text-3xl md:text-4xl font-black text-foreground mb-2">My Wishlist ❤️</h1>
-            <p className="font-body text-muted-foreground text-sm">{products.length} saved item{products.length !== 1 ? "s" : ""}</p>
+            <p className="font-body text-muted-foreground text-sm">{products.length} item{products.length !== 1 ? "s" : ""} wey you save</p>
           </div>
 
           {loading ? (
@@ -94,8 +95,8 @@ const Wishlist = () => {
           ) : products.length === 0 ? (
             <div className="text-center py-20">
               <Heart className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="font-accent text-xl font-bold text-foreground mb-2">Your wishlist is empty</h3>
-              <p className="font-body text-muted-foreground mb-6">Start saving items you love!</p>
+              <h3 className="font-accent text-xl font-bold text-foreground mb-2">Wishlist dey empty!</h3>
+              <p className="font-body text-muted-foreground mb-6">Start to save items wey you like! 🔥</p>
               <Link to="/shop">
                 <Button className="font-body font-semibold gap-2">
                   Browse Shop <ArrowRight className="w-4 h-4" />
@@ -123,9 +124,9 @@ const Wishlist = () => {
                       <h3 className="font-accent text-sm font-bold text-foreground mb-1 line-clamp-1 hover:text-primary transition-colors">{product.name}</h3>
                     </Link>
                     <div className="flex items-center gap-2 mb-3">
-                      <span className="font-accent font-bold text-sm text-foreground">${product.price.toFixed(2)}</span>
+                      <span className="font-accent font-bold text-sm text-foreground">{formatNaira(product.price)}</span>
                       {product.compare_at_price && (
-                        <span className="font-body text-xs text-muted-foreground line-through">${product.compare_at_price.toFixed(2)}</span>
+                        <span className="font-body text-xs text-muted-foreground line-through">{formatNaira(product.compare_at_price)}</span>
                       )}
                     </div>
                     <div className="flex gap-2">

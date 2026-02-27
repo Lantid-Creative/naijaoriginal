@@ -2,16 +2,17 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { formatNaira } from "@/lib/format";
 import { Search, Package, CheckCircle, Truck, MapPin, Clock } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 const statusSteps = [
-  { key: "pending", label: "Order Placed", icon: Clock },
-  { key: "paid", label: "Payment Confirmed", icon: CheckCircle },
-  { key: "processing", label: "Processing", icon: Package },
-  { key: "shipped", label: "Shipped", icon: Truck },
-  { key: "delivered", label: "Delivered", icon: MapPin },
+  { key: "pending", label: "Order Don Place", icon: Clock },
+  { key: "paid", label: "Payment Confirmed ✅", icon: CheckCircle },
+  { key: "processing", label: "We Dey Prepare Am", icon: Package },
+  { key: "shipped", label: "E Don Ship 🚚", icon: Truck },
+  { key: "delivered", label: "Delivered! 🎉", icon: MapPin },
 ];
 
 const getStatusIndex = (status: string) => {
@@ -48,7 +49,7 @@ const OrderTracking = () => {
         <div className="container mx-auto px-4 md:px-6 max-w-2xl">
           <div className="py-8 md:py-12 text-center">
             <h1 className="font-accent text-3xl md:text-4xl font-black text-foreground mb-2">Track Your Order 📦</h1>
-            <p className="font-body text-muted-foreground text-sm">Enter your order number to see its status</p>
+            <p className="font-body text-muted-foreground text-sm">Enter your order number make we show you where e dey</p>
           </div>
 
           <form onSubmit={handleSearch} className="flex gap-3 mb-10">
@@ -67,14 +68,13 @@ const OrderTracking = () => {
           {searched && !loading && !order && (
             <div className="text-center py-12">
               <Package className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-              <h3 className="font-accent text-lg font-bold text-foreground mb-1">Order not found</h3>
-              <p className="font-body text-sm text-muted-foreground">Check your order number and try again.</p>
+              <h3 className="font-accent text-lg font-bold text-foreground mb-1">Order no dey here o!</h3>
+              <p className="font-body text-sm text-muted-foreground">Check your order number well, try again.</p>
             </div>
           )}
 
           {order && (
             <div className="space-y-8">
-              {/* Status Timeline */}
               <div className="bg-card rounded-2xl border border-border p-6 md:p-8">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="font-accent text-lg font-bold text-foreground">{order.order_number}</h2>
@@ -110,7 +110,6 @@ const OrderTracking = () => {
                 </div>
               </div>
 
-              {/* Order Details */}
               <div className="bg-card rounded-2xl border border-border p-6 md:p-8">
                 <h3 className="font-accent text-base font-bold text-foreground mb-4">Order Items</h3>
                 <div className="space-y-3">
@@ -120,13 +119,13 @@ const OrderTracking = () => {
                         {item.products?.name || item.product_name} × {item.quantity}
                         {item.selected_size && ` (${item.selected_size})`}
                       </span>
-                      <span className="text-foreground font-medium">${(Number(item.price) * item.quantity).toFixed(2)}</span>
+                      <span className="text-foreground font-medium">{formatNaira(Number(item.price) * item.quantity)}</span>
                     </div>
                   ))}
                 </div>
                 <div className="border-t border-border mt-4 pt-4 flex justify-between font-accent font-bold text-foreground">
                   <span>Total</span>
-                  <span>${Number(order.total).toFixed(2)}</span>
+                  <span>{formatNaira(Number(order.total))}</span>
                 </div>
               </div>
             </div>

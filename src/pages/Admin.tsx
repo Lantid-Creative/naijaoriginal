@@ -5,10 +5,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Package, ShoppingCart, Users, Plus, Pencil, Trash2, X, BarChart3 } from "lucide-react";
+import { formatNaira } from "@/lib/format";
+import { Package, ShoppingCart, Users, Plus, Pencil, Trash2, X, BarChart3, QrCode, Copy } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
-type Tab = "products" | "orders" | "analytics";
+type Tab = "products" | "orders" | "qr" | "analytics";
 
 const Admin = () => {
   const { user, isAdmin, loading: authLoading } = useAuth();
@@ -27,6 +28,14 @@ const Admin = () => {
     sizes: "", colors: "", is_limited_edition: false, edition_total: "",
     is_featured: false, is_active: true,
   });
+
+  // QR generation state
+  const [qrProductId, setQrProductId] = useState("");
+  const [qrEditionStart, setQrEditionStart] = useState("1");
+  const [qrCount, setQrCount] = useState("1");
+  const [qrStory, setQrStory] = useState("");
+  const [generatedCodes, setGeneratedCodes] = useState<string[]>([]);
+  const [generatingQr, setGeneratingQr] = useState(false);
 
   useEffect(() => {
     if (!authLoading && (!user || !isAdmin)) {
@@ -122,6 +131,42 @@ const Admin = () => {
     fetchData();
   };
 
+  const handleGenerateQR = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!qrProductId) return;
+    setGeneratingQr(true);
+    const count = parseInt(qrCount) || 1;
+    const startNum = parseInt(qrEditionStart) || 1;
+    const codes: string[] = [];
+    const records: any[] = [];
+
+    for (let i = 0; i < count; i++) {
+      const editionNum = startNum + i;
+      const code = `NO-${Date.now().toString(36).toUpperCase()}-${editionNum.toString().padStart(3, "0")}`;
+      codes.push(code);
+      records.push({
+        product_id: qrProductId,
+        qr_code: code,
+        edition_number: editionNum,
+        story: qrStory || null,
+      });
+    }
+
+    const { error } = await supabase.from("product_authentications").insert(records);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      setGeneratedCodes(codes);
+      toast({ title: `${count} QR code${count > 1 ? "s" : ""} generated! 🎉` });
+    }
+    setGeneratingQr(false);
+  };
+
+  const copyCode = (code: string) => {
+    navigator.clipboard.writeText(code);
+    toast({ title: "Copied! 📋", description: code });
+  };
+
   if (authLoading || !isAdmin) return null;
 
   const totalRevenue = orders.filter((o) => o.payment_status === "paid").reduce((sum, o) => sum + Number(o.total), 0);
@@ -143,7 +188,7 @@ const Admin = () => {
               { label: "Products", value: products.length, icon: Package, color: "text-primary" },
               { label: "Total Orders", value: orders.length, icon: ShoppingCart, color: "text-secondary" },
               { label: "Pending", value: pendingOrders, icon: Users, color: "text-destructive" },
-              { label: "Revenue", value: `$${totalRevenue.toFixed(2)}`, icon: BarChart3, color: "text-primary" },
+              { label: "Revenue", value: formatNaira(totalRevenue), icon: BarChart3, color: "text-primary" },
             ].map((stat) => (
               <div key={stat.label} className="naija-card p-4">
                 <div className="flex items-center gap-3">
@@ -158,16 +203,16 @@ const Admin = () => {
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-2 mb-6">
-            {(["products", "orders", "analytics"] as Tab[]).map((t) => (
+          <div className="flex gap-2 mb-6 overflow-x-auto">
+            {(["products", "orders", "qr", "analytics"] as Tab[]).map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
-                className={`px-4 py-2 rounded-lg font-body text-sm capitalize transition-all ${
+                className={`px-4 py-2 rounded-lg font-body text-sm capitalize transition-all whitespace-nowrap ${
                   tab === t ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
                 }`}
               >
-                {t}
+                {t === "qr" ? "QR Codes" : t}
               </button>
             ))}
           </div>
@@ -182,7 +227,6 @@ const Admin = () => {
                 </Button>
               </div>
 
-              {/* Product Form Modal */}
               {showForm && (
                 <div className="naija-card p-6 mb-6">
                   <div className="flex justify-between items-center mb-4">
@@ -203,8 +247,8 @@ const Admin = () => {
                         {categories.map((c) => (<option key={c.id} value={c.id}>{c.name}</option>))}
                       </select>
                     </div>
-                    <div><label className="font-body text-xs text-foreground block mb-1">Price *</label><Input type="number" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} required className="bg-background border-border" /></div>
-                    <div><label className="font-body text-xs text-foreground block mb-1">Compare Price</label><Input type="number" step="0.01" value={form.compare_at_price} onChange={(e) => setForm({ ...form, compare_at_price: e.target.value })} className="bg-background border-border" /></div>
+                    <div><label className="font-body text-xs text-foreground block mb-1">Price (₦) *</label><Input type="number" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} required className="bg-background border-border" /></div>
+                    <div><label className="font-body text-xs text-foreground block mb-1">Compare Price (₦)</label><Input type="number" step="0.01" value={form.compare_at_price} onChange={(e) => setForm({ ...form, compare_at_price: e.target.value })} className="bg-background border-border" /></div>
                     <div><label className="font-body text-xs text-foreground block mb-1">Stock *</label><Input type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} required className="bg-background border-border" /></div>
                     <div><label className="font-body text-xs text-foreground block mb-1">Sizes (comma separated)</label><Input value={form.sizes} onChange={(e) => setForm({ ...form, sizes: e.target.value })} placeholder="S, M, L, XL" className="bg-background border-border" /></div>
                     <div><label className="font-body text-xs text-foreground block mb-1">Colors (comma separated)</label><Input value={form.colors} onChange={(e) => setForm({ ...form, colors: e.target.value })} placeholder="Black, White" className="bg-background border-border" /></div>
@@ -249,7 +293,7 @@ const Admin = () => {
                             {p.is_limited_edition && <span className="font-accent text-[10px] text-secondary">LIMITED</span>}
                           </td>
                           <td className="p-4 font-body text-sm text-muted-foreground">{p.product_categories?.name || "—"}</td>
-                          <td className="p-4 font-body text-sm text-foreground">${Number(p.price).toFixed(2)}</td>
+                          <td className="p-4 font-body text-sm text-foreground">{formatNaira(Number(p.price))}</td>
                           <td className="p-4 font-body text-sm text-foreground">{p.stock}</td>
                           <td className="p-4">
                             <span className={`px-2 py-0.5 rounded text-xs font-accent ${p.is_active ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
@@ -297,7 +341,7 @@ const Admin = () => {
                         <tr key={o.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
                           <td className="p-4 font-body text-sm font-semibold text-foreground">{o.order_number}</td>
                           <td className="p-4 font-body text-sm text-muted-foreground">{new Date(o.created_at).toLocaleDateString()}</td>
-                          <td className="p-4 font-body text-sm text-foreground">${Number(o.total).toFixed(2)}</td>
+                          <td className="p-4 font-body text-sm text-foreground">{formatNaira(Number(o.total))}</td>
                           <td className="p-4">
                             <span className="px-2 py-0.5 rounded text-xs font-accent capitalize bg-muted text-foreground">{o.status}</span>
                           </td>
@@ -326,12 +370,95 @@ const Admin = () => {
             </div>
           )}
 
+          {/* QR Codes Tab */}
+          {tab === "qr" && (
+            <div>
+              <h2 className="font-display text-xl font-bold text-foreground mb-4">Generate QR Authentication Codes 🔐</h2>
+              <p className="font-body text-sm text-muted-foreground mb-6">
+                Generate unique codes for products. Customers go fit scan or enter the code for the Verify page to confirm authenticity.
+              </p>
+
+              <div className="grid lg:grid-cols-2 gap-6">
+                <div className="naija-card p-6">
+                  <h3 className="font-accent text-base font-bold text-foreground mb-4 flex items-center gap-2">
+                    <QrCode className="w-4 h-4 text-primary" /> Generate Codes
+                  </h3>
+                  <form onSubmit={handleGenerateQR} className="space-y-4">
+                    <div>
+                      <label className="font-body text-sm text-foreground block mb-1.5">Product *</label>
+                      <select
+                        value={qrProductId}
+                        onChange={(e) => setQrProductId(e.target.value)}
+                        required
+                        className="w-full h-10 rounded-md border border-border bg-background px-3 font-body text-sm text-foreground"
+                      >
+                        <option value="">Select product</option>
+                        {products.map((p) => (
+                          <option key={p.id} value={p.id}>{p.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="font-body text-sm text-foreground block mb-1.5">Start Edition #</label>
+                        <Input type="number" min="1" value={qrEditionStart} onChange={(e) => setQrEditionStart(e.target.value)} className="bg-background border-border" />
+                      </div>
+                      <div>
+                        <label className="font-body text-sm text-foreground block mb-1.5">How Many</label>
+                        <Input type="number" min="1" max="100" value={qrCount} onChange={(e) => setQrCount(e.target.value)} className="bg-background border-border" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="font-body text-sm text-foreground block mb-1.5">Story (optional)</label>
+                      <Input value={qrStory} onChange={(e) => setQrStory(e.target.value)} placeholder="The story behind this product..." className="bg-background border-border" />
+                    </div>
+                    <Button type="submit" disabled={generatingQr} className="font-body gap-2 w-full">
+                      <QrCode className="w-4 h-4" />
+                      {generatingQr ? "Generating..." : "Generate Codes"}
+                    </Button>
+                  </form>
+                </div>
+
+                {/* Generated codes */}
+                <div className="naija-card p-6">
+                  <h3 className="font-accent text-base font-bold text-foreground mb-4">Generated Codes</h3>
+                  {generatedCodes.length === 0 ? (
+                    <div className="text-center py-12">
+                      <QrCode className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                      <p className="font-body text-sm text-muted-foreground">No codes generated yet. Use the form to create some.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2 max-h-96 overflow-y-auto">
+                      {generatedCodes.map((code, i) => (
+                        <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-muted/50 border border-border">
+                          <div>
+                            <p className="font-mono text-sm font-bold text-foreground">{code}</p>
+                            <p className="font-body text-xs text-muted-foreground">Edition #{parseInt(qrEditionStart) + i}</p>
+                          </div>
+                          <button
+                            onClick={() => copyCode(code)}
+                            className="p-2 rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                      <p className="font-body text-xs text-muted-foreground text-center mt-4">
+                        Print these codes and attach to your products. Customers go fit verify dem at /verify 🔐
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Analytics Tab */}
           {tab === "analytics" && (
             <div className="text-center py-20">
               <BarChart3 className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="font-display text-xl font-bold text-foreground mb-2">Analytics Coming Soon</h3>
-              <p className="font-body text-muted-foreground">Sales charts, customer insights, and more — dey on the way!</p>
+              <h3 className="font-display text-xl font-bold text-foreground mb-2">Analytics Dey Come Soon</h3>
+              <p className="font-body text-muted-foreground">Sales charts, customer insights, and more — e dey on the way!</p>
             </div>
           )}
         </div>

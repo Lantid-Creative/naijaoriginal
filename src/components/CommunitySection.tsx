@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import communityImage from "@/assets/community.jpg";
 
 const features = [
-  "Post your drip on the community wall",
+  "Post your drip for community wall",
   "Track limited editions worldwide",
   "Connect with Naija fam globally",
   "Verify and resell with confidence",
@@ -31,7 +31,7 @@ const CommunitySection = () => {
                 Join the <span className="text-primary">Culture</span>
               </h2>
               <p className="font-body text-muted-foreground text-base md:text-lg mb-6 md:mb-8 max-w-md">
-                Nigeria isn't just a country — it's a feeling, a spirit, a vibe. And it's just one QR scan to prove it.
+                Nigeria no be just country — na feeling, na spirit, na vibe. And e just dey one QR scan to prove am. 🇳🇬
               </p>
 
               <div className="space-y-3 md:space-y-4 mb-8 md:mb-10">
@@ -62,7 +62,7 @@ const CommunitySection = () => {
             <div className="relative min-h-[280px] md:min-h-[400px]">
               <img
                 src={communityImage}
-                alt="Naija Original community wearing cultural fashion"
+                alt="Naija Original community dey rock cultural fashion"
                 className="absolute inset-0 w-full h-full object-cover"
                 loading="lazy"
               />
