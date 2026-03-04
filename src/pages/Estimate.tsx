@@ -265,11 +265,15 @@ const Estimate = () => {
                 </div>
 
                 <div className="space-y-3">
-                  <a href={`mailto:howfar@naijaoriginal.com?subject=Custom Order Estimate - ${orgName || "Organization"}&body=Product: ${product.label}%0AQuantity: ${quantity}%0AEstimated Total: ${formatNaira(total)}%0ACustomizations: ${selectedExtras.join(", ") || "None"}%0AOrganization Type: ${orgType}`}>
-                    <Button className="w-full font-body font-semibold gap-2" size="lg">
+                  <Button
+                    className="w-full font-body font-semibold gap-2"
+                    size="lg"
+                    asChild
+                  >
+                    <a href={`mailto:howfar@naijaoriginal.com?subject=Custom Order Estimate - ${orgName || "Organization"}&body=Product: ${product.label}%0AQuantity: ${quantity}%0AEstimated Total: ${formatNaira(total)}%0ACustomizations: ${selectedExtras.join(", ") || "None"}%0AOrganization Type: ${orgType}`}>
                       Request Official Quote <ArrowRight className="w-4 h-4" />
-                    </Button>
-                  </a>
+                    </a>
+                  </Button>
                   <p className="font-body text-[11px] text-muted-foreground text-center">
                     We go respond within 24-48 hours with official quote
                   </p>
