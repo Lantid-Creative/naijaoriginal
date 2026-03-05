@@ -6,10 +6,11 @@ import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { formatNaira } from "@/lib/format";
-import { Package, ShoppingCart, Users, Plus, Pencil, Trash2, X, BarChart3, QrCode, Copy } from "lucide-react";
+import { Package, ShoppingCart, Users, Plus, Pencil, Trash2, X, BarChart3, QrCode, Copy, MessageSquare, AlertCircle } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import Navbar from "@/components/Navbar";
 
-type Tab = "products" | "orders" | "qr" | "analytics";
+type Tab = "products" | "orders" | "qr" | "tickets" | "analytics";
 
 const Admin = () => {
   const { user, isAdmin, loading: authLoading } = useAuth();
@@ -37,6 +38,12 @@ const Admin = () => {
   const [generatedCodes, setGeneratedCodes] = useState<string[]>([]);
   const [generatingQr, setGeneratingQr] = useState(false);
 
+  // Support tickets state
+  const [tickets, setTickets] = useState<any[]>([]);
+  const [selectedTicket, setSelectedTicket] = useState<any>(null);
+  const [adminNotes, setAdminNotes] = useState("");
+  const [updatingTicket, setUpdatingTicket] = useState(false);
+
   useEffect(() => {
     if (!authLoading && (!user || !isAdmin)) {
       navigate("/");
@@ -48,14 +55,16 @@ const Admin = () => {
   }, []);
 
   const fetchData = async () => {
-    const [productsRes, ordersRes, categoriesRes] = await Promise.all([
+    const [productsRes, ordersRes, categoriesRes, ticketsRes] = await Promise.all([
       supabase.from("products").select("*, product_categories:category_id(name)").order("created_at", { ascending: false }),
       supabase.from("orders").select("*, order_items(count)").order("created_at", { ascending: false }).limit(50),
       supabase.from("product_categories").select("*").order("name"),
+      supabase.from("support_tickets").select("*").order("created_at", { ascending: false }),
     ]);
     setProducts(productsRes.data || []);
     setOrders(ordersRes.data || []);
     setCategories(categoriesRes.data || []);
+    setTickets(ticketsRes.data || []);
     setLoading(false);
   };
 
@@ -167,6 +176,37 @@ const Admin = () => {
     toast({ title: "Copied! 📋", description: code });
   };
 
+  const handleUpdateTicket = async (ticketId: string, status: string) => {
+    setUpdatingTicket(true);
+    const { error } = await supabase.from("support_tickets").update({
+      status,
+      admin_notes: adminNotes || null,
+    }).eq("id", ticketId);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: `Ticket ${status}! ✅` });
+      setSelectedTicket(null);
+      setAdminNotes("");
+      fetchData();
+    }
+    setUpdatingTicket(false);
+  };
+
+  const handleDeleteTicket = async (ticketId: string) => {
+    if (!confirm("Delete this ticket?")) return;
+    const { error } = await supabase.from("support_tickets").delete().eq("id", ticketId);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Ticket deleted" });
+      if (selectedTicket?.id === ticketId) setSelectedTicket(null);
+      fetchData();
+    }
+  };
+
+  const openTickets = tickets.filter(t => t.status === "open").length;
+
   if (authLoading || !isAdmin) return null;
 
   const totalRevenue = orders.filter((o) => o.payment_status === "paid").reduce((sum, o) => sum + Number(o.total), 0);
@@ -204,7 +244,7 @@ const Admin = () => {
 
           {/* Tabs */}
           <div className="flex gap-2 mb-6 overflow-x-auto">
-            {(["products", "orders", "qr", "analytics"] as Tab[]).map((t) => (
+            {(["products", "orders", "tickets", "qr", "analytics"] as Tab[]).map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
@@ -212,7 +252,7 @@ const Admin = () => {
                   tab === t ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
                 }`}
               >
-                {t === "qr" ? "QR Codes" : t}
+                {t === "qr" ? "QR Codes" : t === "tickets" ? `Tickets${openTickets > 0 ? ` (${openTickets})` : ""}` : t}
               </button>
             ))}
           </div>
@@ -450,6 +490,129 @@ const Admin = () => {
                   )}
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Support Tickets Tab */}
+          {tab === "tickets" && (
+            <div>
+              <h2 className="font-display text-xl font-bold text-foreground mb-4">Support Tickets 🎫</h2>
+              <p className="font-body text-sm text-muted-foreground mb-6">
+                Escalated issues from Oga Wahala. Respond and resolve customer wahala here.
+              </p>
+
+              {tickets.length === 0 ? (
+                <div className="naija-card p-12 text-center">
+                  <MessageSquare className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                  <p className="font-body text-muted-foreground">No tickets yet. When Oga Wahala escalates, e go show here.</p>
+                </div>
+              ) : (
+                <div className="grid lg:grid-cols-2 gap-6">
+                  {/* Tickets list */}
+                  <div className="space-y-3">
+                    {tickets.map((ticket) => (
+                      <div
+                        key={ticket.id}
+                        onClick={() => { setSelectedTicket(ticket); setAdminNotes(ticket.admin_notes || ""); }}
+                        className={`naija-card p-4 cursor-pointer transition-all hover:border-primary/50 ${selectedTicket?.id === ticket.id ? "ring-2 ring-primary" : ""}`}
+                      >
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            {ticket.status === "open" && <AlertCircle className="w-4 h-4 text-destructive" />}
+                            <span className={`px-2 py-0.5 rounded text-xs font-accent capitalize ${
+                              ticket.status === "open" ? "bg-destructive/10 text-destructive" :
+                              ticket.status === "resolved" ? "bg-primary/10 text-primary" :
+                              "bg-muted text-muted-foreground"
+                            }`}>
+                              {ticket.status}
+                            </span>
+                          </div>
+                          <span className="font-body text-xs text-muted-foreground">
+                            {new Date(ticket.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <p className="font-body text-sm text-foreground line-clamp-2">{ticket.user_message}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Ticket detail */}
+                  <div>
+                    {selectedTicket ? (
+                      <div className="naija-card p-6 sticky top-24">
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="font-accent text-base font-bold text-foreground">Ticket Detail</h3>
+                          <div className="flex gap-2">
+                            <button onClick={() => handleDeleteTicket(selectedTicket.id)} className="p-1.5 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors">
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                            <button onClick={() => setSelectedTicket(null)} className="text-muted-foreground hover:text-foreground">
+                              <X className="w-5 h-5" />
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="space-y-4">
+                          <div>
+                            <p className="font-accent text-xs text-muted-foreground uppercase mb-1">Customer Message</p>
+                            <p className="font-body text-sm text-foreground bg-muted/50 p-3 rounded-lg">{selectedTicket.user_message}</p>
+                          </div>
+
+                          <div>
+                            <p className="font-accent text-xs text-muted-foreground uppercase mb-1">Conversation Summary</p>
+                            <p className="font-body text-sm text-muted-foreground bg-muted/30 p-3 rounded-lg whitespace-pre-wrap">{selectedTicket.conversation_summary}</p>
+                          </div>
+
+                          <div>
+                            <p className="font-accent text-xs text-muted-foreground uppercase mb-1">Status</p>
+                            <span className={`px-2 py-0.5 rounded text-xs font-accent capitalize ${
+                              selectedTicket.status === "open" ? "bg-destructive/10 text-destructive" :
+                              selectedTicket.status === "resolved" ? "bg-primary/10 text-primary" :
+                              "bg-muted text-muted-foreground"
+                            }`}>
+                              {selectedTicket.status}
+                            </span>
+                          </div>
+
+                          <div>
+                            <label className="font-accent text-xs text-muted-foreground uppercase block mb-1">Admin Notes</label>
+                            <Textarea
+                              value={adminNotes}
+                              onChange={(e) => setAdminNotes(e.target.value)}
+                              placeholder="Add your response or notes here..."
+                              className="bg-background border-border font-body text-sm"
+                              rows={4}
+                            />
+                          </div>
+
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={() => handleUpdateTicket(selectedTicket.id, "resolved")}
+                              disabled={updatingTicket}
+                              className="font-body flex-1"
+                            >
+                              ✅ Resolve
+                            </Button>
+                            <Button
+                              variant="outline"
+                              onClick={() => handleUpdateTicket(selectedTicket.id, "in_progress")}
+                              disabled={updatingTicket}
+                              className="font-body flex-1"
+                            >
+                              🔄 In Progress
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="naija-card p-12 text-center">
+                        <MessageSquare className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+                        <p className="font-body text-sm text-muted-foreground">Click a ticket to view details and respond</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
