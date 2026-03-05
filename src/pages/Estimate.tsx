@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { formatNaira } from "@/lib/format";
-import { Calculator, AlertTriangle, Building2, Users, Shirt, Package, ArrowRight } from "lucide-react";
+import { Calculator, AlertTriangle, Building2, Users, Shirt, Package, ArrowRight, Search, X, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -16,6 +15,11 @@ interface ProductOption {
   image_url: string | null;
 }
 
+interface SelectedProduct {
+  product: ProductOption;
+  quantity: number;
+}
+
 const customizations = [
   { id: "logo", label: "Custom Logo / Branding", price: 500, desc: "Add your organization logo" },
   { id: "name", label: "Individual Name Printing", price: 300, desc: "Personalize each item" },
@@ -25,12 +29,13 @@ const customizations = [
 
 const Estimate = () => {
   const [products, setProducts] = useState<ProductOption[]>([]);
-  const [selectedProductId, setSelectedProductId] = useState<string>("");
-  const [quantity, setQuantity] = useState(50);
+  const [selectedProducts, setSelectedProducts] = useState<SelectedProduct[]>([]);
   const [selectedExtras, setSelectedExtras] = useState<string[]>([]);
   const [orgName, setOrgName] = useState("");
   const [orgType, setOrgType] = useState("company");
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -48,14 +53,36 @@ const Estimate = () => {
         image_url: p.product_images?.sort((a: any, b: any) => (a.display_order || 0) - (b.display_order || 0))[0]?.image_url || null,
       }));
       setProducts(mapped);
-      if (mapped.length > 0) setSelectedProductId(mapped[0].id);
       setLoading(false);
     };
     fetchProducts();
   }, []);
 
-  const selectedProduct = products.find((p) => p.id === selectedProductId);
-  const basePrice = selectedProduct?.price || 0;
+  const categories = useMemo(() => Array.from(new Set(products.map((p) => p.category_name || "Other"))).sort(), [products]);
+
+  const filteredProducts = useMemo(() => {
+    return products.filter((p) => {
+      const matchesSearch = !search || p.name.toLowerCase().includes(search.toLowerCase());
+      const matchesCategory = categoryFilter === "all" || (p.category_name || "Other") === categoryFilter;
+      const notAlreadySelected = !selectedProducts.some((sp) => sp.product.id === p.id);
+      return matchesSearch && matchesCategory && notAlreadySelected;
+    });
+  }, [products, search, categoryFilter, selectedProducts]);
+
+  const addProduct = (product: ProductOption) => {
+    setSelectedProducts((prev) => [...prev, { product, quantity: 50 }]);
+    setSearch("");
+  };
+
+  const removeProduct = (id: string) => {
+    setSelectedProducts((prev) => prev.filter((sp) => sp.product.id !== id));
+  };
+
+  const updateQuantity = (id: string, quantity: number) => {
+    setSelectedProducts((prev) =>
+      prev.map((sp) => (sp.product.id === id ? { ...sp, quantity: Math.max(10, quantity) } : sp))
+    );
+  };
 
   // Bulk discount tiers
   const getDiscount = (qty: number) => {
@@ -66,13 +93,21 @@ const Estimate = () => {
     return 0;
   };
 
-  const discount = getDiscount(quantity);
   const extrasTotal = selectedExtras.reduce((sum, id) => {
     const extra = customizations.find((c) => c.id === id);
     return sum + (extra?.price || 0);
   }, 0);
-  const unitPrice = basePrice + extrasTotal;
-  const subtotal = unitPrice * quantity;
+
+  const totalQuantity = selectedProducts.reduce((sum, sp) => sum + sp.quantity, 0);
+  const discount = getDiscount(totalQuantity);
+
+  const lineItems = selectedProducts.map((sp) => {
+    const unitPrice = sp.product.price + extrasTotal;
+    const lineSubtotal = unitPrice * sp.quantity;
+    return { ...sp, unitPrice, lineSubtotal };
+  });
+
+  const subtotal = lineItems.reduce((sum, li) => sum + li.lineSubtotal, 0);
   const discountAmount = subtotal * discount;
   const total = subtotal - discountAmount;
 
@@ -82,8 +117,9 @@ const Estimate = () => {
     );
   };
 
-  // Group products by category
-  const categories = Array.from(new Set(products.map((p) => p.category_name || "Other")));
+  const emailBody = selectedProducts
+    .map((sp) => `${sp.product.name} x${sp.quantity} @ ${formatNaira(sp.product.price + extrasTotal)}/pc`)
+    .join("%0A");
 
   return (
     <div className="min-h-screen bg-background">
@@ -149,81 +185,104 @@ const Estimate = () => {
               {/* Product Selection */}
               <div className="bg-card rounded-2xl border border-border p-6">
                 <h2 className="font-accent text-base font-bold text-foreground mb-4 flex items-center gap-2">
-                  <Shirt className="w-4 h-4 text-primary" /> Choose Product
+                  <Shirt className="w-4 h-4 text-primary" /> Add Products
+                  {selectedProducts.length > 0 && (
+                    <span className="ml-auto font-body text-xs text-muted-foreground">{selectedProducts.length} selected</span>
+                  )}
                 </h2>
-                {loading ? (
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 animate-pulse">
-                    {[1,2,3,4,5,6].map(i => <div key={i} className="h-24 bg-muted rounded-xl" />)}
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {categories.map((cat) => (
-                      <div key={cat}>
-                        <p className="font-accent text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">{cat}</p>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                          {products.filter(p => (p.category_name || "Other") === cat).map((p) => (
-                            <button
-                              key={p.id}
-                              onClick={() => setSelectedProductId(p.id)}
-                              className={`p-3 rounded-xl border text-left transition-all flex items-center gap-3 ${
-                                selectedProductId === p.id
-                                  ? "border-primary bg-primary/10"
-                                  : "border-border hover:border-foreground"
-                              }`}
-                            >
-                              {p.image_url && (
-                                <img src={p.image_url} alt={p.name} className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
-                              )}
-                              <div className="min-w-0">
-                                <p className={`font-accent text-xs font-semibold truncate ${selectedProductId === p.id ? "text-primary" : "text-foreground"}`}>{p.name}</p>
-                                <p className="font-body text-[10px] text-muted-foreground">{formatNaira(p.price)}/pc</p>
-                              </div>
-                            </button>
-                          ))}
+
+                {/* Selected products */}
+                {selectedProducts.length > 0 && (
+                  <div className="space-y-2 mb-4">
+                    {selectedProducts.map((sp) => (
+                      <div key={sp.product.id} className="flex items-center gap-3 p-3 rounded-xl border border-primary/20 bg-primary/5">
+                        {sp.product.image_url && (
+                          <img src={sp.product.image_url} alt={sp.product.name} className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-accent text-xs font-semibold text-foreground truncate">{sp.product.name}</p>
+                          <p className="font-body text-[10px] text-muted-foreground">{formatNaira(sp.product.price)}/pc</p>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <Input
+                            type="number"
+                            min={10}
+                            value={sp.quantity}
+                            onChange={(e) => updateQuantity(sp.product.id, parseInt(e.target.value) || 10)}
+                            className="w-20 h-8 text-xs bg-background border-border text-center"
+                          />
+                          <button
+                            onClick={() => removeProduct(sp.product.id)}
+                            className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
                         </div>
                       </div>
                     ))}
                   </div>
                 )}
-              </div>
 
-              {/* Quantity */}
-              <div className="bg-card rounded-2xl border border-border p-6">
-                <h2 className="font-accent text-base font-bold text-foreground mb-4 flex items-center gap-2">
-                  <Users className="w-4 h-4 text-primary" /> Quantity
-                </h2>
-                <div className="flex items-center gap-4">
-                  <Input
-                    type="number"
-                    min={10}
-                    value={quantity}
-                    onChange={(e) => setQuantity(Math.max(10, parseInt(e.target.value) || 10))}
-                    className="bg-background border-border w-32"
-                  />
-                  <span className="font-body text-sm text-muted-foreground">pieces (minimum 10)</span>
+                {/* Search and filter */}
+                <div className="flex gap-2 mb-3">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      placeholder="Search products..."
+                      className="pl-9 bg-background border-border"
+                    />
+                  </div>
+                  <select
+                    value={categoryFilter}
+                    onChange={(e) => setCategoryFilter(e.target.value)}
+                    className="h-10 rounded-md border border-border bg-background px-3 font-body text-xs text-foreground"
+                  >
+                    <option value="all">All Categories</option>
+                    {categories.map((cat) => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
                 </div>
-                {discount > 0 && (
-                  <p className="font-accent text-xs text-primary mt-2">🎉 You dey get {discount * 100}% bulk discount!</p>
+
+                {/* Product list */}
+                {loading ? (
+                  <div className="space-y-2 animate-pulse">
+                    {[1,2,3].map(i => <div key={i} className="h-14 bg-muted rounded-xl" />)}
+                  </div>
+                ) : (
+                  <div className="max-h-64 overflow-y-auto space-y-1.5 pr-1">
+                    {filteredProducts.length === 0 ? (
+                      <p className="font-body text-sm text-muted-foreground text-center py-4">
+                        {search ? "No products match your search" : "All products have been added"}
+                      </p>
+                    ) : (
+                      filteredProducts.map((p) => (
+                        <button
+                          key={p.id}
+                          onClick={() => addProduct(p)}
+                          className="w-full flex items-center gap-3 p-2.5 rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-all text-left group"
+                        >
+                          {p.image_url && (
+                            <img src={p.image_url} alt={p.name} className="w-9 h-9 rounded-lg object-cover flex-shrink-0" />
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="font-accent text-xs font-semibold text-foreground truncate">{p.name}</p>
+                            <p className="font-body text-[10px] text-muted-foreground">{p.category_name} • {formatNaira(p.price)}/pc</p>
+                          </div>
+                          <Plus className="w-4 h-4 text-muted-foreground group-hover:text-primary flex-shrink-0 transition-colors" />
+                        </button>
+                      ))
+                    )}
+                  </div>
                 )}
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {[50, 100, 200, 500, 1000].map((qty) => (
-                    <button
-                      key={qty}
-                      onClick={() => setQuantity(qty)}
-                      className={`px-3 py-1 rounded-lg font-accent text-xs transition-all ${
-                        quantity === qty ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      {qty}
-                    </button>
-                  ))}
-                </div>
               </div>
 
               {/* Customizations */}
               <div className="bg-card rounded-2xl border border-border p-6">
                 <h2 className="font-accent text-base font-bold text-foreground mb-4 flex items-center gap-2">
-                  <Package className="w-4 h-4 text-primary" /> Customizations
+                  <Package className="w-4 h-4 text-primary" /> Customizations (per piece)
                 </h2>
                 <div className="space-y-3">
                   {customizations.map((c) => (
@@ -261,63 +320,79 @@ const Estimate = () => {
                   <p className="font-body text-sm text-muted-foreground mb-4">For: <span className="text-foreground font-semibold">{orgName}</span></p>
                 )}
 
-                <div className="space-y-3 mb-6">
-                  <div className="flex justify-between font-body text-sm">
-                    <span className="text-muted-foreground truncate mr-2">{selectedProduct?.name || "Select a product"}</span>
-                    <span className="text-foreground flex-shrink-0">{formatNaira(basePrice)}/pc</span>
-                  </div>
-                  {selectedExtras.map((id) => {
-                    const extra = customizations.find((c) => c.id === id);
-                    if (!extra) return null;
-                    return (
-                      <div key={id} className="flex justify-between font-body text-sm">
-                        <span className="text-muted-foreground">+ {extra.label}</span>
-                        <span className="text-foreground">{formatNaira(extra.price)}/pc</span>
+                {selectedProducts.length === 0 ? (
+                  <p className="font-body text-sm text-muted-foreground py-4 text-center">Add products to see estimate</p>
+                ) : (
+                  <div className="space-y-3 mb-6">
+                    {lineItems.map((li) => (
+                      <div key={li.product.id} className="font-body text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-foreground font-medium truncate mr-2">{li.product.name}</span>
+                        </div>
+                        <div className="flex justify-between text-muted-foreground text-xs mt-0.5">
+                          <span>{formatNaira(li.unitPrice)}/pc × {li.quantity.toLocaleString()}</span>
+                          <span className="text-foreground">{formatNaira(li.lineSubtotal)}</span>
+                        </div>
                       </div>
-                    );
-                  })}
-                  <div className="border-t border-border pt-3">
+                    ))}
+
+                    {extrasTotal > 0 && (
+                      <div className="font-body text-xs text-muted-foreground">
+                        <span>Includes {formatNaira(extrasTotal)}/pc in customizations</span>
+                      </div>
+                    )}
+
+                    <div className="border-t border-border pt-3">
+                      <div className="flex justify-between font-body text-sm">
+                        <span className="text-muted-foreground">Total Quantity</span>
+                        <span className="text-foreground font-semibold">{totalQuantity.toLocaleString()} pieces</span>
+                      </div>
+                    </div>
+
                     <div className="flex justify-between font-body text-sm">
-                      <span className="text-muted-foreground">Unit Price</span>
-                      <span className="text-foreground font-semibold">{formatNaira(unitPrice)}</span>
+                      <span className="text-muted-foreground">Subtotal</span>
+                      <span className="text-foreground">{formatNaira(subtotal)}</span>
+                    </div>
+
+                    {discount > 0 && (
+                      <div className="flex justify-between font-body text-sm">
+                        <span className="text-primary">Bulk Discount ({discount * 100}%)</span>
+                        <span className="text-primary">-{formatNaira(discountAmount)}</span>
+                      </div>
+                    )}
+
+                    <div className="border-t border-border pt-3">
+                      <div className="flex justify-between font-accent font-bold text-lg">
+                        <span className="text-foreground">Estimated Total</span>
+                        <span className="text-primary">{formatNaira(total)}</span>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex justify-between font-body text-sm">
-                    <span className="text-muted-foreground">Quantity</span>
-                    <span className="text-foreground">× {quantity.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between font-body text-sm">
-                    <span className="text-muted-foreground">Subtotal</span>
-                    <span className="text-foreground">{formatNaira(subtotal)}</span>
-                  </div>
-                  {discount > 0 && (
-                    <div className="flex justify-between font-body text-sm">
-                      <span className="text-primary">Bulk Discount ({discount * 100}%)</span>
-                      <span className="text-primary">-{formatNaira(discountAmount)}</span>
-                    </div>
-                  )}
-                  <div className="border-t border-border pt-3">
-                    <div className="flex justify-between font-accent font-bold text-lg">
-                      <span className="text-foreground">Estimated Total</span>
-                      <span className="text-primary">{formatNaira(total)}</span>
-                    </div>
-                  </div>
-                </div>
+                )}
 
                 <div className="space-y-3">
                   <Button
                     className="w-full font-body font-semibold gap-2"
                     size="lg"
-                    asChild
+                    disabled={selectedProducts.length === 0}
+                    asChild={selectedProducts.length > 0}
                   >
-                    <a href={`mailto:howfar@naijaoriginal.com?subject=Custom Order Estimate - ${orgName || "Organization"}&body=Product: ${selectedProduct?.name || "N/A"}%0AQuantity: ${quantity}%0AEstimated Total: ${formatNaira(total)}%0ACustomizations: ${selectedExtras.join(", ") || "None"}%0AOrganization Type: ${orgType}`}>
-                      Request Official Quote <ArrowRight className="w-4 h-4" />
-                    </a>
+                    {selectedProducts.length > 0 ? (
+                      <a href={`mailto:howfar@naijaoriginal.com?subject=Custom Order Estimate - ${orgName || "Organization"}&body=Products:%0A${emailBody}%0A%0AEstimated Total: ${formatNaira(total)}%0ACustomizations: ${selectedExtras.join(", ") || "None"}%0AOrganization Type: ${orgType}`}>
+                        Request Official Quote <ArrowRight className="w-4 h-4" />
+                      </a>
+                    ) : (
+                      <>Request Official Quote <ArrowRight className="w-4 h-4" /></>
+                    )}
                   </Button>
                   <p className="font-body text-[11px] text-muted-foreground text-center">
                     We go respond within 24-48 hours with official quote
                   </p>
                 </div>
+
+                {discount > 0 && (
+                  <p className="font-accent text-xs text-primary mt-3">🎉 You dey get {discount * 100}% bulk discount!</p>
+                )}
 
                 <div className="mt-6 pt-4 border-t border-border">
                   <p className="font-accent text-xs font-bold text-foreground mb-2">Bulk Discount Tiers:</p>
