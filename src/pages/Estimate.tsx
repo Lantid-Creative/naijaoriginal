@@ -1,22 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { formatNaira } from "@/lib/format";
 import { Calculator, AlertTriangle, Building2, Users, Shirt, Package, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-const productTypes = [
-  { id: "tshirt", label: "T-Shirts", basePrice: 8500, icon: Shirt },
-  { id: "hoodie", label: "Hoodies", basePrice: 18000, icon: Shirt },
-  { id: "cap", label: "Caps / Hats", basePrice: 5500, icon: Package },
-  { id: "tote", label: "Tote Bags", basePrice: 6000, icon: Package },
-  { id: "polo", label: "Polo Shirts", basePrice: 12000, icon: Shirt },
-  { id: "jacket", label: "Jackets / Bombers", basePrice: 25000, icon: Shirt },
-  { id: "mug", label: "Branded Mugs", basePrice: 3500, icon: Package },
-  { id: "notebook", label: "Notebooks", basePrice: 4000, icon: Package },
-];
+interface ProductOption {
+  id: string;
+  name: string;
+  price: number;
+  category_name: string | null;
+  image_url: string | null;
+}
 
 const customizations = [
   { id: "logo", label: "Custom Logo / Branding", price: 500, desc: "Add your organization logo" },
@@ -26,13 +24,38 @@ const customizations = [
 ];
 
 const Estimate = () => {
-  const [selectedProduct, setSelectedProduct] = useState("tshirt");
+  const [products, setProducts] = useState<ProductOption[]>([]);
+  const [selectedProductId, setSelectedProductId] = useState<string>("");
   const [quantity, setQuantity] = useState(50);
   const [selectedExtras, setSelectedExtras] = useState<string[]>([]);
   const [orgName, setOrgName] = useState("");
   const [orgType, setOrgType] = useState("company");
+  const [loading, setLoading] = useState(true);
 
-  const product = productTypes.find((p) => p.id === selectedProduct)!;
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const { data } = await supabase
+        .from("products")
+        .select("id, name, price, product_categories:category_id(name), product_images(image_url, display_order)")
+        .eq("is_active", true)
+        .order("name");
+      
+      const mapped: ProductOption[] = (data || []).map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        price: p.price,
+        category_name: p.product_categories?.name || null,
+        image_url: p.product_images?.sort((a: any, b: any) => (a.display_order || 0) - (b.display_order || 0))[0]?.image_url || null,
+      }));
+      setProducts(mapped);
+      if (mapped.length > 0) setSelectedProductId(mapped[0].id);
+      setLoading(false);
+    };
+    fetchProducts();
+  }, []);
+
+  const selectedProduct = products.find((p) => p.id === selectedProductId);
+  const basePrice = selectedProduct?.price || 0;
 
   // Bulk discount tiers
   const getDiscount = (qty: number) => {
@@ -48,7 +71,7 @@ const Estimate = () => {
     const extra = customizations.find((c) => c.id === id);
     return sum + (extra?.price || 0);
   }, 0);
-  const unitPrice = product.basePrice + extrasTotal;
+  const unitPrice = basePrice + extrasTotal;
   const subtotal = unitPrice * quantity;
   const discountAmount = subtotal * discount;
   const total = subtotal - discountAmount;
@@ -58,6 +81,9 @@ const Estimate = () => {
       prev.includes(id) ? prev.filter((e) => e !== id) : [...prev, id]
     );
   };
+
+  // Group products by category
+  const categories = Array.from(new Set(products.map((p) => p.category_name || "Other")));
 
   return (
     <div className="min-h-screen bg-background">
@@ -125,26 +151,40 @@ const Estimate = () => {
                 <h2 className="font-accent text-base font-bold text-foreground mb-4 flex items-center gap-2">
                   <Shirt className="w-4 h-4 text-primary" /> Choose Product
                 </h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                  {productTypes.map((p) => {
-                    const Icon = p.icon;
-                    return (
-                      <button
-                        key={p.id}
-                        onClick={() => setSelectedProduct(p.id)}
-                        className={`p-3 rounded-xl border text-center transition-all ${
-                          selectedProduct === p.id
-                            ? "border-primary bg-primary/10 text-primary"
-                            : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
-                        }`}
-                      >
-                        <Icon className="w-5 h-5 mx-auto mb-1" />
-                        <p className="font-accent text-xs font-semibold">{p.label}</p>
-                        <p className="font-body text-[10px] text-muted-foreground">{formatNaira(p.basePrice)}/pc</p>
-                      </button>
-                    );
-                  })}
-                </div>
+                {loading ? (
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 animate-pulse">
+                    {[1,2,3,4,5,6].map(i => <div key={i} className="h-24 bg-muted rounded-xl" />)}
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {categories.map((cat) => (
+                      <div key={cat}>
+                        <p className="font-accent text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">{cat}</p>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                          {products.filter(p => (p.category_name || "Other") === cat).map((p) => (
+                            <button
+                              key={p.id}
+                              onClick={() => setSelectedProductId(p.id)}
+                              className={`p-3 rounded-xl border text-left transition-all flex items-center gap-3 ${
+                                selectedProductId === p.id
+                                  ? "border-primary bg-primary/10"
+                                  : "border-border hover:border-foreground"
+                              }`}
+                            >
+                              {p.image_url && (
+                                <img src={p.image_url} alt={p.name} className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
+                              )}
+                              <div className="min-w-0">
+                                <p className={`font-accent text-xs font-semibold truncate ${selectedProductId === p.id ? "text-primary" : "text-foreground"}`}>{p.name}</p>
+                                <p className="font-body text-[10px] text-muted-foreground">{formatNaira(p.price)}/pc</p>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Quantity */}
@@ -223,8 +263,8 @@ const Estimate = () => {
 
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between font-body text-sm">
-                    <span className="text-muted-foreground">{product.label}</span>
-                    <span className="text-foreground">{formatNaira(product.basePrice)}/pc</span>
+                    <span className="text-muted-foreground truncate mr-2">{selectedProduct?.name || "Select a product"}</span>
+                    <span className="text-foreground flex-shrink-0">{formatNaira(basePrice)}/pc</span>
                   </div>
                   {selectedExtras.map((id) => {
                     const extra = customizations.find((c) => c.id === id);
@@ -270,7 +310,7 @@ const Estimate = () => {
                     size="lg"
                     asChild
                   >
-                    <a href={`mailto:howfar@naijaoriginal.com?subject=Custom Order Estimate - ${orgName || "Organization"}&body=Product: ${product.label}%0AQuantity: ${quantity}%0AEstimated Total: ${formatNaira(total)}%0ACustomizations: ${selectedExtras.join(", ") || "None"}%0AOrganization Type: ${orgType}`}>
+                    <a href={`mailto:howfar@naijaoriginal.com?subject=Custom Order Estimate - ${orgName || "Organization"}&body=Product: ${selectedProduct?.name || "N/A"}%0AQuantity: ${quantity}%0AEstimated Total: ${formatNaira(total)}%0ACustomizations: ${selectedExtras.join(", ") || "None"}%0AOrganization Type: ${orgType}`}>
                       Request Official Quote <ArrowRight className="w-4 h-4" />
                     </a>
                   </Button>

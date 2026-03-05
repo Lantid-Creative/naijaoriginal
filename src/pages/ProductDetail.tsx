@@ -177,10 +177,10 @@ const ProductDetail = () => {
 
               <div className="flex items-center gap-3 mb-6">
                 <span className="font-accent text-2xl md:text-3xl font-bold text-foreground">{formatNaira(product.price)}</span>
-                {product.compare_at_price && (
+                {product.compare_at_price && product.compare_at_price > product.price && (
                   <span className="font-body text-base md:text-lg text-muted-foreground line-through">{formatNaira(product.compare_at_price)}</span>
                 )}
-                {product.compare_at_price && (
+                {product.compare_at_price && product.compare_at_price > product.price && (
                   <span className="px-2 py-0.5 rounded-lg bg-destructive/10 text-destructive font-accent text-xs font-bold">
                     {Math.round((1 - product.price / product.compare_at_price) * 100)}% OFF
                   </span>

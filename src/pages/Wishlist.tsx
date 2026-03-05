@@ -125,7 +125,7 @@ const Wishlist = () => {
                     </Link>
                     <div className="flex items-center gap-2 mb-3">
                       <span className="font-accent font-bold text-sm text-foreground">{formatNaira(product.price)}</span>
-                      {product.compare_at_price && (
+                      {product.compare_at_price && product.compare_at_price > product.price && (
                         <span className="font-body text-xs text-muted-foreground line-through">{formatNaira(product.compare_at_price)}</span>
                       )}
                     </div>

@@ -115,7 +115,7 @@ const Compare = () => {
                     {products.map((p) => (
                       <td key={p.id} className="p-3 text-center">
                         <span className="font-accent font-bold text-foreground">{formatNaira(p.price)}</span>
-                        {p.compare_at_price && <span className="block font-body text-xs text-muted-foreground line-through">{formatNaira(p.compare_at_price)}</span>}
+                        {p.compare_at_price && p.compare_at_price > p.price && <span className="block font-body text-xs text-muted-foreground line-through">{formatNaira(p.compare_at_price)}</span>}
                       </td>
                     ))}
                   </tr>
