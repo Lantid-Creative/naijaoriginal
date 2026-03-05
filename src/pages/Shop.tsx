@@ -32,6 +32,7 @@ interface Category {
 }
 
 type SortOption = "featured" | "price-low" | "price-high" | "newest";
+const PRODUCTS_PER_PAGE = 24;
 
 const Shop = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -42,6 +43,7 @@ const Shop = () => {
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("featured");
+  const [currentPage, setCurrentPage] = useState(1);
   const { user } = useAuth();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { addToCompare, removeFromCompare, isInCompare } = useCompare();
@@ -75,6 +77,7 @@ const Shop = () => {
 
   const handleCategoryChange = (catId: string | null) => {
     setSelectedCategory(catId);
+    setCurrentPage(1);
     if (catId) {
       setSearchParams({ category: catId });
     } else {
@@ -103,6 +106,12 @@ const Shop = () => {
       default: return 0;
     }
   });
+
+  const totalPages = Math.ceil(filtered.length / PRODUCTS_PER_PAGE);
+  const paginatedProducts = filtered.slice(
+    (currentPage - 1) * PRODUCTS_PER_PAGE,
+    currentPage * PRODUCTS_PER_PAGE
+  );
 
   const getImage = (p: Product) => {
     const sorted = [...(p.product_images || [])].sort((a, b) => a.display_order - b.display_order);
@@ -142,11 +151,11 @@ const Shop = () => {
                 type="text"
                 placeholder="Search products... wetin you dey find?"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
                 className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-card border border-border font-body text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
               />
               {searchQuery && (
-                <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                <button onClick={() => { setSearchQuery(""); setCurrentPage(1); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                   <X className="w-4 h-4" />
                 </button>
               )}
@@ -220,7 +229,9 @@ const Shop = () => {
             {/* Product Grid */}
             <div className="flex-1">
               <div className="flex items-center justify-between mb-4">
-                <p className="font-accent text-xs text-muted-foreground">{filtered.length} product{filtered.length !== 1 ? "s" : ""}</p>
+                <p className="font-accent text-xs text-muted-foreground">
+                  {filtered.length === 0 ? "0 products" : `Showing ${(currentPage - 1) * PRODUCTS_PER_PAGE + 1}–${Math.min(currentPage * PRODUCTS_PER_PAGE, filtered.length)} of ${filtered.length} product${filtered.length !== 1 ? "s" : ""}`}
+                </p>
               </div>
 
               {loading ? (
@@ -246,7 +257,7 @@ const Shop = () => {
                   layout
                   className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
                 >
-                  {filtered.map((product, i) => (
+                  {paginatedProducts.map((product, i) => (
                     <motion.div
                       key={product.id}
                       layout
@@ -328,6 +339,48 @@ const Shop = () => {
                     </motion.div>
                   ))}
                 </motion.div>
+              )}
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 mt-8">
+                  <button
+                    onClick={() => { setCurrentPage(p => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                    disabled={currentPage === 1}
+                    className="px-3 py-2 rounded-lg font-body text-sm border border-border bg-card text-foreground disabled:opacity-40 disabled:cursor-not-allowed hover:bg-muted transition-colors"
+                  >
+                    Previous
+                  </button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+                    .reduce<(number | string)[]>((acc, p, i, arr) => {
+                      if (i > 0 && typeof arr[i - 1] === 'number' && (p as number) - (arr[i - 1] as number) > 1) acc.push('...');
+                      acc.push(p);
+                      return acc;
+                    }, [])
+                    .map((p, i) =>
+                      typeof p === 'string' ? (
+                        <span key={`ellipsis-${i}`} className="px-2 text-muted-foreground">…</span>
+                      ) : (
+                        <button
+                          key={p}
+                          onClick={() => { setCurrentPage(p); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                          className={`w-9 h-9 rounded-lg font-accent text-sm font-semibold transition-colors ${
+                            currentPage === p ? "bg-primary text-primary-foreground" : "border border-border bg-card text-foreground hover:bg-muted"
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      )
+                    )}
+                  <button
+                    onClick={() => { setCurrentPage(p => Math.min(totalPages, p + 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-2 rounded-lg font-body text-sm border border-border bg-card text-foreground disabled:opacity-40 disabled:cursor-not-allowed hover:bg-muted transition-colors"
+                  >
+                    Next
+                  </button>
+                </div>
               )}
             </div>
           </div>
