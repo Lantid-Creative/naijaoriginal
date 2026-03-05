@@ -11,6 +11,7 @@ const navLinks = [
   { label: "Verify", href: "/verify" },
   { label: "Track Order", href: "/track" },
   { label: "Custom Orders", href: "/estimate" },
+  { label: "Help", href: "/help" },
 ];
 
 const Navbar = () => {

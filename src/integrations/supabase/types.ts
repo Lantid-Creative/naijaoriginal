@@ -379,6 +379,39 @@ export type Database = {
         }
         Relationships: []
       }
+      support_tickets: {
+        Row: {
+          admin_notes: string | null
+          conversation_summary: string
+          created_at: string
+          id: string
+          status: string
+          updated_at: string
+          user_id: string
+          user_message: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          conversation_summary: string
+          created_at?: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          user_message: string
+        }
+        Update: {
+          admin_notes?: string | null
+          conversation_summary?: string
+          created_at?: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          user_message?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
