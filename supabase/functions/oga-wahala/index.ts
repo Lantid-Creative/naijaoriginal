@@ -51,8 +51,8 @@ serve(async (req) => {
 
   try {
     const { messages, userId } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    const AZURE_API_KEY = Deno.env.get("AZURE_OPENAI_API_KEY");
+    if (!AZURE_API_KEY) throw new Error("AZURE_OPENAI_API_KEY is not configured");
 
     // Build context about the user if authenticated
     let userContext = "";
@@ -104,14 +104,13 @@ serve(async (req) => {
 
     const systemMessage = SYSTEM_PROMPT + userContext;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://smartedge.cognitiveservices.azure.com/openai/deployments/gpt-4o/chat/completions?api-version=2025-01-01-preview", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "api-key": AZURE_API_KEY,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemMessage },
           ...messages,
