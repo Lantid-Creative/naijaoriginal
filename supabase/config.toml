@@ -1,1 +1,10 @@
 project_id = "ckkwbwmrlykovkycszab"
+
+[functions.oga-wahala]
+verify_jwt = false
+
+[functions.escalate-ticket]
+verify_jwt = false
+
+[functions.analyze-products]
+verify_jwt = false
