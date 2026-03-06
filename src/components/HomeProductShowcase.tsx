@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowRight, Star, Flame, Clock } from "lucide-react";
+import { useProductRatings } from "@/hooks/useProductRatings";
 import { motion } from "framer-motion";
 import QuickAddToCart from "@/components/QuickAddToCart";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -41,7 +42,7 @@ const sectionConfig: Record<SectionType, { title: string; subtitle: string; icon
   },
 };
 
-const ProductCard = ({ product, index }: { product: Product; index: number }) => {
+const ProductCard = ({ product, index, rating }: { product: Product; index: number; rating?: { avg: number; count: number } }) => {
   const image = product.product_images?.[0];
   const discount = product.compare_at_price
     ? Math.round(((product.compare_at_price - product.price) / product.compare_at_price) * 100)
@@ -109,6 +110,13 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
               </span>
             )}
           </div>
+          {rating && rating.count > 0 && (
+            <div className="flex items-center gap-1 mt-1">
+              <Star className="w-3 h-3 text-naija-gold fill-naija-gold" />
+              <span className="font-accent text-xs font-bold text-foreground">{rating.avg.toFixed(1)}</span>
+              <span className="font-body text-[10px] text-muted-foreground">({rating.count})</span>
+            </div>
+          )}
         </div>
       </Link>
     </motion.div>
@@ -145,7 +153,6 @@ const ProductSection = ({ type }: { type: SectionType }) => {
       } else if (type === "featured") {
         query = query.eq("is_featured", true).order("updated_at", { ascending: false });
       } else {
-        // top-rated: use featured + limited edition as proxy
         query = query.or("is_featured.eq.true,is_limited_edition.eq.true").order("price", { ascending: false });
       }
 
@@ -155,6 +162,9 @@ const ProductSection = ({ type }: { type: SectionType }) => {
     };
     fetchProducts();
   }, [type]);
+
+  const productIds = useMemo(() => products.map(p => p.id), [products]);
+  const ratings = useProductRatings(productIds);
 
   return (
     <section className="py-12 md:py-20">
@@ -184,7 +194,7 @@ const ProductSection = ({ type }: { type: SectionType }) => {
           {loading
             ? Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
             : products.map((product, i) => (
-                <ProductCard key={product.id} product={product} index={i} />
+                <ProductCard key={product.id} product={product} index={i} rating={ratings[product.id]} />
               ))}
         </div>
 

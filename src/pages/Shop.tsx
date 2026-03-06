@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { ShoppingBag, SlidersHorizontal, X, Search, Heart, Scale } from "lucide-react";
+import { ShoppingBag, SlidersHorizontal, X, Search, Heart, Scale, Star } from "lucide-react";
+import { useProductRatings } from "@/hooks/useProductRatings";
 import { motion, AnimatePresence } from "framer-motion";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useCompare } from "@/contexts/CompareContext";
@@ -52,7 +53,8 @@ const Shop = () => {
   const { addToCompare, removeFromCompare, isInCompare } = useCompare();
   const { toast } = useToast();
   const { recentProducts } = useRecentlyViewed();
-
+  const productIds = useMemo(() => products.map(p => p.id), [products]);
+  const ratings = useProductRatings(productIds);
   useEffect(() => {
     const catParam = searchParams.get("category");
     if (catParam && categories.length > 0) {
@@ -339,6 +341,13 @@ const Shop = () => {
                               </span>
                             )}
                           </div>
+                          {ratings[product.id] && ratings[product.id].count > 0 && (
+                            <div className="flex items-center gap-1 mt-1">
+                              <Star className="w-3 h-3 text-naija-gold fill-naija-gold" />
+                              <span className="font-accent text-xs font-bold text-foreground">{ratings[product.id].avg.toFixed(1)}</span>
+                              <span className="font-body text-[10px] text-muted-foreground">({ratings[product.id].count})</span>
+                            </div>
+                          )}
                         </div>
                       </Link>
                     </motion.div>

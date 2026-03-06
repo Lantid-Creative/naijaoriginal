@@ -6,7 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { formatNaira } from "@/lib/format";
-import { Package, ShoppingCart, Users, Plus, Pencil, Trash2, X, BarChart3, QrCode, Copy, MessageSquare, AlertCircle, Star, Check, Ban } from "lucide-react";
+import { Package, ShoppingCart, Users, Plus, Pencil, Trash2, X, BarChart3, QrCode, Copy, MessageSquare, AlertCircle, Star, Check, Ban, Bell } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import Navbar from "@/components/Navbar";
 
@@ -47,6 +47,7 @@ const Admin = () => {
   // Reviews moderation state
   const [reviews, setReviews] = useState<any[]>([]);
   const [reviewFilter, setReviewFilter] = useState<"pending" | "approved" | "all">("pending");
+  const [notifications, setNotifications] = useState<any[]>([]);
 
   useEffect(() => {
     if (!authLoading && (!user || !isAdmin)) {
@@ -59,18 +60,20 @@ const Admin = () => {
   }, []);
 
   const fetchData = async () => {
-    const [productsRes, ordersRes, categoriesRes, ticketsRes, reviewsRes] = await Promise.all([
+    const [productsRes, ordersRes, categoriesRes, ticketsRes, reviewsRes, notificationsRes] = await Promise.all([
       supabase.from("products").select("*, product_categories:category_id(name)").order("created_at", { ascending: false }),
       supabase.from("orders").select("*, order_items(count)").order("created_at", { ascending: false }).limit(50),
       supabase.from("product_categories").select("*").order("name"),
       supabase.from("support_tickets").select("*").order("created_at", { ascending: false }),
       supabase.from("product_reviews").select("*, products:product_id(name, slug)").order("created_at", { ascending: false }),
+      supabase.from("admin_notifications").select("*").eq("is_read", false).order("created_at", { ascending: false }).limit(20),
     ]);
     setProducts(productsRes.data || []);
     setOrders(ordersRes.data || []);
     setCategories(categoriesRes.data || []);
     setTickets(ticketsRes.data || []);
     setReviews(reviewsRes.data || []);
+    setNotifications(notificationsRes.data || []);
     setLoading(false);
   };
 
@@ -214,6 +217,8 @@ const Admin = () => {
   const handleApproveReview = async (reviewId: string) => {
     const { error } = await supabase.from("product_reviews").update({ is_approved: true }).eq("id", reviewId);
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    // Mark related notification as read
+    await supabase.from("admin_notifications").update({ is_read: true } as any).eq("metadata->>review_id", reviewId);
     toast({ title: "Review approved! ✅" });
     fetchData();
   };
@@ -222,6 +227,7 @@ const Admin = () => {
     if (!confirm("Delete this review?")) return;
     const { error } = await supabase.from("product_reviews").delete().eq("id", reviewId);
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    await supabase.from("admin_notifications").update({ is_read: true } as any).eq("metadata->>review_id", reviewId);
     toast({ title: "Review deleted" });
     fetchData();
   };
@@ -240,9 +246,23 @@ const Admin = () => {
       <Navbar />
       <main className="pt-20 pb-16">
         <div className="container mx-auto px-6">
-          <div className="py-8">
-            <h1 className="font-display text-3xl font-black text-foreground mb-2">Admin Dashboard 🔐</h1>
-            <p className="font-body text-muted-foreground">Manage your Naija Original store</p>
+          <div className="py-8 flex items-start justify-between">
+            <div>
+              <h1 className="font-display text-3xl font-black text-foreground mb-2">Admin Dashboard 🔐</h1>
+              <p className="font-body text-muted-foreground">Manage your Naija Original store</p>
+            </div>
+            {notifications.length > 0 && (
+              <button
+                onClick={() => setTab("reviews")}
+                className="relative p-2 rounded-xl bg-card border border-border hover:bg-muted transition-colors"
+                title={`${notifications.length} unread notification${notifications.length !== 1 ? 's' : ''}`}
+              >
+                <Bell className="w-5 h-5 text-foreground" />
+                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-accent font-bold flex items-center justify-center">
+                  {notifications.length}
+                </span>
+              </button>
+            )}
           </div>
 
           {/* Stats */}
