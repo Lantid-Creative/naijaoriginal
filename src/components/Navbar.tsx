@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useCompare } from "@/contexts/CompareContext";
+import NotificationBell from "@/components/NotificationBell";
 
 const navLinks = [
   { label: "Shop", href: "/shop" },
@@ -79,6 +80,7 @@ const Navbar = () => {
 
           {user ? (
             <div className="flex items-center gap-3">
+              <NotificationBell />
               <Link to="/account" className="text-foreground hover:text-primary transition-colors" title="My Account">
                 <User className="w-5 h-5" />
               </Link>
