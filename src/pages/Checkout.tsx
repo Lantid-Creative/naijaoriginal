@@ -130,7 +130,7 @@ const Checkout = () => {
               subject: `Order Confirmed! #${order.order_number} 🎉`,
               html: orderConfirmationEmail({
                 orderNumber: order.order_number,
-                customerName: form.firstName || user?.user_metadata?.full_name || "",
+                customerName: form.fullName || user?.user_metadata?.full_name || "",
                 total: orderTotal,
                 items: orderItems.map(i => ({ name: i.product_name, quantity: i.quantity, price: i.price * i.quantity })),
               }),
