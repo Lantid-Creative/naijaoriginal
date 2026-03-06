@@ -10,8 +10,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useCompare } from "@/contexts/CompareContext";
 import { formatNaira } from "@/lib/format";
+import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import RecentlyViewed from "@/components/RecentlyViewed";
+import WhatsAppShare from "@/components/WhatsAppShare";
 
 interface Product {
   id: string;
@@ -45,6 +48,7 @@ const ProductDetail = () => {
   const { user } = useAuth();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { addToCompare, removeFromCompare, isInCompare } = useCompare();
+  const { recentProducts, addToRecentlyViewed } = useRecentlyViewed();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -57,6 +61,15 @@ const ProductDetail = () => {
         setProduct(data as any);
         if (data.sizes?.length) setSelectedSize(data.sizes[0]);
         if (data.colors?.length) setSelectedColor(data.colors[0]);
+        // Track recently viewed
+        const images = [...(data.product_images || [])].sort((a: any, b: any) => a.display_order - b.display_order);
+        addToRecentlyViewed({
+          id: data.id,
+          slug: data.slug,
+          name: data.name,
+          price: data.price,
+          image_url: images[0]?.image_url || "/placeholder.svg",
+        });
       }
       setLoading(false);
     };
@@ -254,11 +267,11 @@ const ProductDetail = () => {
                 </div>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex gap-3 flex-wrap">
                 <Button
                   onClick={handleAddToCart}
                   disabled={adding || product.stock === 0}
-                  className="flex-1 py-6 text-base font-accent font-semibold gap-2 rounded-xl"
+                  className="flex-1 min-w-[180px] py-6 text-base font-accent font-semibold gap-2 rounded-xl"
                   size="lg"
                 >
                   <ShoppingCart className="w-5 h-5" />
@@ -290,6 +303,11 @@ const ProductDetail = () => {
                 >
                   <Scale className="w-5 h-5" />
                 </Button>
+                <WhatsAppShare
+                  productName={product.name}
+                  productSlug={product.slug}
+                  price={formatNaira(product.price)}
+                />
               </div>
 
               <div className="mt-5 md:mt-6 flex items-center gap-2 text-muted-foreground font-body text-sm">
@@ -298,6 +316,9 @@ const ProductDetail = () => {
               </div>
             </motion.div>
           </div>
+
+          {/* Recently Viewed */}
+          <RecentlyViewed products={recentProducts} currentProductId={product.id} />
         </div>
       </main>
       <Footer />

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -27,6 +27,33 @@ const Checkout = () => {
     country: "Nigeria",
     zip: "",
   });
+
+  // Auto-fill from profile for logged-in users
+  useEffect(() => {
+    if (!user) return;
+    const fetchProfile = async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("full_name, email, phone, shipping_address")
+        .eq("id", user.id)
+        .single();
+      if (data) {
+        const addr = (data.shipping_address as any) || {};
+        setForm((prev) => ({
+          ...prev,
+          fullName: data.full_name || prev.fullName,
+          email: data.email || user.email || prev.email,
+          phone: data.phone || prev.phone,
+          address: addr.address || prev.address,
+          city: addr.city || prev.city,
+          state: addr.state || prev.state,
+          country: addr.country || prev.country,
+          zip: addr.zip || prev.zip,
+        }));
+      }
+    };
+    fetchProfile();
+  }, [user]);
 
   const shipping = total > 50000 ? 0 : 3500;
   const orderTotal = total + shipping;
