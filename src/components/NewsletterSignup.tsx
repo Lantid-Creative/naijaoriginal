@@ -34,6 +34,14 @@ const NewsletterSignup = () => {
     } else {
       setSubscribed(true);
       toast({ title: "You don join the family! 🎉", description: "Watch your inbox for exclusive drops and offers." });
+      // Send welcome email
+      supabase.functions.invoke("send-email", {
+        body: {
+          to: email.trim().toLowerCase(),
+          subject: "Welcome to Naija Original! 🇳🇬🔥",
+          html: (await import("@/lib/email-templates")).newsletterWelcomeEmail({ name: name.trim() || undefined }),
+        },
+      });
     }
     setSubmitting(false);
   };
