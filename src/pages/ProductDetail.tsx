@@ -15,6 +15,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import RecentlyViewed from "@/components/RecentlyViewed";
 import WhatsAppShare from "@/components/WhatsAppShare";
+import ProductReviews from "@/components/ProductReviews";
 
 interface Product {
   id: string;
@@ -316,6 +317,9 @@ const ProductDetail = () => {
               </div>
             </motion.div>
           </div>
+
+          {/* Reviews */}
+          <ProductReviews productId={product.id} />
 
           {/* Recently Viewed */}
           <RecentlyViewed products={recentProducts} currentProductId={product.id} />

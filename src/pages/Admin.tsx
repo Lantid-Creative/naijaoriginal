@@ -6,11 +6,11 @@ import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { formatNaira } from "@/lib/format";
-import { Package, ShoppingCart, Users, Plus, Pencil, Trash2, X, BarChart3, QrCode, Copy, MessageSquare, AlertCircle } from "lucide-react";
+import { Package, ShoppingCart, Users, Plus, Pencil, Trash2, X, BarChart3, QrCode, Copy, MessageSquare, AlertCircle, Star, Check, Ban } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import Navbar from "@/components/Navbar";
 
-type Tab = "products" | "orders" | "qr" | "tickets" | "analytics";
+type Tab = "products" | "orders" | "qr" | "tickets" | "reviews" | "analytics";
 
 const Admin = () => {
   const { user, isAdmin, loading: authLoading } = useAuth();
@@ -44,6 +44,10 @@ const Admin = () => {
   const [adminNotes, setAdminNotes] = useState("");
   const [updatingTicket, setUpdatingTicket] = useState(false);
 
+  // Reviews moderation state
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviewFilter, setReviewFilter] = useState<"pending" | "approved" | "all">("pending");
+
   useEffect(() => {
     if (!authLoading && (!user || !isAdmin)) {
       navigate("/");
@@ -55,16 +59,18 @@ const Admin = () => {
   }, []);
 
   const fetchData = async () => {
-    const [productsRes, ordersRes, categoriesRes, ticketsRes] = await Promise.all([
+    const [productsRes, ordersRes, categoriesRes, ticketsRes, reviewsRes] = await Promise.all([
       supabase.from("products").select("*, product_categories:category_id(name)").order("created_at", { ascending: false }),
       supabase.from("orders").select("*, order_items(count)").order("created_at", { ascending: false }).limit(50),
       supabase.from("product_categories").select("*").order("name"),
       supabase.from("support_tickets").select("*").order("created_at", { ascending: false }),
+      supabase.from("product_reviews").select("*, products:product_id(name, slug)").order("created_at", { ascending: false }),
     ]);
     setProducts(productsRes.data || []);
     setOrders(ordersRes.data || []);
     setCategories(categoriesRes.data || []);
     setTickets(ticketsRes.data || []);
+    setReviews(reviewsRes.data || []);
     setLoading(false);
   };
 
@@ -205,6 +211,23 @@ const Admin = () => {
     }
   };
 
+  const handleApproveReview = async (reviewId: string) => {
+    const { error } = await supabase.from("product_reviews").update({ is_approved: true }).eq("id", reviewId);
+    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    toast({ title: "Review approved! ✅" });
+    fetchData();
+  };
+
+  const handleRejectReview = async (reviewId: string) => {
+    if (!confirm("Delete this review?")) return;
+    const { error } = await supabase.from("product_reviews").delete().eq("id", reviewId);
+    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    toast({ title: "Review deleted" });
+    fetchData();
+  };
+
+  const pendingReviews = reviews.filter((r: any) => !r.is_approved);
+
   const openTickets = tickets.filter(t => t.status === "open").length;
 
   if (authLoading || !isAdmin) return null;
@@ -244,7 +267,7 @@ const Admin = () => {
 
           {/* Tabs */}
           <div className="flex gap-2 mb-6 overflow-x-auto">
-            {(["products", "orders", "tickets", "qr", "analytics"] as Tab[]).map((t) => (
+            {(["products", "orders", "reviews", "tickets", "qr", "analytics"] as Tab[]).map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
@@ -252,7 +275,7 @@ const Admin = () => {
                   tab === t ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
                 }`}
               >
-                {t === "qr" ? "QR Codes" : t === "tickets" ? `Tickets${openTickets > 0 ? ` (${openTickets})` : ""}` : t}
+                {t === "qr" ? "QR Codes" : t === "tickets" ? `Tickets${openTickets > 0 ? ` (${openTickets})` : ""}` : t === "reviews" ? `Reviews${pendingReviews.length > 0 ? ` (${pendingReviews.length})` : ""}` : t}
               </button>
             ))}
           </div>
@@ -613,6 +636,95 @@ const Admin = () => {
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Reviews Moderation Tab */}
+          {tab === "reviews" && (
+            <div>
+              <h2 className="font-display text-xl font-bold text-foreground mb-4">Review Moderation ⭐</h2>
+              <p className="font-body text-sm text-muted-foreground mb-6">
+                Approve or reject customer reviews before dem show on product pages.
+              </p>
+
+              <div className="flex gap-2 mb-6">
+                {(["pending", "approved", "all"] as const).map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => setReviewFilter(f)}
+                    className={`px-3 py-1.5 rounded-lg font-body text-xs capitalize transition-all ${
+                      reviewFilter === f ? "bg-secondary text-secondary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {f} {f === "pending" && pendingReviews.length > 0 ? `(${pendingReviews.length})` : ""}
+                  </button>
+                ))}
+              </div>
+
+              {(() => {
+                const filtered = reviewFilter === "pending"
+                  ? reviews.filter((r: any) => !r.is_approved)
+                  : reviewFilter === "approved"
+                  ? reviews.filter((r: any) => r.is_approved)
+                  : reviews;
+
+                if (filtered.length === 0) return (
+                  <div className="naija-card p-12 text-center">
+                    <Star className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                    <p className="font-body text-muted-foreground">No {reviewFilter} reviews.</p>
+                  </div>
+                );
+
+                return (
+                  <div className="space-y-3">
+                    {filtered.map((review: any) => (
+                      <div key={review.id} className="naija-card p-5">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                              <div className="flex gap-0.5">
+                                {[1, 2, 3, 4, 5].map((s) => (
+                                  <Star key={s} className={`w-3.5 h-3.5 ${s <= review.rating ? "text-naija-gold fill-naija-gold" : "text-muted-foreground/30"}`} />
+                                ))}
+                              </div>
+                              <span className={`px-2 py-0.5 rounded text-[10px] font-accent ${
+                                review.is_approved ? "bg-primary/10 text-primary" : "bg-secondary/10 text-secondary"
+                              }`}>
+                                {review.is_approved ? "Approved" : "Pending"}
+                              </span>
+                              <span className="font-body text-xs text-muted-foreground">
+                                {new Date(review.created_at).toLocaleDateString()}
+                              </span>
+                            </div>
+                            <p className="font-accent text-xs text-primary mb-1 truncate">
+                              {review.products?.name || "Unknown product"}
+                            </p>
+                            <p className="font-body text-sm text-foreground">{review.comment}</p>
+                          </div>
+                          <div className="flex gap-1.5 flex-shrink-0">
+                            {!review.is_approved && (
+                              <button
+                                onClick={() => handleApproveReview(review.id)}
+                                className="p-2 rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors"
+                                title="Approve"
+                              >
+                                <Check className="w-4 h-4" />
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleRejectReview(review.id)}
+                              className="p-2 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                              title="Delete"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
             </div>
           )}
 
