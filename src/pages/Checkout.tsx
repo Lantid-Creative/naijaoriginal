@@ -121,6 +121,22 @@ const Checkout = () => {
       });
 
       if (paymentError || !paymentData?.authorization_url) {
+        // Send order confirmation email
+        const emailTo = user?.email || form.email;
+        if (emailTo) {
+          supabase.functions.invoke("send-email", {
+            body: {
+              to: emailTo,
+              subject: `Order Confirmed! #${order.order_number} 🎉`,
+              html: orderConfirmationEmail({
+                orderNumber: order.order_number,
+                customerName: form.firstName || user?.user_metadata?.full_name || "",
+                total: orderTotal,
+                items: orderItems.map(i => ({ name: i.product_name, quantity: i.quantity, price: i.price * i.quantity })),
+              }),
+            },
+          });
+        }
         toast({ title: "Order don place! 🎉", description: `Order ${order.order_number} don create. Payment processing dey come soon!` });
         await clearCart();
         navigate(`/order-confirmation/${order.order_number}`);
