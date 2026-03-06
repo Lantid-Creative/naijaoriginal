@@ -8,8 +8,11 @@ import { useCompare } from "@/contexts/CompareContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { formatNaira } from "@/lib/format";
+import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import QuickAddToCart from "@/components/QuickAddToCart";
+import RecentlyViewed from "@/components/RecentlyViewed";
 
 interface Product {
   id: string;
@@ -48,6 +51,7 @@ const Shop = () => {
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { addToCompare, removeFromCompare, isInCompare } = useCompare();
   const { toast } = useToast();
+  const { recentProducts } = useRecentlyViewed();
 
   useEffect(() => {
     const catParam = searchParams.get("category");
@@ -287,6 +291,7 @@ const Shop = () => {
                             </span>
                           )}
                           <div className="absolute bottom-2 right-2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <QuickAddToCart productId={product.id} productName={product.name} />
                             <button
                               onClick={(e) => {
                                 e.preventDefault();
@@ -384,6 +389,9 @@ const Shop = () => {
               )}
             </div>
           </div>
+
+          {/* Recently Viewed */}
+          <RecentlyViewed products={recentProducts} />
         </div>
       </main>
       <Footer />
