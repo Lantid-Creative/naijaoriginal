@@ -47,10 +47,8 @@ serve(async (req) => {
       },
     });
 
-    const fromField = fromName ? { name: fromName, addr: fromEmail } : fromEmail;
-
     await client.send({
-      from: fromField,
+      from: fromEmail,
       to,
       subject,
       content: text || "",
