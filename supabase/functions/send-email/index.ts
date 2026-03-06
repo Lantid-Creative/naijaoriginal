@@ -47,8 +47,10 @@ serve(async (req) => {
       },
     });
 
+    const fromField = fromName ? { name: fromName, addr: fromEmail } : fromEmail;
+
     await client.send({
-      from: `${fromName} <${fromEmail}>`,
+      from: fromField,
       to,
       subject,
       content: text || "",
