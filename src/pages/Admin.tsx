@@ -6,11 +6,11 @@ import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { formatNaira } from "@/lib/format";
-import { Package, ShoppingCart, Users, Plus, Pencil, Trash2, X, BarChart3, QrCode, Copy, MessageSquare, AlertCircle, Star, Check, Ban, Bell } from "lucide-react";
+import { Package, ShoppingCart, Users, Plus, Pencil, Trash2, X, BarChart3, QrCode, Copy, MessageSquare, AlertCircle, Star, Check, Ban, Bell, Mail } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import Navbar from "@/components/Navbar";
 
-type Tab = "products" | "orders" | "qr" | "tickets" | "reviews" | "analytics";
+type Tab = "products" | "orders" | "qr" | "tickets" | "reviews" | "analytics" | "subscribers";
 
 const Admin = () => {
   const { user, isAdmin, loading: authLoading } = useAuth();
@@ -48,6 +48,7 @@ const Admin = () => {
   const [reviews, setReviews] = useState<any[]>([]);
   const [reviewFilter, setReviewFilter] = useState<"pending" | "approved" | "all">("pending");
   const [notifications, setNotifications] = useState<any[]>([]);
+  const [subscribers, setSubscribers] = useState<any[]>([]);
 
   useEffect(() => {
     if (!authLoading && (!user || !isAdmin)) {
@@ -60,13 +61,14 @@ const Admin = () => {
   }, []);
 
   const fetchData = async () => {
-    const [productsRes, ordersRes, categoriesRes, ticketsRes, reviewsRes, notificationsRes] = await Promise.all([
+    const [productsRes, ordersRes, categoriesRes, ticketsRes, reviewsRes, notificationsRes, subscribersRes] = await Promise.all([
       supabase.from("products").select("*, product_categories:category_id(name)").order("created_at", { ascending: false }),
       supabase.from("orders").select("*, order_items(count)").order("created_at", { ascending: false }).limit(50),
       supabase.from("product_categories").select("*").order("name"),
       supabase.from("support_tickets").select("*").order("created_at", { ascending: false }),
       supabase.from("product_reviews").select("*, products:product_id(name, slug)").order("created_at", { ascending: false }),
       supabase.from("admin_notifications").select("*").eq("is_read", false).order("created_at", { ascending: false }).limit(20),
+      supabase.from("newsletter_subscribers").select("*").order("subscribed_at", { ascending: false }),
     ]);
     setProducts(productsRes.data || []);
     setOrders(ordersRes.data || []);
@@ -74,6 +76,7 @@ const Admin = () => {
     setTickets(ticketsRes.data || []);
     setReviews(reviewsRes.data || []);
     setNotifications(notificationsRes.data || []);
+    setSubscribers(subscribersRes.data || []);
     setLoading(false);
   };
 
@@ -287,7 +290,7 @@ const Admin = () => {
 
           {/* Tabs */}
           <div className="flex gap-2 mb-6 overflow-x-auto">
-            {(["products", "orders", "reviews", "tickets", "qr", "analytics"] as Tab[]).map((t) => (
+            {(["products", "orders", "reviews", "tickets", "subscribers", "qr", "analytics"] as Tab[]).map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
@@ -295,7 +298,7 @@ const Admin = () => {
                   tab === t ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
                 }`}
               >
-                {t === "qr" ? "QR Codes" : t === "tickets" ? `Tickets${openTickets > 0 ? ` (${openTickets})` : ""}` : t === "reviews" ? `Reviews${pendingReviews.length > 0 ? ` (${pendingReviews.length})` : ""}` : t}
+                {t === "qr" ? "QR Codes" : t === "tickets" ? `Tickets${openTickets > 0 ? ` (${openTickets})` : ""}` : t === "reviews" ? `Reviews${pendingReviews.length > 0 ? ` (${pendingReviews.length})` : ""}` : t === "subscribers" ? `Subscribers (${subscribers.length})` : t}
               </button>
             ))}
           </div>
@@ -754,6 +757,53 @@ const Admin = () => {
               <BarChart3 className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="font-display text-xl font-bold text-foreground mb-2">Analytics Dey Come Soon</h3>
               <p className="font-body text-muted-foreground">Sales charts, customer insights, and more — e dey on the way!</p>
+            </div>
+          )}
+
+          {/* Subscribers Tab */}
+          {tab === "subscribers" && (
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-display text-xl font-bold text-foreground flex items-center gap-2">
+                  <Mail className="w-5 h-5 text-primary" /> Newsletter Subscribers
+                </h2>
+                <span className="font-accent text-sm text-muted-foreground">
+                  {subscribers.filter((s: any) => s.is_active).length} active / {subscribers.length} total
+                </span>
+              </div>
+              {subscribers.length === 0 ? (
+                <div className="text-center py-16">
+                  <Mail className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+                  <p className="font-body text-muted-foreground">No subscribers yet.</p>
+                </div>
+              ) : (
+                <div className="naija-card overflow-hidden">
+                  <table className="w-full text-left">
+                    <thead>
+                      <tr className="border-b border-border bg-muted/50">
+                        <th className="font-accent text-xs text-muted-foreground uppercase px-4 py-3">Email</th>
+                        <th className="font-accent text-xs text-muted-foreground uppercase px-4 py-3 hidden md:table-cell">Name</th>
+                        <th className="font-accent text-xs text-muted-foreground uppercase px-4 py-3 hidden md:table-cell">Date</th>
+                        <th className="font-accent text-xs text-muted-foreground uppercase px-4 py-3">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {subscribers.map((sub: any) => (
+                        <tr key={sub.id} className="hover:bg-muted/30 transition-colors">
+                          <td className="px-4 py-3 font-body text-sm text-foreground">{sub.email}</td>
+                          <td className="px-4 py-3 font-body text-sm text-muted-foreground hidden md:table-cell">{sub.full_name || "—"}</td>
+                          <td className="px-4 py-3 font-body text-xs text-muted-foreground hidden md:table-cell">{new Date(sub.subscribed_at).toLocaleDateString()}</td>
+                          <td className="px-4 py-3">
+                            <span className={`px-2 py-1 rounded-full font-accent text-[10px] font-bold ${sub.is_active ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
+                              {sub.is_active ? "Active" : "Unsubscribed"}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           )}
         </div>
