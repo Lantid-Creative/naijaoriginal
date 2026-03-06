@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Lock } from "lucide-react";
 import { formatNaira } from "@/lib/format";
+import { orderConfirmationEmail } from "@/lib/email-templates";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
