@@ -34,6 +34,8 @@ serve(async (req) => {
     const password = Deno.env.get("SMTP_PASS")!;
     const fromEmail = Deno.env.get("SMTP_FROM_EMAIL") || username;
     const fromName = Deno.env.get("SMTP_FROM_NAME") || "Naija Original";
+    
+    console.log("SMTP config:", { host, port, username, fromEmail, fromName });
 
     const client = new SMTPClient({
       connection: {
@@ -48,7 +50,7 @@ serve(async (req) => {
     });
 
     await client.send({
-      from: `${fromName} <${fromEmail}>`,
+      from: fromEmail,
       to,
       subject,
       content: text || "",
