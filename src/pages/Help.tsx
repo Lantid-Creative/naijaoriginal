@@ -78,7 +78,7 @@ const Help = () => {
                         </Link>
                       )}
                       <div className="mt-4 space-y-2">
-                        {["Where is my order?", "Help me with returns", "I no fit find my size", "Wetin be your delivery time?"].map((q) => (
+                        {["Where is my order?", "I received a wrong item", "I no fit find my size", "Wetin be your delivery time?"].map((q) => (
                           <button key={q} onClick={() => send(q)} className="block w-full text-left text-sm px-4 py-2.5 rounded-xl bg-muted hover:bg-accent hover:text-accent-foreground transition-colors">
                             {q}
                           </button>

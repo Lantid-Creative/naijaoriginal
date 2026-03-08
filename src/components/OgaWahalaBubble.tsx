@@ -21,7 +21,7 @@ const OgaWahalaBubble = () => {
     "Where is my order?",
     "I need help with a product",
     "How do I track my package?",
-    "I want to return an item",
+    "I received a wrong item",
   ];
 
   return (
