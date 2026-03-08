@@ -11,7 +11,7 @@ import AdminAIChat from "@/components/AdminAIChat";
 import { Textarea } from "@/components/ui/textarea";
 import Navbar from "@/components/Navbar";
 
-type Tab = "products" | "orders" | "qr" | "tickets" | "reviews" | "analytics" | "subscribers";
+type Tab = "products" | "orders" | "qr" | "tickets" | "reviews" | "analytics" | "subscribers" | "ai";
 
 const Admin = () => {
   const { user, isAdmin, loading: authLoading } = useAuth();
