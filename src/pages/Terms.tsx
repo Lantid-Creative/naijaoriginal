@@ -57,9 +57,10 @@ const Terms = () => {
             </section>
 
             <section className="bg-card rounded-2xl border border-border p-6 md:p-8">
-              <h2 className="font-accent text-lg font-bold text-foreground mb-3">5. Returns and Refunds</h2>
+              <h2 className="font-accent text-lg font-bold text-foreground mb-3">5. All Sales Final</h2>
               <p className="text-muted-foreground leading-relaxed">
-                You fit return unused and unworn items within 14 days of delivery for full refund. Items must dey in their original packaging with all tags attached. Limited edition items no dey eligible for return unless dem get defect.
+                All sales dey final. We no dey accept returns or offer refunds at this time. Abeg make sure say you review your order well-well before you confirm am. If you receive defective or wrong item, reach out to us at{" "}
+                <a href="mailto:howfar@naijaoriginal.com" className="text-primary hover:underline">howfar@naijaoriginal.com</a> and we go look into am.
               </p>
             </section>
 
