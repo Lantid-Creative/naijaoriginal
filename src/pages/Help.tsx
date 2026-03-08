@@ -13,7 +13,7 @@ const faqs = [
   { icon: Truck, q: "How long does shipping take?", a: "Standard delivery takes 3-7 business days within Nigeria. Express shipping is available for select locations." },
   { icon: CreditCard, q: "What payment methods do you accept?", a: "We accept bank transfers, card payments, and mobile money. All payments are in Nigerian Naira (₦)." },
   { icon: Shield, q: "How do I verify my product is authentic?", a: "Each product comes with a QR code. Visit our Verify page to scan it and confirm authenticity." },
-  { icon: HelpCircle, q: "Can I return or exchange items?", a: "Yes! Contact Oga Wahala or our support team within 7 days of delivery for returns/exchanges." },
+  { icon: HelpCircle, q: "Are all sales final?", a: "Yes, all sales dey final. We no dey accept returns or refunds at this time. But if you receive defective or wrong item, reach out to us and we go sort am out." },
   { icon: MessageCircle, q: "How do I contact support?", a: "Chat with Oga Wahala right here! For urgent issues, he'll escalate to our human support team." },
 ];
 
@@ -78,7 +78,7 @@ const Help = () => {
                         </Link>
                       )}
                       <div className="mt-4 space-y-2">
-                        {["Where is my order?", "Help me with returns", "I no fit find my size", "Wetin be your delivery time?"].map((q) => (
+                        {["Where is my order?", "I received a wrong item", "I no fit find my size", "Wetin be your delivery time?"].map((q) => (
                           <button key={q} onClick={() => send(q)} className="block w-full text-left text-sm px-4 py-2.5 rounded-xl bg-muted hover:bg-accent hover:text-accent-foreground transition-colors">
                             {q}
                           </button>

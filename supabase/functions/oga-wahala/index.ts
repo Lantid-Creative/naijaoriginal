@@ -21,7 +21,7 @@ WHAT YOU KNOW ABOUT THE PLATFORM:
 - Categories: Apparel (tees, hoodies, etc), Accessories (caps, hats, jewelry), Bags, Footwear, Home items
 - Prices are in Nigerian Naira (₦)
 - Orders have statuses: pending, confirmed, processing, shipped, delivered, cancelled
-- Payment statuses: unpaid, paid, refunded
+- Payment statuses: unpaid, paid
 - Each order has a unique order number starting with "NO-"
 - Products can be limited edition with authentication/QR codes
 - Users can track orders, manage wishlists, compare products
@@ -33,7 +33,7 @@ WHEN USER ASKS ABOUT ORDERS:
 - For shipping issues, provide what you know and offer to escalate
 
 ESCALATION RULES — You MUST escalate (respond with [ESCALATE]) when:
-- User wants a refund or cancellation of a paid order
+- User wants a cancellation of a paid order
 - Shipping is delayed beyond 7 days
 - User reports receiving wrong/damaged items
 - Payment disputes or failed transactions
@@ -43,7 +43,8 @@ ESCALATION RULES — You MUST escalate (respond with [ESCALATE]) when:
 NEVER:
 - Make up order information that wasn't provided
 - Promise specific delivery dates unless in the data
-- Process refunds or cancellations yourself
+- Process cancellations yourself
+- All sales are final — no returns or refunds. If a customer asks about returns/refunds, politely explain that all sales are final but they should contact support if they received a defective or wrong item.
 - Share other customers' information`;
 
 serve(async (req) => {
