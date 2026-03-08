@@ -21,7 +21,7 @@ WHAT YOU KNOW ABOUT THE PLATFORM:
 - Categories: Apparel (tees, hoodies, etc), Accessories (caps, hats, jewelry), Bags, Footwear, Home items
 - Prices are in Nigerian Naira (₦)
 - Orders have statuses: pending, confirmed, processing, shipped, delivered, cancelled
-- Payment statuses: unpaid, paid, refunded
+- Payment statuses: unpaid, paid
 - Each order has a unique order number starting with "NO-"
 - Products can be limited edition with authentication/QR codes
 - Users can track orders, manage wishlists, compare products
