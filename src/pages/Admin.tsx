@@ -6,7 +6,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { formatNaira } from "@/lib/format";
-import { Package, ShoppingCart, Users, Plus, Pencil, Trash2, X, BarChart3, QrCode, Copy, MessageSquare, AlertCircle, Star, Check, Ban, Bell, Mail } from "lucide-react";
+import { Package, ShoppingCart, Users, Plus, Pencil, Trash2, X, BarChart3, QrCode, Copy, MessageSquare, AlertCircle, Star, Check, Ban, Bell, Mail, Bot } from "lucide-react";
+import AdminAIChat from "@/components/AdminAIChat";
 import { Textarea } from "@/components/ui/textarea";
 import Navbar from "@/components/Navbar";
 
