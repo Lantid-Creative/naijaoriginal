@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 
 const faqs = [
   { icon: Package, q: "How do I track my order?", a: "Go to the Track Order page and enter your order number (starts with NO-). You'll see real-time status updates." },
-  { icon: Truck, q: "How long does shipping take?", a: "Delivery within Nigeria takes about 2 weeks. Standard shipping na ₦5,000 and fast shipping na ₦10,000. For international orders, we go calculate the shipping and contact you!" },
+  { icon: Truck, q: "How long does shipping take?", a: "Standard shipping (₦5,000) takes about 2 weeks within Nigeria. Fast shipping (₦10,000) dey deliver within 3–5 days! For international orders, we go calculate the shipping and contact you." },
   { icon: CreditCard, q: "What payment methods do you accept?", a: "We accept bank transfers, card payments, and mobile money. All payments are in Nigerian Naira (₦)." },
   { icon: Shield, q: "How do I verify my product is authentic?", a: "Each product comes with a QR code. Visit our Verify page to scan it and confirm authenticity." },
   { icon: HelpCircle, q: "Are all sales final?", a: "Yes, all sales dey final. We no dey accept returns or refunds at this time. But if you receive defective or wrong item, reach out to us and we go sort am out." },

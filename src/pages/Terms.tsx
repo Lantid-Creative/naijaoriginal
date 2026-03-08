@@ -51,7 +51,7 @@ const Terms = () => {
               </p>
               <ul className="list-disc list-inside text-muted-foreground space-y-1 mt-2">
                 <li>Standard shipping within Nigeria: ₦5,000</li>
-                <li>Fast shipping within Nigeria: ₦10,000</li>
+                <li>Fast shipping within Nigeria: ₦10,000 (3–5 days delivery)</li>
                 <li>International shipping: We go calculate based on your location and contact you with the cost</li>
                 <li>Minimum order total na ₦30,000 before you fit checkout</li>
                 <li>Risk of loss pass to you once the carrier collect the package</li>
