@@ -40,8 +40,8 @@ const Navbar = () => {
         </div>
 
         {/* Center Logo */}
-        <Link to="/" className="font-accent text-xl font-black text-foreground tracking-tight uppercase">
-          Naija Original
+        <Link to="/" className="flex items-center">
+          <img src={naijaLogo} alt="Naija Original" className="h-8 md:h-10" />
         </Link>
 
         {/* Right nav */}
