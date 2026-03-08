@@ -6,6 +6,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useCompare } from "@/contexts/CompareContext";
 import NotificationBell from "@/components/NotificationBell";
+import naijaLogo from "@/assets/naija-logo.png";
 
 const navLinks = [
   { label: "Shop", href: "/shop" },
@@ -39,8 +40,8 @@ const Navbar = () => {
         </div>
 
         {/* Center Logo */}
-        <Link to="/" className="font-accent text-xl font-black text-foreground tracking-tight uppercase">
-          Naija Original
+        <Link to="/" className="flex items-center">
+          <img src={naijaLogo} alt="Naija Original" className="h-8 md:h-10" />
         </Link>
 
         {/* Right nav */}
