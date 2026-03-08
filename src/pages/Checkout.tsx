@@ -258,10 +258,14 @@ const Checkout = () => {
                     <span className="text-muted-foreground">Subtotal</span>
                     <span className="text-foreground">{formatNaira(total)}</span>
                   </div>
-                  <div className="flex justify-between font-body text-sm">
-                    <span className="text-muted-foreground">Shipping</span>
-                    <span className="text-foreground">{shipping === 0 ? "Free 🎉" : formatNaira(shipping)}</span>
-                  </div>
+                <div className="flex justify-between font-body text-sm">
+                      <span className="text-muted-foreground">Shipping</span>
+                      <span className="text-foreground">{shipping === 0 ? "Free 🎉" : formatNaira(shipping)}</span>
+                    </div>
+                    <div className="flex justify-between font-body text-sm">
+                      <span className="text-muted-foreground">Delivery</span>
+                      <span className="text-foreground">~2 weeks 📦</span>
+                    </div>
                   <div className="naija-section-divider" />
                   <div className="flex justify-between font-body font-bold text-lg">
                     <span className="text-foreground">Total</span>

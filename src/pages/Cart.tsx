@@ -90,7 +90,7 @@ const Cart = () => {
               </div>
 
               <div className="lg:col-span-1">
-                <div className="naija-card p-6 sticky top-24">
+              <div className="naija-card p-6 sticky top-24">
                   <h3 className="font-display text-lg font-bold text-foreground mb-4">Order Summary</h3>
                   <div className="space-y-3 mb-6">
                     <div className="flex justify-between font-body text-sm">
@@ -101,17 +101,54 @@ const Cart = () => {
                       <span className="text-muted-foreground">Shipping</span>
                       <span className="text-foreground">We go calculate am for checkout</span>
                     </div>
+                    <div className="flex justify-between font-body text-sm">
+                      <span className="text-muted-foreground">Delivery</span>
+                      <span className="text-foreground">~2 weeks 📦</span>
+                    </div>
                     <div className="naija-section-divider" />
                     <div className="flex justify-between font-body font-bold">
                       <span className="text-foreground">Total</span>
                       <span className="text-foreground">{formatNaira(total)}</span>
                     </div>
                   </div>
-                  <Link to="/checkout">
-                    <Button className="w-full font-body font-semibold gap-2" size="lg">
-                      Proceed to Checkout <ArrowRight className="w-4 h-4" />
-                    </Button>
-                  </Link>
+
+                  {total < MIN_ORDER_AMOUNT ? (
+                    <div className="space-y-3">
+                      <div className="bg-accent/50 border border-accent rounded-xl p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Sparkles className="w-4 h-4 text-primary" />
+                          <span className="font-body text-sm font-semibold text-foreground">
+                            Almost there! 🔥
+                          </span>
+                        </div>
+                        <p className="font-body text-xs text-muted-foreground mb-3">
+                          Add {formatNaira(MIN_ORDER_AMOUNT - total)} more to reach the {formatNaira(MIN_ORDER_AMOUNT)} minimum order. Small small, you go reach!
+                        </p>
+                        <Progress value={(total / MIN_ORDER_AMOUNT) * 100} className="h-2" />
+                        <div className="flex justify-between mt-1">
+                          <span className="font-accent text-[10px] text-muted-foreground">{formatNaira(total)}</span>
+                          <span className="font-accent text-[10px] text-muted-foreground">{formatNaira(MIN_ORDER_AMOUNT)}</span>
+                        </div>
+                      </div>
+                      <Link to="/shop">
+                        <Button variant="outline" className="w-full font-body font-semibold gap-2" size="lg">
+                          Continue Shopping <ArrowRight className="w-4 h-4" />
+                        </Button>
+                      </Link>
+                    </div>
+                  ) : (
+                    <Link to="/checkout">
+                      <Button className="w-full font-body font-semibold gap-2" size="lg">
+                        Proceed to Checkout <ArrowRight className="w-4 h-4" />
+                      </Button>
+                    </Link>
+                  )}
+
+                  {total >= MIN_ORDER_AMOUNT && total < 50000 && (
+                    <p className="font-accent text-xs text-muted-foreground text-center mt-3">
+                      Free shipping for orders above {formatNaira(50000)}! 🚚
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
