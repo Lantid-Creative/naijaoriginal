@@ -13,7 +13,7 @@ const faqs = [
   { icon: Truck, q: "How long does shipping take?", a: "Standard delivery takes 3-7 business days within Nigeria. Express shipping is available for select locations." },
   { icon: CreditCard, q: "What payment methods do you accept?", a: "We accept bank transfers, card payments, and mobile money. All payments are in Nigerian Naira (₦)." },
   { icon: Shield, q: "How do I verify my product is authentic?", a: "Each product comes with a QR code. Visit our Verify page to scan it and confirm authenticity." },
-  { icon: HelpCircle, q: "Can I return or exchange items?", a: "Yes! Contact Oga Wahala or our support team within 7 days of delivery for returns/exchanges." },
+  { icon: HelpCircle, q: "Are all sales final?", a: "Yes, all sales dey final. We no dey accept returns or refunds at this time. But if you receive defective or wrong item, reach out to us and we go sort am out." },
   { icon: MessageCircle, q: "How do I contact support?", a: "Chat with Oga Wahala right here! For urgent issues, he'll escalate to our human support team." },
 ];
 
