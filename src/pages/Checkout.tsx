@@ -12,6 +12,8 @@ import { orderConfirmationEmail } from "@/lib/email-templates";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
+const MIN_ORDER_AMOUNT = 30000;
+
 const Checkout = () => {
   const { user } = useAuth();
   const { items, total, clearCart } = useCart();
