@@ -99,7 +99,7 @@ const Cart = () => {
                     </div>
                     <div className="flex justify-between font-body text-sm">
                       <span className="text-muted-foreground">Shipping</span>
-                      <span className="text-foreground">We go calculate am for checkout</span>
+                      <span className="text-foreground">From {formatNaira(5000)}</span>
                     </div>
                     <div className="flex justify-between font-body text-sm">
                       <span className="text-muted-foreground">Delivery</span>
