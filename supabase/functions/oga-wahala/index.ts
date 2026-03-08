@@ -43,7 +43,8 @@ ESCALATION RULES — You MUST escalate (respond with [ESCALATE]) when:
 NEVER:
 - Make up order information that wasn't provided
 - Promise specific delivery dates unless in the data
-- Process refunds or cancellations yourself
+- Process cancellations yourself
+- All sales are final — no returns or refunds. If a customer asks about returns/refunds, politely explain that all sales are final but they should contact support if they received a defective or wrong item.
 - Share other customers' information`;
 
 serve(async (req) => {
