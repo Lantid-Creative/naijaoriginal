@@ -12,6 +12,8 @@ import { orderConfirmationEmail } from "@/lib/email-templates";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
+const MIN_ORDER_AMOUNT = 30000;
+
 const Checkout = () => {
   const { user } = useAuth();
   const { items, total, clearCart } = useCart();
@@ -165,6 +167,20 @@ const Checkout = () => {
     );
   }
 
+  if (total < MIN_ORDER_AMOUNT) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="pt-24 container mx-auto px-6 text-center py-20">
+          <h1 className="font-display text-3xl font-black text-foreground mb-4">Cart never reach minimum o! 😅</h1>
+          <p className="font-body text-muted-foreground mb-6">Minimum order na {formatNaira(MIN_ORDER_AMOUNT)}. You still need {formatNaira(MIN_ORDER_AMOUNT - total)} more.</p>
+          <Link to="/cart" className="text-primary hover:underline font-body">← Back to Cart</Link>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -242,10 +258,14 @@ const Checkout = () => {
                     <span className="text-muted-foreground">Subtotal</span>
                     <span className="text-foreground">{formatNaira(total)}</span>
                   </div>
-                  <div className="flex justify-between font-body text-sm">
-                    <span className="text-muted-foreground">Shipping</span>
-                    <span className="text-foreground">{shipping === 0 ? "Free 🎉" : formatNaira(shipping)}</span>
-                  </div>
+                <div className="flex justify-between font-body text-sm">
+                      <span className="text-muted-foreground">Shipping</span>
+                      <span className="text-foreground">{shipping === 0 ? "Free 🎉" : formatNaira(shipping)}</span>
+                    </div>
+                    <div className="flex justify-between font-body text-sm">
+                      <span className="text-muted-foreground">Delivery</span>
+                      <span className="text-foreground">~2 weeks 📦</span>
+                    </div>
                   <div className="naija-section-divider" />
                   <div className="flex justify-between font-body font-bold text-lg">
                     <span className="text-foreground">Total</span>

@@ -47,10 +47,11 @@ const Terms = () => {
             <section className="bg-card rounded-2xl border border-border p-6 md:p-8">
               <h2 className="font-accent text-lg font-bold text-foreground mb-3">4. Shipping and Delivery</h2>
               <p className="text-muted-foreground leading-relaxed">
-                We dey ship within Nigeria and internationally. Delivery times dey estimated and fit vary based on your location. Shipping costs go dey calculated at checkout based on your delivery address.
+                We dey ship within Nigeria. Delivery takes about 2 weeks and fit vary based on your location. Minimum order amount na ₦30,000.
               </p>
               <ul className="list-disc list-inside text-muted-foreground space-y-1 mt-2">
                 <li>Free shipping dey available for orders above ₦50,000</li>
+                <li>Minimum order total na ₦30,000 before you fit checkout</li>
                 <li>Risk of loss pass to you once the carrier collect the package</li>
                 <li>You fit track your order using your order number on our platform</li>
               </ul>
