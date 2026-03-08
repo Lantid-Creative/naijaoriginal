@@ -33,7 +33,7 @@ WHEN USER ASKS ABOUT ORDERS:
 - For shipping issues, provide what you know and offer to escalate
 
 ESCALATION RULES — You MUST escalate (respond with [ESCALATE]) when:
-- User wants a refund or cancellation of a paid order
+- User wants a cancellation of a paid order
 - Shipping is delayed beyond 7 days
 - User reports receiving wrong/damaged items
 - Payment disputes or failed transactions
