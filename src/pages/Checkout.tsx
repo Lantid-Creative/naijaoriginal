@@ -167,6 +167,20 @@ const Checkout = () => {
     );
   }
 
+  if (total < MIN_ORDER_AMOUNT) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="pt-24 container mx-auto px-6 text-center py-20">
+          <h1 className="font-display text-3xl font-black text-foreground mb-4">Cart never reach minimum o! 😅</h1>
+          <p className="font-body text-muted-foreground mb-6">Minimum order na {formatNaira(MIN_ORDER_AMOUNT)}. You still need {formatNaira(MIN_ORDER_AMOUNT - total)} more.</p>
+          <Link to="/cart" className="text-primary hover:underline font-body">← Back to Cart</Link>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
