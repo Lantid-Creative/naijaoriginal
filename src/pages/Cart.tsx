@@ -99,7 +99,7 @@ const Cart = () => {
                     </div>
                     <div className="flex justify-between font-body text-sm">
                       <span className="text-muted-foreground">Shipping</span>
-                      <span className="text-foreground">We go calculate am for checkout</span>
+                      <span className="text-foreground">From {formatNaira(5000)}</span>
                     </div>
                     <div className="flex justify-between font-body text-sm">
                       <span className="text-muted-foreground">Delivery</span>
@@ -144,9 +144,9 @@ const Cart = () => {
                     </Link>
                   )}
 
-                  {total >= MIN_ORDER_AMOUNT && total < 50000 && (
+                  {total >= MIN_ORDER_AMOUNT && (
                     <p className="font-accent text-xs text-muted-foreground text-center mt-3">
-                      Free shipping for orders above {formatNaira(50000)}! 🚚
+                      Standard shipping: {formatNaira(5000)} | Fast shipping: {formatNaira(10000)} 🚚
                     </p>
                   )}
                 </div>

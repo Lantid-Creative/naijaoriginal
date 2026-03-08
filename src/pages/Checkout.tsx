@@ -6,7 +6,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Lock } from "lucide-react";
+import { ArrowLeft, Lock, Truck, Zap, Globe } from "lucide-react";
 import { formatNaira } from "@/lib/format";
 import { orderConfirmationEmail } from "@/lib/email-templates";
 import Navbar from "@/components/Navbar";
@@ -14,12 +14,21 @@ import Footer from "@/components/Footer";
 
 const MIN_ORDER_AMOUNT = 30000;
 
+type ShippingOption = "standard" | "fast" | "international";
+
+const SHIPPING_OPTIONS = {
+  standard: { label: "Standard Shipping", price: 5000, icon: Truck, description: "~2 weeks delivery within Nigeria" },
+  fast: { label: "Fast Shipping", price: 10000, icon: Zap, description: "Faster delivery within Nigeria ⚡" },
+  international: { label: "International Shipping", price: 0, icon: Globe, description: "We go calculate and contact you with the cost" },
+};
+
 const Checkout = () => {
   const { user } = useAuth();
   const { items, total, clearCart } = useCart();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [shippingOption, setShippingOption] = useState<ShippingOption>("standard");
   const [form, setForm] = useState({
     fullName: "",
     email: "",
@@ -30,6 +39,17 @@ const Checkout = () => {
     country: "Nigeria",
     zip: "",
   });
+
+  const isNigeria = form.country.toLowerCase().trim() === "nigeria";
+
+  // Auto-select international when country changes
+  useEffect(() => {
+    if (!isNigeria) {
+      setShippingOption("international");
+    } else if (shippingOption === "international") {
+      setShippingOption("standard");
+    }
+  }, [isNigeria]);
 
   // Auto-fill from profile for logged-in users
   useEffect(() => {
@@ -58,8 +78,9 @@ const Checkout = () => {
     fetchProfile();
   }, [user]);
 
-  const shipping = total > 50000 ? 0 : 3500;
+  const shipping = shippingOption === "international" ? 0 : SHIPPING_OPTIONS[shippingOption].price;
   const orderTotal = total + shipping;
+  const isInternational = shippingOption === "international";
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -74,7 +95,7 @@ const Checkout = () => {
       const orderPayload: any = {
         subtotal: total,
         shipping_cost: shipping,
-        total: orderTotal,
+        total: isInternational ? total : orderTotal,
         shipping_address: {
           full_name: form.fullName,
           address: form.address,
@@ -84,12 +105,19 @@ const Checkout = () => {
           zip: form.zip,
           phone: form.phone,
         },
+        notes: isInternational
+          ? `INTERNATIONAL ORDER — Shipping to ${form.country}. Shipping cost needs to be calculated and sent to customer.`
+          : `Shipping: ${SHIPPING_OPTIONS[shippingOption].label}`,
       };
       if (user) {
         orderPayload.user_id = user.id;
       } else {
         orderPayload.guest_email = form.email;
         orderPayload.guest_name = form.fullName;
+      }
+
+      if (isInternational) {
+        orderPayload.status = "pending_shipping_quote";
       }
 
       const { data: order, error: orderError } = await supabase
@@ -113,6 +141,38 @@ const Checkout = () => {
       const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
       if (itemsError) throw itemsError;
 
+      // Alert admin for international orders
+      if (isInternational) {
+        await supabase.from("admin_notifications").insert({
+          type: "international_order",
+          title: "International Order — Shipping Quote Needed! 🌍",
+          message: `Order #${order.order_number} needs international shipping quote. Customer: ${form.fullName}, Country: ${form.country}, City: ${form.city}. Email: ${form.email || user?.email}. Subtotal: ₦${total.toLocaleString()}.`,
+          metadata: { order_id: order.id, order_number: order.order_number, country: form.country, email: form.email || user?.email },
+        });
+
+        // Send email to customer about pending quote
+        const emailTo = user?.email || form.email;
+        if (emailTo) {
+          supabase.functions.invoke("send-email", {
+            body: {
+              to: emailTo,
+              subject: `Order Received! #${order.order_number} — Shipping Quote Coming 🌍`,
+              html: orderConfirmationEmail({
+                orderNumber: order.order_number,
+                customerName: form.fullName || user?.user_metadata?.full_name || "",
+                total,
+                items: orderItems.map(i => ({ name: i.product_name, quantity: i.quantity, price: i.price * i.quantity })),
+              }),
+            },
+          });
+        }
+
+        toast({ title: "Order don receive! 🌍", description: `We go calculate your international shipping and contact you with the total.` });
+        await clearCart();
+        navigate(`/order-confirmation/${order.order_number}`);
+        return;
+      }
+
       const { data: paymentData, error: paymentError } = await supabase.functions.invoke("initialize-payment", {
         body: {
           email: user?.email || form.email,
@@ -123,7 +183,6 @@ const Checkout = () => {
       });
 
       if (paymentError || !paymentData?.authorization_url) {
-        // Send order confirmation email
         const emailTo = user?.email || form.email;
         if (emailTo) {
           supabase.functions.invoke("send-email", {
@@ -181,6 +240,10 @@ const Checkout = () => {
     );
   }
 
+  const availableOptions = isNigeria
+    ? (["standard", "fast"] as ShippingOption[])
+    : (["international"] as ShippingOption[]);
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -220,8 +283,8 @@ const Checkout = () => {
                     <Input name="phone" value={form.phone} onChange={handleChange} required placeholder="+234..." className="bg-background border-border" />
                   </div>
                   <div>
-                    <label className="font-body text-sm text-foreground block mb-1.5">Country</label>
-                    <Input name="country" value={form.country} onChange={handleChange} className="bg-background border-border" />
+                    <label className="font-body text-sm text-foreground block mb-1.5">Country *</label>
+                    <Input name="country" value={form.country} onChange={handleChange} required className="bg-background border-border" />
                   </div>
                   <div className="md:col-span-2">
                     <label className="font-body text-sm text-foreground block mb-1.5">Address *</label>
@@ -232,10 +295,60 @@ const Checkout = () => {
                     <Input name="city" value={form.city} onChange={handleChange} required className="bg-background border-border" />
                   </div>
                   <div>
-                    <label className="font-body text-sm text-foreground block mb-1.5">State *</label>
+                    <label className="font-body text-sm text-foreground block mb-1.5">State / Region *</label>
                     <Input name="state" value={form.state} onChange={handleChange} required className="bg-background border-border" />
                   </div>
+                  {!isNigeria && (
+                    <div>
+                      <label className="font-body text-sm text-foreground block mb-1.5">Zip / Postal Code</label>
+                      <Input name="zip" value={form.zip} onChange={handleChange} className="bg-background border-border" />
+                    </div>
+                  )}
                 </div>
+              </div>
+
+              {/* Shipping Method */}
+              <div className="naija-card p-6">
+                <h2 className="font-display text-lg font-bold text-foreground mb-4">Shipping Method 🚚</h2>
+                <div className="space-y-3">
+                  {availableOptions.map((key) => {
+                    const opt = SHIPPING_OPTIONS[key];
+                    const Icon = opt.icon;
+                    const isSelected = shippingOption === key;
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => setShippingOption(key)}
+                        className={`w-full flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left ${
+                          isSelected
+                            ? "border-primary bg-primary/5"
+                            : "border-border hover:border-muted-foreground/30"
+                        }`}
+                      >
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                          isSelected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                        }`}>
+                          <Icon className="w-5 h-5" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-body text-sm font-semibold text-foreground">{opt.label}</div>
+                          <div className="font-body text-xs text-muted-foreground">{opt.description}</div>
+                        </div>
+                        <div className="font-body text-sm font-bold text-foreground flex-shrink-0">
+                          {key === "international" ? "TBD" : formatNaira(opt.price)}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+                {isInternational && (
+                  <div className="mt-4 bg-accent/50 border border-accent rounded-xl p-4">
+                    <p className="font-body text-sm text-muted-foreground">
+                      🌍 For international shipping, we go calculate the cost based on your location and contact you with the total before we ship. Your order go hold until you confirm.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -258,27 +371,31 @@ const Checkout = () => {
                     <span className="text-muted-foreground">Subtotal</span>
                     <span className="text-foreground">{formatNaira(total)}</span>
                   </div>
-                <div className="flex justify-between font-body text-sm">
-                      <span className="text-muted-foreground">Shipping</span>
-                      <span className="text-foreground">{shipping === 0 ? "Free 🎉" : formatNaira(shipping)}</span>
-                    </div>
-                    <div className="flex justify-between font-body text-sm">
-                      <span className="text-muted-foreground">Delivery</span>
-                      <span className="text-foreground">~2 weeks 📦</span>
-                    </div>
+                  <div className="flex justify-between font-body text-sm">
+                    <span className="text-muted-foreground">Shipping ({SHIPPING_OPTIONS[shippingOption].label})</span>
+                    <span className="text-foreground">
+                      {isInternational ? "To be calculated" : formatNaira(shipping)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between font-body text-sm">
+                    <span className="text-muted-foreground">Delivery</span>
+                    <span className="text-foreground">{isInternational ? "Varies by location" : "~2 weeks 📦"}</span>
+                  </div>
                   <div className="naija-section-divider" />
                   <div className="flex justify-between font-body font-bold text-lg">
                     <span className="text-foreground">Total</span>
-                    <span className="text-foreground">{formatNaira(orderTotal)}</span>
+                    <span className="text-foreground">
+                      {isInternational ? `${formatNaira(total)} + shipping` : formatNaira(orderTotal)}
+                    </span>
                   </div>
                 </div>
                 <Button type="submit" className="w-full font-body font-semibold gap-2" size="lg" disabled={loading}>
                   <Lock className="w-4 h-4" />
-                  {loading ? "Dey process..." : "Place Order & Pay"}
+                  {loading ? "Dey process..." : isInternational ? "Place Order (Pending Quote)" : "Place Order & Pay"}
                 </Button>
-                {total < 50000 && (
+                {isInternational && (
                   <p className="font-accent text-xs text-muted-foreground text-center mt-3">
-                    Free shipping for orders above {formatNaira(50000)}! 🚚
+                    We go contact you with shipping cost before processing payment 📩
                   </p>
                 )}
               </div>
