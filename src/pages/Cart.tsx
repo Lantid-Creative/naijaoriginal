@@ -146,7 +146,7 @@ const Cart = () => {
 
                   {total >= MIN_ORDER_AMOUNT && (
                     <p className="font-accent text-xs text-muted-foreground text-center mt-3">
-                      Standard shipping: {formatNaira(5000)} | Fast shipping: {formatNaira(10000)} 🚚
+                      Standard (~2 weeks): {formatNaira(5000)} | Fast (3–5 days): {formatNaira(10000)} 🚚
                     </p>
                   )}
                 </div>

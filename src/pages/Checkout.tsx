@@ -18,7 +18,7 @@ type ShippingOption = "standard" | "fast" | "international";
 
 const SHIPPING_OPTIONS = {
   standard: { label: "Standard Shipping", price: 5000, icon: Truck, description: "~2 weeks delivery within Nigeria" },
-  fast: { label: "Fast Shipping", price: 10000, icon: Zap, description: "Faster delivery within Nigeria ⚡" },
+  fast: { label: "Fast Shipping", price: 10000, icon: Zap, description: "3–5 days delivery within Nigeria ⚡" },
   international: { label: "International Shipping", price: 0, icon: Globe, description: "We go calculate and contact you with the cost" },
 };
 
