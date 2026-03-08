@@ -305,6 +305,9 @@ const Admin = () => {
             ))}
           </div>
 
+          {/* AI Assistant Tab */}
+          {tab === "ai" && <AdminAIChat />}
+
           {/* Products Tab */}
           {tab === "products" && (
             <div>
