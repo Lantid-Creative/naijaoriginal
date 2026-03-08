@@ -27,9 +27,9 @@ const Verify = () => {
 
     const { data } = await supabase
       .from("product_authentications")
-      .select("*, products:product_id(name, slug, price, description, pidgin_tagline, is_limited_edition, edition_total, product_images(id, image_url, display_order))" as any)
+      .select("*, products:product_id(name, slug, price, description, pidgin_tagline, is_limited_edition, edition_total, product_images(id, image_url, display_order))")
       .eq("qr_code", qrCode.trim())
-      .maybeSingle();
+      .maybeSingle() as any;
 
     if (!data) {
       setNotFound(true);
