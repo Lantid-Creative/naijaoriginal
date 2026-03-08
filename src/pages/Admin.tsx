@@ -291,15 +291,16 @@ const Admin = () => {
 
           {/* Tabs */}
           <div className="flex gap-2 mb-6 overflow-x-auto">
-            {(["products", "orders", "reviews", "tickets", "subscribers", "qr", "analytics"] as Tab[]).map((t) => (
+            {(["ai", "products", "orders", "reviews", "tickets", "subscribers", "qr", "analytics"] as Tab[]).map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
-                className={`px-4 py-2 rounded-lg font-body text-sm capitalize transition-all whitespace-nowrap ${
+                className={`px-4 py-2 rounded-lg font-body text-sm capitalize transition-all whitespace-nowrap flex items-center gap-1.5 ${
                   tab === t ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
-                }`}
+                } ${t === "ai" ? "bg-gradient-to-r from-primary to-secondary text-primary-foreground font-bold" : ""}`}
               >
-                {t === "qr" ? "QR Codes" : t === "tickets" ? `Tickets${openTickets > 0 ? ` (${openTickets})` : ""}` : t === "reviews" ? `Reviews${pendingReviews.length > 0 ? ` (${pendingReviews.length})` : ""}` : t === "subscribers" ? `Subscribers (${subscribers.length})` : t}
+                {t === "ai" && <Bot className="w-3.5 h-3.5" />}
+                {t === "ai" ? "AI Assistant" : t === "qr" ? "QR Codes" : t === "tickets" ? `Tickets${openTickets > 0 ? ` (${openTickets})` : ""}` : t === "reviews" ? `Reviews${pendingReviews.length > 0 ? ` (${pendingReviews.length})` : ""}` : t === "subscribers" ? `Subscribers (${subscribers.length})` : t}
               </button>
             ))}
           </div>
