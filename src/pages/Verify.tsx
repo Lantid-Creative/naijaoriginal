@@ -17,23 +17,22 @@ const Verify = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const handleVerify = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!code.trim()) return;
+  const verifyCode = useCallback(async (qrCode: string) => {
+    if (!qrCode.trim()) return;
+    setCode(qrCode.trim());
     setLoading(true);
     setNotFound(false);
     setResult(null);
 
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("product_authentications")
       .select("*, products:product_id(name, slug, price, is_limited_edition, edition_total, product_images(image_url))")
-      .eq("qr_code", code.trim())
+      .eq("qr_code", qrCode.trim())
       .maybeSingle();
 
     if (!data) {
       setNotFound(true);
     } else {
-      // Increment scan count
       await supabase
         .from("product_authentications")
         .update({ scan_count: (data.scan_count || 0) + 1, last_scanned_at: new Date().toISOString() })
@@ -41,6 +40,11 @@ const Verify = () => {
       setResult(data);
     }
     setLoading(false);
+  }, []);
+
+  const handleVerify = async (e: React.FormEvent) => {
+    e.preventDefault();
+    verifyCode(code);
   };
 
   const handleClaimOwnership = async () => {
