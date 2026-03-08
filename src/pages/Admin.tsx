@@ -759,11 +759,13 @@ const Admin = () => {
 
           {/* Analytics Tab */}
           {tab === "analytics" && (
-            <div className="text-center py-20">
-              <BarChart3 className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="font-display text-xl font-bold text-foreground mb-2">Analytics Dey Come Soon</h3>
-              <p className="font-body text-muted-foreground">Sales charts, customer insights, and more — e dey on the way!</p>
-            </div>
+            <AdminAnalytics
+              orders={orders}
+              products={products}
+              reviews={reviews}
+              subscribers={subscribers}
+              categories={categories}
+            />
           )}
 
           {/* Subscribers Tab */}
