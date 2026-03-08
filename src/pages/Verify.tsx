@@ -75,8 +75,18 @@ const Verify = () => {
               Verify Your <span className="naija-gradient-text">Product</span>
             </h1>
             <p className="font-body text-muted-foreground max-w-lg mx-auto">
-              Enter the unique code from your product's QR tag to verify authenticity and claim ownership.
+              Scan the QR code on your product or enter the code manually to verify authenticity and claim ownership.
             </p>
+          </div>
+
+          {/* QR Scanner */}
+          <QrScanner onScan={verifyCode} />
+
+          {/* Divider */}
+          <div className="max-w-md mx-auto mb-6 flex items-center gap-3">
+            <div className="flex-1 h-px bg-border" />
+            <span className="font-body text-xs text-muted-foreground uppercase tracking-wider">or enter code manually</span>
+            <div className="flex-1 h-px bg-border" />
           </div>
 
           {/* Search Form */}
