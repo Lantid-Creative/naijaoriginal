@@ -1,10 +1,13 @@
 import { Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
-import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { formatNaira } from "@/lib/format";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+
+const MIN_ORDER_AMOUNT = 30000;
 
 const Cart = () => {
   const { items, loading, updateQuantity, removeFromCart, itemCount, total } = useCart();
