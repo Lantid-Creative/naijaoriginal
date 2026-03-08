@@ -54,7 +54,7 @@ const ProductReviews = ({ productId }: { productId: string }) => {
     // Fetch approved reviews + user's own review
     const { data } = await supabase
       .from("product_reviews")
-      .select("*")
+      .select("id, product_id, user_id, rating, comment, is_approved, created_at, updated_at")
       .eq("product_id", productId)
       .order("created_at", { ascending: false });
 
