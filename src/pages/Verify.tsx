@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { QrCode, ShieldCheck, ShieldAlert, Search, User, Hash, Calendar } from "lucide-react";
@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import QrScanner from "@/components/QrScanner";
 
 const Verify = () => {
   const [code, setCode] = useState("");
@@ -16,23 +17,22 @@ const Verify = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const handleVerify = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!code.trim()) return;
+  const verifyCode = useCallback(async (qrCode: string) => {
+    if (!qrCode.trim()) return;
+    setCode(qrCode.trim());
     setLoading(true);
     setNotFound(false);
     setResult(null);
 
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("product_authentications")
       .select("*, products:product_id(name, slug, price, is_limited_edition, edition_total, product_images(image_url))")
-      .eq("qr_code", code.trim())
+      .eq("qr_code", qrCode.trim())
       .maybeSingle();
 
     if (!data) {
       setNotFound(true);
     } else {
-      // Increment scan count
       await supabase
         .from("product_authentications")
         .update({ scan_count: (data.scan_count || 0) + 1, last_scanned_at: new Date().toISOString() })
@@ -40,6 +40,11 @@ const Verify = () => {
       setResult(data);
     }
     setLoading(false);
+  }, []);
+
+  const handleVerify = async (e: React.FormEvent) => {
+    e.preventDefault();
+    verifyCode(code);
   };
 
   const handleClaimOwnership = async () => {
@@ -70,8 +75,18 @@ const Verify = () => {
               Verify Your <span className="naija-gradient-text">Product</span>
             </h1>
             <p className="font-body text-muted-foreground max-w-lg mx-auto">
-              Enter the unique code from your product's QR tag to verify authenticity and claim ownership.
+              Scan the QR code on your product or enter the code manually to verify authenticity and claim ownership.
             </p>
+          </div>
+
+          {/* QR Scanner */}
+          <QrScanner onScan={verifyCode} />
+
+          {/* Divider */}
+          <div className="max-w-md mx-auto mb-6 flex items-center gap-3">
+            <div className="flex-1 h-px bg-border" />
+            <span className="font-body text-xs text-muted-foreground uppercase tracking-wider">or enter code manually</span>
+            <div className="flex-1 h-px bg-border" />
           </div>
 
           {/* Search Form */}
