@@ -252,6 +252,102 @@ const Admin = () => {
     fetchData();
   };
 
+  // Collection handlers
+  const resetCollectionForm = () => {
+    setCollectionForm({
+      name: "", slug: "", description: "", pidgin_tagline: "",
+      type: "seasonal", icon: "", banner_image_url: "",
+      is_active: true, display_order: "0",
+    });
+    setEditingCollection(null);
+    setShowCollectionForm(false);
+  };
+
+  const handleEditCollection = (collection: any) => {
+    setCollectionForm({
+      name: collection.name,
+      slug: collection.slug,
+      description: collection.description || "",
+      pidgin_tagline: collection.pidgin_tagline || "",
+      type: collection.type,
+      icon: collection.icon || "",
+      banner_image_url: collection.banner_image_url || "",
+      is_active: collection.is_active,
+      display_order: String(collection.display_order || 0),
+    });
+    setEditingCollection(collection);
+    setShowCollectionForm(true);
+  };
+
+  const handleSubmitCollection = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const payload = {
+      name: collectionForm.name,
+      slug: collectionForm.slug || collectionForm.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
+      description: collectionForm.description || null,
+      pidgin_tagline: collectionForm.pidgin_tagline || null,
+      type: collectionForm.type,
+      icon: collectionForm.icon || null,
+      banner_image_url: collectionForm.banner_image_url || null,
+      is_active: collectionForm.is_active,
+      display_order: parseInt(collectionForm.display_order) || 0,
+    };
+
+    if (editingCollection) {
+      const { error } = await supabase.from("product_collections").update(payload).eq("id", editingCollection.id);
+      if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+      toast({ title: "Collection updated! ✅" });
+    } else {
+      const { error } = await supabase.from("product_collections").insert(payload);
+      if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+      toast({ title: "Collection created! 🎉" });
+    }
+    resetCollectionForm();
+    fetchData();
+  };
+
+  const handleDeleteCollection = async (id: string) => {
+    if (!confirm("Delete this collection? Products won't be deleted.")) return;
+    const { error } = await supabase.from("product_collections").delete().eq("id", id);
+    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    toast({ title: "Collection deleted" });
+    fetchData();
+  };
+
+  const fetchCollectionProducts = async (collectionId: string) => {
+    const { data } = await supabase
+      .from("product_collection_items")
+      .select("*, products(*)")
+      .eq("collection_id", collectionId)
+      .order("display_order");
+    setCollectionProducts(data || []);
+    
+    // Get products not in this collection
+    const productIds = (data || []).map((item: any) => item.product_id);
+    const available = products.filter((p) => !productIds.includes(p.id));
+    setAvailableProducts(available);
+  };
+
+  const handleAddProductToCollection = async (productId: string) => {
+    if (!selectedCollection) return;
+    const { error } = await supabase.from("product_collection_items").insert({
+      collection_id: selectedCollection.id,
+      product_id: productId,
+      display_order: collectionProducts.length,
+    });
+    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    toast({ title: "Product added to collection! ✅" });
+    fetchCollectionProducts(selectedCollection.id);
+  };
+
+  const handleRemoveProductFromCollection = async (itemId: string) => {
+    if (!selectedCollection) return;
+    const { error } = await supabase.from("product_collection_items").delete().eq("id", itemId);
+    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    toast({ title: "Product removed from collection" });
+    fetchCollectionProducts(selectedCollection.id);
+  };
+
   const pendingReviews = reviews.filter((r: any) => !r.is_approved);
 
   const openTickets = tickets.filter(t => t.status === "open").length;
