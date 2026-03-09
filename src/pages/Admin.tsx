@@ -52,6 +52,19 @@ const Admin = () => {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [subscribers, setSubscribers] = useState<any[]>([]);
 
+  // Collections state
+  const [collections, setCollections] = useState<any[]>([]);
+  const [showCollectionForm, setShowCollectionForm] = useState(false);
+  const [editingCollection, setEditingCollection] = useState<any>(null);
+  const [collectionForm, setCollectionForm] = useState({
+    name: "", slug: "", description: "", pidgin_tagline: "",
+    type: "seasonal", icon: "", banner_image_url: "",
+    is_active: true, display_order: "0",
+  });
+  const [selectedCollection, setSelectedCollection] = useState<any>(null);
+  const [collectionProducts, setCollectionProducts] = useState<any[]>([]);
+  const [availableProducts, setAvailableProducts] = useState<any[]>([]);
+
   useEffect(() => {
     if (!authLoading && (!user || !isAdmin)) {
       navigate("/");
