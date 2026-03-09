@@ -10,6 +10,8 @@ import { CompareProvider } from "@/contexts/CompareContext";
 import Index from "./pages/Index";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
+import Collections from "./pages/Collections";
+import CollectionDetail from "./pages/CollectionDetail";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import OrderConfirmation from "./pages/OrderConfirmation";
