@@ -944,21 +944,28 @@ const Admin = () => {
                           {c.pidgin_tagline && <p className="font-body text-xs text-muted-foreground italic">"{c.pidgin_tagline}"</p>}
                         </div>
                       </div>
-                      <div className="flex gap-1.5 flex-shrink-0">
-                        <button
-                          onClick={() => { setSelectedCollection(c); fetchCollectionProducts(c.id); }}
-                          className="p-1.5 rounded hover:bg-secondary/10 transition-colors text-muted-foreground hover:text-secondary"
-                          title="Manage products"
-                        >
-                          <Package className="w-4 h-4" />
-                        </button>
-                        <button onClick={() => handleEditCollection(c)} className="p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
-                          <Pencil className="w-4 h-4" />
-                        </button>
-                        <button onClick={() => handleDeleteCollection(c.id)} className="p-1.5 rounded hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
+                       <div className="flex gap-1.5 flex-shrink-0">
+                         <button
+                           onClick={() => { setSelectedCollection(c); setShowAnalytics(true); }}
+                           className="p-1.5 rounded hover:bg-primary/10 transition-colors text-muted-foreground hover:text-primary"
+                           title="View analytics"
+                         >
+                           <TrendingUp className="w-4 h-4" />
+                         </button>
+                         <button
+                           onClick={() => { setSelectedCollection(c); fetchCollectionProducts(c.id); setShowAnalytics(false); }}
+                           className="p-1.5 rounded hover:bg-secondary/10 transition-colors text-muted-foreground hover:text-secondary"
+                           title="Manage products"
+                         >
+                           <Package className="w-4 h-4" />
+                         </button>
+                         <button onClick={() => handleEditCollection(c)} className="p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+                           <Pencil className="w-4 h-4" />
+                         </button>
+                         <button onClick={() => handleDeleteCollection(c.id)} className="p-1.5 rounded hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive">
+                           <Trash2 className="w-4 h-4" />
+                         </button>
+                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className={`px-2 py-0.5 rounded text-xs font-accent ${c.is_active ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
