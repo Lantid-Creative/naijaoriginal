@@ -10,6 +10,7 @@ import naijaLogo from "@/assets/naija-logo.png";
 
 const navLinks = [
   { label: "Shop", href: "/shop" },
+  { label: "Collections", href: "/collections" },
   { label: "Verify", href: "/verify" },
   { label: "Track Order", href: "/track" },
   { label: "Custom Orders", href: "/estimate" },
