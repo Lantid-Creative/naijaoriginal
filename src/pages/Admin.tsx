@@ -6,9 +6,13 @@ import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { formatNaira } from "@/lib/format";
-import { Package, ShoppingCart, Users, Plus, Pencil, Trash2, X, BarChart3, QrCode, Copy, MessageSquare, AlertCircle, Star, Check, Ban, Bell, Mail, Bot } from "lucide-react";
+import { Package, ShoppingCart, Users, Plus, Pencil, Trash2, X, BarChart3, QrCode, Copy, MessageSquare, AlertCircle, Star, Check, Ban, Bell, Mail, Bot, TrendingUp } from "lucide-react";
 import AdminAIChat from "@/components/AdminAIChat";
 import AdminAnalytics from "@/components/AdminAnalytics";
+import CollectionAnalytics from "@/components/admin/CollectionAnalytics";
+import CollectionBannerUpload from "@/components/admin/CollectionBannerUpload";
+import DraggableProductList from "@/components/admin/DraggableProductList";
+import BulkProductImport from "@/components/admin/BulkProductImport";
 import { Textarea } from "@/components/ui/textarea";
 import Navbar from "@/components/Navbar";
 
@@ -64,6 +68,8 @@ const Admin = () => {
   const [selectedCollection, setSelectedCollection] = useState<any>(null);
   const [collectionProducts, setCollectionProducts] = useState<any[]>([]);
   const [availableProducts, setAvailableProducts] = useState<any[]>([]);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  const [showBulkImport, setShowBulkImport] = useState(false);
 
   useEffect(() => {
     if (!authLoading && (!user || !isAdmin)) {
@@ -277,6 +283,10 @@ const Admin = () => {
     });
     setEditingCollection(collection);
     setShowCollectionForm(true);
+  };
+
+  const handleBannerUploadComplete = (url: string) => {
+    setCollectionForm({ ...collectionForm, banner_image_url: url });
   };
 
   const handleSubmitCollection = async (e: React.FormEvent) => {
@@ -898,9 +908,17 @@ const Admin = () => {
                         <option value="gift">Gift</option>
                       </select>
                     </div>
-                    <div><label className="font-body text-xs text-foreground block mb-1">Icon (emoji)</label><Input value={collectionForm.icon} onChange={(e) => setCollectionForm({ ...collectionForm, icon: e.target.value })} placeholder="☀️" className="bg-background border-border" /></div>
-                    <div><label className="font-body text-xs text-foreground block mb-1">Banner Image URL</label><Input value={collectionForm.banner_image_url} onChange={(e) => setCollectionForm({ ...collectionForm, banner_image_url: e.target.value })} placeholder="https://..." className="bg-background border-border" /></div>
-                    <div><label className="font-body text-xs text-foreground block mb-1">Display Order</label><Input type="number" value={collectionForm.display_order} onChange={(e) => setCollectionForm({ ...collectionForm, display_order: e.target.value })} className="bg-background border-border" /></div>
+                     <div><label className="font-body text-xs text-foreground block mb-1">Icon (emoji)</label><Input value={collectionForm.icon} onChange={(e) => setCollectionForm({ ...collectionForm, icon: e.target.value })} placeholder="☀️" className="bg-background border-border" /></div>
+                     <div><label className="font-body text-xs text-foreground block mb-1">Display Order</label><Input type="number" value={collectionForm.display_order} onChange={(e) => setCollectionForm({ ...collectionForm, display_order: e.target.value })} className="bg-background border-border" /></div>
+                     <div className="md:col-span-2">
+                       {editingCollection && (
+                         <CollectionBannerUpload
+                           collectionId={editingCollection.id}
+                           currentBannerUrl={collectionForm.banner_image_url}
+                           onUploadComplete={handleBannerUploadComplete}
+                         />
+                       )}
+                     </div>
                     <div className="flex items-center gap-4">
                       <label className="flex items-center gap-2 font-body text-sm text-foreground cursor-pointer">
                         <input type="checkbox" checked={collectionForm.is_active} onChange={(e) => setCollectionForm({ ...collectionForm, is_active: e.target.checked })} /> Active
@@ -926,21 +944,28 @@ const Admin = () => {
                           {c.pidgin_tagline && <p className="font-body text-xs text-muted-foreground italic">"{c.pidgin_tagline}"</p>}
                         </div>
                       </div>
-                      <div className="flex gap-1.5 flex-shrink-0">
-                        <button
-                          onClick={() => { setSelectedCollection(c); fetchCollectionProducts(c.id); }}
-                          className="p-1.5 rounded hover:bg-secondary/10 transition-colors text-muted-foreground hover:text-secondary"
-                          title="Manage products"
-                        >
-                          <Package className="w-4 h-4" />
-                        </button>
-                        <button onClick={() => handleEditCollection(c)} className="p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
-                          <Pencil className="w-4 h-4" />
-                        </button>
-                        <button onClick={() => handleDeleteCollection(c.id)} className="p-1.5 rounded hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
+                       <div className="flex gap-1.5 flex-shrink-0">
+                         <button
+                           onClick={() => { setSelectedCollection(c); setShowAnalytics(true); }}
+                           className="p-1.5 rounded hover:bg-primary/10 transition-colors text-muted-foreground hover:text-primary"
+                           title="View analytics"
+                         >
+                           <TrendingUp className="w-4 h-4" />
+                         </button>
+                         <button
+                           onClick={() => { setSelectedCollection(c); fetchCollectionProducts(c.id); setShowAnalytics(false); }}
+                           className="p-1.5 rounded hover:bg-secondary/10 transition-colors text-muted-foreground hover:text-secondary"
+                           title="Manage products"
+                         >
+                           <Package className="w-4 h-4" />
+                         </button>
+                         <button onClick={() => handleEditCollection(c)} className="p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+                           <Pencil className="w-4 h-4" />
+                         </button>
+                         <button onClick={() => handleDeleteCollection(c.id)} className="p-1.5 rounded hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive">
+                           <Trash2 className="w-4 h-4" />
+                         </button>
+                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className={`px-2 py-0.5 rounded text-xs font-accent ${c.is_active ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
@@ -953,14 +978,14 @@ const Admin = () => {
               </div>
 
               {/* Product Assignment Modal */}
-              {selectedCollection && (
+              {selectedCollection && !showAnalytics && (
                 <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                   <div className="naija-card p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
                     <div className="flex justify-between items-center mb-4">
                       <h3 className="font-display text-lg font-bold text-foreground">
                         Manage Products: {selectedCollection.name}
                       </h3>
-                      <button onClick={() => setSelectedCollection(null)}>
+                      <button onClick={() => { setSelectedCollection(null); setShowBulkImport(false); }}>
                         <X className="w-5 h-5 text-muted-foreground" />
                       </button>
                     </div>
@@ -968,62 +993,102 @@ const Admin = () => {
                     <div className="grid md:grid-cols-2 gap-6">
                       {/* Products in collection */}
                       <div>
-                        <h4 className="font-accent text-sm font-bold text-foreground mb-3">
-                          In Collection ({collectionProducts.length})
-                        </h4>
-                        {collectionProducts.length === 0 ? (
-                          <div className="text-center py-8 border-2 border-dashed border-border rounded-lg">
-                            <p className="font-body text-sm text-muted-foreground">No products yet</p>
-                          </div>
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="font-accent text-sm font-bold text-foreground">
+                            In Collection ({collectionProducts.length})
+                          </h4>
+                          {collectionProducts.length > 0 && (
+                            <button
+                              onClick={() => setShowBulkImport(!showBulkImport)}
+                              className="text-xs font-body text-primary hover:underline"
+                            >
+                              {showBulkImport ? "Cancel" : "+ Bulk Import"}
+                            </button>
+                          )}
+                        </div>
+                        
+                        {showBulkImport ? (
+                          <BulkProductImport
+                            collectionId={selectedCollection.id}
+                            availableProducts={availableProducts}
+                            onProductsAdded={() => {
+                              fetchCollectionProducts(selectedCollection.id);
+                              setShowBulkImport(false);
+                            }}
+                          />
                         ) : (
-                          <div className="space-y-2">
-                            {collectionProducts.map((item: any) => (
-                              <div key={item.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border border-border">
-                                <div className="flex-1 min-w-0">
-                                  <p className="font-body text-sm font-semibold text-foreground truncate">{item.products.name}</p>
-                                  <p className="font-body text-xs text-muted-foreground">{formatNaira(Number(item.products.price))}</p>
-                                </div>
-                                <button
-                                  onClick={() => handleRemoveProductFromCollection(item.id)}
-                                  className="p-1.5 rounded hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </div>
-                            ))}
-                          </div>
+                          <DraggableProductList
+                            collectionId={selectedCollection.id}
+                            products={collectionProducts}
+                            onProductsReordered={() => fetchCollectionProducts(selectedCollection.id)}
+                            onRemoveProduct={handleRemoveProductFromCollection}
+                          />
                         )}
                       </div>
 
                       {/* Available products */}
                       <div>
-                        <h4 className="font-accent text-sm font-bold text-foreground mb-3">
-                          Add Products ({availableProducts.length})
-                        </h4>
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="font-accent text-sm font-bold text-foreground">
+                            Available Products ({availableProducts.length})
+                          </h4>
+                          {availableProducts.length > 0 && !showBulkImport && (
+                            <button
+                              onClick={() => setShowBulkImport(true)}
+                              className="text-xs font-body text-primary hover:underline"
+                            >
+                              + Bulk Import
+                            </button>
+                          )}
+                        </div>
+                        
                         {availableProducts.length === 0 ? (
                           <div className="text-center py-8 border-2 border-dashed border-border rounded-lg">
                             <p className="font-body text-sm text-muted-foreground">All products added!</p>
                           </div>
                         ) : (
-                          <div className="space-y-2 max-h-96 overflow-y-auto">
-                            {availableProducts.map((product: any) => (
-                              <div key={product.id} className="flex items-center justify-between p-3 rounded-lg bg-background border border-border hover:border-primary/50 transition-colors">
+                          <div className="space-y-2 max-h-[500px] overflow-y-auto">
+                            {availableProducts.slice(0, 20).map((product: any) => (
+                              <button
+                                key={product.id}
+                                onClick={() => handleAddProductToCollection(product.id)}
+                                className="w-full flex items-center justify-between p-3 rounded-lg bg-background border border-border hover:border-primary hover:bg-muted transition-all text-left"
+                              >
                                 <div className="flex-1 min-w-0">
                                   <p className="font-body text-sm font-semibold text-foreground truncate">{product.name}</p>
                                   <p className="font-body text-xs text-muted-foreground">{formatNaira(Number(product.price))}</p>
                                 </div>
-                                <button
-                                  onClick={() => handleAddProductToCollection(product.id)}
-                                  className="p-1.5 rounded hover:bg-primary/10 transition-colors text-muted-foreground hover:text-primary"
-                                >
-                                  <Plus className="w-4 h-4" />
-                                </button>
-                              </div>
+                                <Plus className="w-4 h-4 text-muted-foreground" />
+                              </button>
                             ))}
+                            {availableProducts.length > 20 && (
+                              <p className="text-center text-xs text-muted-foreground py-2">
+                                And {availableProducts.length - 20} more... Use bulk import to add multiple products
+                              </p>
+                            )}
                           </div>
                         )}
                       </div>
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Analytics Modal */}
+              {selectedCollection && showAnalytics && (
+                <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                  <div className="naija-card p-6 max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+                    <div className="flex justify-between items-center mb-6">
+                      <div></div>
+                      <button onClick={() => { setSelectedCollection(null); setShowAnalytics(false); }}>
+                        <X className="w-5 h-5 text-muted-foreground" />
+                      </button>
+                    </div>
+
+                    <CollectionAnalytics
+                      collectionId={selectedCollection.id}
+                      collectionName={selectedCollection.name}
+                    />
                   </div>
                 </div>
               )}
