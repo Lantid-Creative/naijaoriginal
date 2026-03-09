@@ -27,23 +27,24 @@ const Navbar = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
       <div className="container mx-auto px-6 flex items-center justify-between h-16">
-        {/* Left nav */}
-        <div className="hidden md:flex items-center gap-6">
-          {navLinks.map((link) => (
-            <Link
-              key={link.label}
-              to={link.href}
-              className="font-accent text-sm font-medium text-muted-foreground hover:text-foreground transition-colors uppercase tracking-wide"
-            >
-              {link.label}
-            </Link>
-          ))}
+        {/* Left: Logo + Nav Links */}
+        <div className="flex items-center gap-8">
+          <Link to="/" className="flex items-center flex-shrink-0">
+            <img src={naijaLogo} alt="Naija Original" className="h-8 md:h-10" />
+          </Link>
+          
+          <div className="hidden md:flex items-center gap-6">
+            {navLinks.map((link) => (
+              <Link
+                key={link.label}
+                to={link.href}
+                className="font-accent text-sm font-medium text-muted-foreground hover:text-foreground transition-colors uppercase tracking-wide"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
         </div>
-
-        {/* Center Logo */}
-        <Link to="/" className="flex items-center">
-          <img src={naijaLogo} alt="Naija Original" className="h-8 md:h-10" />
-        </Link>
 
         {/* Right nav */}
         <div className="hidden md:flex items-center gap-4">
