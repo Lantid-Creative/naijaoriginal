@@ -12,7 +12,7 @@ import AdminAnalytics from "@/components/AdminAnalytics";
 import { Textarea } from "@/components/ui/textarea";
 import Navbar from "@/components/Navbar";
 
-type Tab = "products" | "orders" | "qr" | "tickets" | "reviews" | "analytics" | "subscribers" | "ai";
+type Tab = "products" | "orders" | "qr" | "tickets" | "reviews" | "analytics" | "subscribers" | "ai" | "collections";
 
 const Admin = () => {
   const { user, isAdmin, loading: authLoading } = useAuth();
