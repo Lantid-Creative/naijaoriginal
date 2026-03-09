@@ -12,7 +12,7 @@ import AdminAnalytics from "@/components/AdminAnalytics";
 import { Textarea } from "@/components/ui/textarea";
 import Navbar from "@/components/Navbar";
 
-type Tab = "products" | "orders" | "qr" | "tickets" | "reviews" | "analytics" | "subscribers" | "ai";
+type Tab = "products" | "orders" | "qr" | "tickets" | "reviews" | "analytics" | "subscribers" | "ai" | "collections";
 
 const Admin = () => {
   const { user, isAdmin, loading: authLoading } = useAuth();
@@ -52,6 +52,19 @@ const Admin = () => {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [subscribers, setSubscribers] = useState<any[]>([]);
 
+  // Collections state
+  const [collections, setCollections] = useState<any[]>([]);
+  const [showCollectionForm, setShowCollectionForm] = useState(false);
+  const [editingCollection, setEditingCollection] = useState<any>(null);
+  const [collectionForm, setCollectionForm] = useState({
+    name: "", slug: "", description: "", pidgin_tagline: "",
+    type: "seasonal", icon: "", banner_image_url: "",
+    is_active: true, display_order: "0",
+  });
+  const [selectedCollection, setSelectedCollection] = useState<any>(null);
+  const [collectionProducts, setCollectionProducts] = useState<any[]>([]);
+  const [availableProducts, setAvailableProducts] = useState<any[]>([]);
+
   useEffect(() => {
     if (!authLoading && (!user || !isAdmin)) {
       navigate("/");
@@ -63,7 +76,7 @@ const Admin = () => {
   }, []);
 
   const fetchData = async () => {
-    const [productsRes, ordersRes, categoriesRes, ticketsRes, reviewsRes, notificationsRes, subscribersRes] = await Promise.all([
+    const [productsRes, ordersRes, categoriesRes, ticketsRes, reviewsRes, notificationsRes, subscribersRes, collectionsRes] = await Promise.all([
       supabase.from("products").select("*, product_categories:category_id(name)").order("created_at", { ascending: false }),
       supabase.from("orders").select("*, order_items(count)").order("created_at", { ascending: false }).limit(50),
       supabase.from("product_categories").select("*").order("name"),
@@ -71,6 +84,7 @@ const Admin = () => {
       supabase.from("product_reviews").select("*, products:product_id(name, slug)").order("created_at", { ascending: false }),
       supabase.from("admin_notifications").select("*").eq("is_read", false).order("created_at", { ascending: false }).limit(20),
       supabase.from("newsletter_subscribers").select("*").order("subscribed_at", { ascending: false }),
+      supabase.from("product_collections").select("*").order("display_order", { ascending: true }),
     ]);
     setProducts(productsRes.data || []);
     setOrders(ordersRes.data || []);
@@ -79,6 +93,7 @@ const Admin = () => {
     setReviews(reviewsRes.data || []);
     setNotifications(notificationsRes.data || []);
     setSubscribers(subscribersRes.data || []);
+    setCollections(collectionsRes.data || []);
     setLoading(false);
   };
 
@@ -237,6 +252,102 @@ const Admin = () => {
     fetchData();
   };
 
+  // Collection handlers
+  const resetCollectionForm = () => {
+    setCollectionForm({
+      name: "", slug: "", description: "", pidgin_tagline: "",
+      type: "seasonal", icon: "", banner_image_url: "",
+      is_active: true, display_order: "0",
+    });
+    setEditingCollection(null);
+    setShowCollectionForm(false);
+  };
+
+  const handleEditCollection = (collection: any) => {
+    setCollectionForm({
+      name: collection.name,
+      slug: collection.slug,
+      description: collection.description || "",
+      pidgin_tagline: collection.pidgin_tagline || "",
+      type: collection.type,
+      icon: collection.icon || "",
+      banner_image_url: collection.banner_image_url || "",
+      is_active: collection.is_active,
+      display_order: String(collection.display_order || 0),
+    });
+    setEditingCollection(collection);
+    setShowCollectionForm(true);
+  };
+
+  const handleSubmitCollection = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const payload = {
+      name: collectionForm.name,
+      slug: collectionForm.slug || collectionForm.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
+      description: collectionForm.description || null,
+      pidgin_tagline: collectionForm.pidgin_tagline || null,
+      type: collectionForm.type,
+      icon: collectionForm.icon || null,
+      banner_image_url: collectionForm.banner_image_url || null,
+      is_active: collectionForm.is_active,
+      display_order: parseInt(collectionForm.display_order) || 0,
+    };
+
+    if (editingCollection) {
+      const { error } = await supabase.from("product_collections").update(payload).eq("id", editingCollection.id);
+      if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+      toast({ title: "Collection updated! ✅" });
+    } else {
+      const { error } = await supabase.from("product_collections").insert(payload);
+      if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+      toast({ title: "Collection created! 🎉" });
+    }
+    resetCollectionForm();
+    fetchData();
+  };
+
+  const handleDeleteCollection = async (id: string) => {
+    if (!confirm("Delete this collection? Products won't be deleted.")) return;
+    const { error } = await supabase.from("product_collections").delete().eq("id", id);
+    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    toast({ title: "Collection deleted" });
+    fetchData();
+  };
+
+  const fetchCollectionProducts = async (collectionId: string) => {
+    const { data } = await supabase
+      .from("product_collection_items")
+      .select("*, products(*)")
+      .eq("collection_id", collectionId)
+      .order("display_order");
+    setCollectionProducts(data || []);
+    
+    // Get products not in this collection
+    const productIds = (data || []).map((item: any) => item.product_id);
+    const available = products.filter((p) => !productIds.includes(p.id));
+    setAvailableProducts(available);
+  };
+
+  const handleAddProductToCollection = async (productId: string) => {
+    if (!selectedCollection) return;
+    const { error } = await supabase.from("product_collection_items").insert({
+      collection_id: selectedCollection.id,
+      product_id: productId,
+      display_order: collectionProducts.length,
+    });
+    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    toast({ title: "Product added to collection! ✅" });
+    fetchCollectionProducts(selectedCollection.id);
+  };
+
+  const handleRemoveProductFromCollection = async (itemId: string) => {
+    if (!selectedCollection) return;
+    const { error } = await supabase.from("product_collection_items").delete().eq("id", itemId);
+    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    toast({ title: "Product removed from collection" });
+    fetchCollectionProducts(selectedCollection.id);
+  };
+
   const pendingReviews = reviews.filter((r: any) => !r.is_approved);
 
   const openTickets = tickets.filter(t => t.status === "open").length;
@@ -292,7 +403,7 @@ const Admin = () => {
 
           {/* Tabs */}
           <div className="flex gap-2 mb-6 overflow-x-auto">
-            {(["ai", "products", "orders", "reviews", "tickets", "subscribers", "qr", "analytics"] as Tab[]).map((t) => (
+            {(["ai", "products", "collections", "orders", "reviews", "tickets", "subscribers", "qr", "analytics"] as Tab[]).map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
@@ -754,6 +865,168 @@ const Admin = () => {
                   </div>
                 );
               })()}
+            </div>
+          )}
+
+          {/* Collections Tab */}
+          {tab === "collections" && (
+            <div>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="font-display text-xl font-bold text-foreground">Collections</h2>
+                <Button onClick={() => { resetCollectionForm(); setShowCollectionForm(true); }} className="font-body gap-2">
+                  <Plus className="w-4 h-4" /> Add Collection
+                </Button>
+              </div>
+
+              {showCollectionForm && (
+                <div className="naija-card p-6 mb-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="font-display text-lg font-bold text-foreground">
+                      {editingCollection ? "Edit Collection" : "New Collection"}
+                    </h3>
+                    <button onClick={resetCollectionForm}><X className="w-5 h-5 text-muted-foreground" /></button>
+                  </div>
+                  <form onSubmit={handleSubmitCollection} className="grid md:grid-cols-2 gap-4">
+                    <div><label className="font-body text-xs text-foreground block mb-1">Name *</label><Input value={collectionForm.name} onChange={(e) => setCollectionForm({ ...collectionForm, name: e.target.value })} required className="bg-background border-border" /></div>
+                    <div><label className="font-body text-xs text-foreground block mb-1">Slug</label><Input value={collectionForm.slug} onChange={(e) => setCollectionForm({ ...collectionForm, slug: e.target.value })} placeholder="auto-generated" className="bg-background border-border" /></div>
+                    <div className="md:col-span-2"><label className="font-body text-xs text-foreground block mb-1">Description</label><Textarea value={collectionForm.description} onChange={(e) => setCollectionForm({ ...collectionForm, description: e.target.value })} className="bg-background border-border" /></div>
+                    <div><label className="font-body text-xs text-foreground block mb-1">Pidgin Tagline</label><Input value={collectionForm.pidgin_tagline} onChange={(e) => setCollectionForm({ ...collectionForm, pidgin_tagline: e.target.value })} placeholder="E dey sweet!" className="bg-background border-border" /></div>
+                    <div>
+                      <label className="font-body text-xs text-foreground block mb-1">Type *</label>
+                      <select value={collectionForm.type} onChange={(e) => setCollectionForm({ ...collectionForm, type: e.target.value })} required className="w-full h-10 rounded-md border border-border bg-background px-3 font-body text-sm text-foreground">
+                        <option value="seasonal">Seasonal</option>
+                        <option value="gift">Gift</option>
+                      </select>
+                    </div>
+                    <div><label className="font-body text-xs text-foreground block mb-1">Icon (emoji)</label><Input value={collectionForm.icon} onChange={(e) => setCollectionForm({ ...collectionForm, icon: e.target.value })} placeholder="☀️" className="bg-background border-border" /></div>
+                    <div><label className="font-body text-xs text-foreground block mb-1">Banner Image URL</label><Input value={collectionForm.banner_image_url} onChange={(e) => setCollectionForm({ ...collectionForm, banner_image_url: e.target.value })} placeholder="https://..." className="bg-background border-border" /></div>
+                    <div><label className="font-body text-xs text-foreground block mb-1">Display Order</label><Input type="number" value={collectionForm.display_order} onChange={(e) => setCollectionForm({ ...collectionForm, display_order: e.target.value })} className="bg-background border-border" /></div>
+                    <div className="flex items-center gap-4">
+                      <label className="flex items-center gap-2 font-body text-sm text-foreground cursor-pointer">
+                        <input type="checkbox" checked={collectionForm.is_active} onChange={(e) => setCollectionForm({ ...collectionForm, is_active: e.target.checked })} /> Active
+                      </label>
+                    </div>
+                    <div className="md:col-span-2">
+                      <Button type="submit" className="font-body">{editingCollection ? "Update Collection" : "Create Collection"}</Button>
+                    </div>
+                  </form>
+                </div>
+              )}
+
+              {/* Collections Grid */}
+              <div className="grid md:grid-cols-2 gap-4 mb-8">
+                {collections.map((c) => (
+                  <div key={c.id} className="naija-card p-5">
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <div className="flex items-start gap-2 flex-1 min-w-0">
+                        {c.icon && <span className="text-2xl">{c.icon}</span>}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-display text-base font-bold text-foreground mb-0.5">{c.name}</h3>
+                          <p className="font-accent text-xs text-primary mb-1">{c.type}</p>
+                          {c.pidgin_tagline && <p className="font-body text-xs text-muted-foreground italic">"{c.pidgin_tagline}"</p>}
+                        </div>
+                      </div>
+                      <div className="flex gap-1.5 flex-shrink-0">
+                        <button
+                          onClick={() => { setSelectedCollection(c); fetchCollectionProducts(c.id); }}
+                          className="p-1.5 rounded hover:bg-secondary/10 transition-colors text-muted-foreground hover:text-secondary"
+                          title="Manage products"
+                        >
+                          <Package className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => handleEditCollection(c)} className="p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => handleDeleteCollection(c.id)} className="p-1.5 rounded hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`px-2 py-0.5 rounded text-xs font-accent ${c.is_active ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
+                        {c.is_active ? "Active" : "Inactive"}
+                      </span>
+                      <span className="font-body text-xs text-muted-foreground">Order: {c.display_order}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Product Assignment Modal */}
+              {selectedCollection && (
+                <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                  <div className="naija-card p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="font-display text-lg font-bold text-foreground">
+                        Manage Products: {selectedCollection.name}
+                      </h3>
+                      <button onClick={() => setSelectedCollection(null)}>
+                        <X className="w-5 h-5 text-muted-foreground" />
+                      </button>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-6">
+                      {/* Products in collection */}
+                      <div>
+                        <h4 className="font-accent text-sm font-bold text-foreground mb-3">
+                          In Collection ({collectionProducts.length})
+                        </h4>
+                        {collectionProducts.length === 0 ? (
+                          <div className="text-center py-8 border-2 border-dashed border-border rounded-lg">
+                            <p className="font-body text-sm text-muted-foreground">No products yet</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            {collectionProducts.map((item: any) => (
+                              <div key={item.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border border-border">
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-body text-sm font-semibold text-foreground truncate">{item.products.name}</p>
+                                  <p className="font-body text-xs text-muted-foreground">{formatNaira(Number(item.products.price))}</p>
+                                </div>
+                                <button
+                                  onClick={() => handleRemoveProductFromCollection(item.id)}
+                                  className="p-1.5 rounded hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Available products */}
+                      <div>
+                        <h4 className="font-accent text-sm font-bold text-foreground mb-3">
+                          Add Products ({availableProducts.length})
+                        </h4>
+                        {availableProducts.length === 0 ? (
+                          <div className="text-center py-8 border-2 border-dashed border-border rounded-lg">
+                            <p className="font-body text-sm text-muted-foreground">All products added!</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-2 max-h-96 overflow-y-auto">
+                            {availableProducts.map((product: any) => (
+                              <div key={product.id} className="flex items-center justify-between p-3 rounded-lg bg-background border border-border hover:border-primary/50 transition-colors">
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-body text-sm font-semibold text-foreground truncate">{product.name}</p>
+                                  <p className="font-body text-xs text-muted-foreground">{formatNaira(Number(product.price))}</p>
+                                </div>
+                                <button
+                                  onClick={() => handleAddProductToCollection(product.id)}
+                                  className="p-1.5 rounded hover:bg-primary/10 transition-colors text-muted-foreground hover:text-primary"
+                                >
+                                  <Plus className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
