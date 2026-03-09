@@ -68,6 +68,8 @@ const Admin = () => {
   const [selectedCollection, setSelectedCollection] = useState<any>(null);
   const [collectionProducts, setCollectionProducts] = useState<any[]>([]);
   const [availableProducts, setAvailableProducts] = useState<any[]>([]);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  const [showBulkImport, setShowBulkImport] = useState(false);
 
   useEffect(() => {
     if (!authLoading && (!user || !isAdmin)) {
