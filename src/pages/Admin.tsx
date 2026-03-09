@@ -868,6 +868,168 @@ const Admin = () => {
             </div>
           )}
 
+          {/* Collections Tab */}
+          {tab === "collections" && (
+            <div>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="font-display text-xl font-bold text-foreground">Collections</h2>
+                <Button onClick={() => { resetCollectionForm(); setShowCollectionForm(true); }} className="font-body gap-2">
+                  <Plus className="w-4 h-4" /> Add Collection
+                </Button>
+              </div>
+
+              {showCollectionForm && (
+                <div className="naija-card p-6 mb-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="font-display text-lg font-bold text-foreground">
+                      {editingCollection ? "Edit Collection" : "New Collection"}
+                    </h3>
+                    <button onClick={resetCollectionForm}><X className="w-5 h-5 text-muted-foreground" /></button>
+                  </div>
+                  <form onSubmit={handleSubmitCollection} className="grid md:grid-cols-2 gap-4">
+                    <div><label className="font-body text-xs text-foreground block mb-1">Name *</label><Input value={collectionForm.name} onChange={(e) => setCollectionForm({ ...collectionForm, name: e.target.value })} required className="bg-background border-border" /></div>
+                    <div><label className="font-body text-xs text-foreground block mb-1">Slug</label><Input value={collectionForm.slug} onChange={(e) => setCollectionForm({ ...collectionForm, slug: e.target.value })} placeholder="auto-generated" className="bg-background border-border" /></div>
+                    <div className="md:col-span-2"><label className="font-body text-xs text-foreground block mb-1">Description</label><Textarea value={collectionForm.description} onChange={(e) => setCollectionForm({ ...collectionForm, description: e.target.value })} className="bg-background border-border" /></div>
+                    <div><label className="font-body text-xs text-foreground block mb-1">Pidgin Tagline</label><Input value={collectionForm.pidgin_tagline} onChange={(e) => setCollectionForm({ ...collectionForm, pidgin_tagline: e.target.value })} placeholder="E dey sweet!" className="bg-background border-border" /></div>
+                    <div>
+                      <label className="font-body text-xs text-foreground block mb-1">Type *</label>
+                      <select value={collectionForm.type} onChange={(e) => setCollectionForm({ ...collectionForm, type: e.target.value })} required className="w-full h-10 rounded-md border border-border bg-background px-3 font-body text-sm text-foreground">
+                        <option value="seasonal">Seasonal</option>
+                        <option value="gift">Gift</option>
+                      </select>
+                    </div>
+                    <div><label className="font-body text-xs text-foreground block mb-1">Icon (emoji)</label><Input value={collectionForm.icon} onChange={(e) => setCollectionForm({ ...collectionForm, icon: e.target.value })} placeholder="☀️" className="bg-background border-border" /></div>
+                    <div><label className="font-body text-xs text-foreground block mb-1">Banner Image URL</label><Input value={collectionForm.banner_image_url} onChange={(e) => setCollectionForm({ ...collectionForm, banner_image_url: e.target.value })} placeholder="https://..." className="bg-background border-border" /></div>
+                    <div><label className="font-body text-xs text-foreground block mb-1">Display Order</label><Input type="number" value={collectionForm.display_order} onChange={(e) => setCollectionForm({ ...collectionForm, display_order: e.target.value })} className="bg-background border-border" /></div>
+                    <div className="flex items-center gap-4">
+                      <label className="flex items-center gap-2 font-body text-sm text-foreground cursor-pointer">
+                        <input type="checkbox" checked={collectionForm.is_active} onChange={(e) => setCollectionForm({ ...collectionForm, is_active: e.target.checked })} /> Active
+                      </label>
+                    </div>
+                    <div className="md:col-span-2">
+                      <Button type="submit" className="font-body">{editingCollection ? "Update Collection" : "Create Collection"}</Button>
+                    </div>
+                  </form>
+                </div>
+              )}
+
+              {/* Collections Grid */}
+              <div className="grid md:grid-cols-2 gap-4 mb-8">
+                {collections.map((c) => (
+                  <div key={c.id} className="naija-card p-5">
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <div className="flex items-start gap-2 flex-1 min-w-0">
+                        {c.icon && <span className="text-2xl">{c.icon}</span>}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-display text-base font-bold text-foreground mb-0.5">{c.name}</h3>
+                          <p className="font-accent text-xs text-primary mb-1">{c.type}</p>
+                          {c.pidgin_tagline && <p className="font-body text-xs text-muted-foreground italic">"{c.pidgin_tagline}"</p>}
+                        </div>
+                      </div>
+                      <div className="flex gap-1.5 flex-shrink-0">
+                        <button
+                          onClick={() => { setSelectedCollection(c); fetchCollectionProducts(c.id); }}
+                          className="p-1.5 rounded hover:bg-secondary/10 transition-colors text-muted-foreground hover:text-secondary"
+                          title="Manage products"
+                        >
+                          <Package className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => handleEditCollection(c)} className="p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => handleDeleteCollection(c.id)} className="p-1.5 rounded hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`px-2 py-0.5 rounded text-xs font-accent ${c.is_active ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
+                        {c.is_active ? "Active" : "Inactive"}
+                      </span>
+                      <span className="font-body text-xs text-muted-foreground">Order: {c.display_order}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Product Assignment Modal */}
+              {selectedCollection && (
+                <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                  <div className="naija-card p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="font-display text-lg font-bold text-foreground">
+                        Manage Products: {selectedCollection.name}
+                      </h3>
+                      <button onClick={() => setSelectedCollection(null)}>
+                        <X className="w-5 h-5 text-muted-foreground" />
+                      </button>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-6">
+                      {/* Products in collection */}
+                      <div>
+                        <h4 className="font-accent text-sm font-bold text-foreground mb-3">
+                          In Collection ({collectionProducts.length})
+                        </h4>
+                        {collectionProducts.length === 0 ? (
+                          <div className="text-center py-8 border-2 border-dashed border-border rounded-lg">
+                            <p className="font-body text-sm text-muted-foreground">No products yet</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            {collectionProducts.map((item: any) => (
+                              <div key={item.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border border-border">
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-body text-sm font-semibold text-foreground truncate">{item.products.name}</p>
+                                  <p className="font-body text-xs text-muted-foreground">{formatNaira(Number(item.products.price))}</p>
+                                </div>
+                                <button
+                                  onClick={() => handleRemoveProductFromCollection(item.id)}
+                                  className="p-1.5 rounded hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Available products */}
+                      <div>
+                        <h4 className="font-accent text-sm font-bold text-foreground mb-3">
+                          Add Products ({availableProducts.length})
+                        </h4>
+                        {availableProducts.length === 0 ? (
+                          <div className="text-center py-8 border-2 border-dashed border-border rounded-lg">
+                            <p className="font-body text-sm text-muted-foreground">All products added!</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-2 max-h-96 overflow-y-auto">
+                            {availableProducts.map((product: any) => (
+                              <div key={product.id} className="flex items-center justify-between p-3 rounded-lg bg-background border border-border hover:border-primary/50 transition-colors">
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-body text-sm font-semibold text-foreground truncate">{product.name}</p>
+                                  <p className="font-body text-xs text-muted-foreground">{formatNaira(Number(product.price))}</p>
+                                </div>
+                                <button
+                                  onClick={() => handleAddProductToCollection(product.id)}
+                                  className="p-1.5 rounded hover:bg-primary/10 transition-colors text-muted-foreground hover:text-primary"
+                                >
+                                  <Plus className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Analytics Tab */}
           {tab === "analytics" && (
             <AdminAnalytics
