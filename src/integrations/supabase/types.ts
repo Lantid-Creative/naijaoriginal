@@ -300,6 +300,90 @@ export type Database = {
         }
         Relationships: []
       }
+      product_collection_items: {
+        Row: {
+          collection_id: string
+          created_at: string | null
+          display_order: number | null
+          id: string
+          product_id: string
+        }
+        Insert: {
+          collection_id: string
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          product_id: string
+        }
+        Update: {
+          collection_id?: string
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_collection_items_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "product_collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_collection_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_collections: {
+        Row: {
+          banner_image_url: string | null
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          pidgin_tagline: string | null
+          slug: string
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          banner_image_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          pidgin_tagline?: string | null
+          slug: string
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          banner_image_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          pidgin_tagline?: string | null
+          slug?: string
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       product_images: {
         Row: {
           alt_text: string | null
