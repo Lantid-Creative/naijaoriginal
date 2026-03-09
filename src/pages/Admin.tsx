@@ -76,7 +76,7 @@ const Admin = () => {
   }, []);
 
   const fetchData = async () => {
-    const [productsRes, ordersRes, categoriesRes, ticketsRes, reviewsRes, notificationsRes, subscribersRes] = await Promise.all([
+    const [productsRes, ordersRes, categoriesRes, ticketsRes, reviewsRes, notificationsRes, subscribersRes, collectionsRes] = await Promise.all([
       supabase.from("products").select("*, product_categories:category_id(name)").order("created_at", { ascending: false }),
       supabase.from("orders").select("*, order_items(count)").order("created_at", { ascending: false }).limit(50),
       supabase.from("product_categories").select("*").order("name"),
@@ -84,6 +84,7 @@ const Admin = () => {
       supabase.from("product_reviews").select("*, products:product_id(name, slug)").order("created_at", { ascending: false }),
       supabase.from("admin_notifications").select("*").eq("is_read", false).order("created_at", { ascending: false }).limit(20),
       supabase.from("newsletter_subscribers").select("*").order("subscribed_at", { ascending: false }),
+      supabase.from("product_collections").select("*").order("display_order", { ascending: true }),
     ]);
     setProducts(productsRes.data || []);
     setOrders(ordersRes.data || []);
@@ -92,6 +93,7 @@ const Admin = () => {
     setReviews(reviewsRes.data || []);
     setNotifications(notificationsRes.data || []);
     setSubscribers(subscribersRes.data || []);
+    setCollections(collectionsRes.data || []);
     setLoading(false);
   };
 
