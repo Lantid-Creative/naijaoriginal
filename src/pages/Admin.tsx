@@ -908,9 +908,17 @@ const Admin = () => {
                         <option value="gift">Gift</option>
                       </select>
                     </div>
-                    <div><label className="font-body text-xs text-foreground block mb-1">Icon (emoji)</label><Input value={collectionForm.icon} onChange={(e) => setCollectionForm({ ...collectionForm, icon: e.target.value })} placeholder="☀️" className="bg-background border-border" /></div>
-                    <div><label className="font-body text-xs text-foreground block mb-1">Banner Image URL</label><Input value={collectionForm.banner_image_url} onChange={(e) => setCollectionForm({ ...collectionForm, banner_image_url: e.target.value })} placeholder="https://..." className="bg-background border-border" /></div>
-                    <div><label className="font-body text-xs text-foreground block mb-1">Display Order</label><Input type="number" value={collectionForm.display_order} onChange={(e) => setCollectionForm({ ...collectionForm, display_order: e.target.value })} className="bg-background border-border" /></div>
+                     <div><label className="font-body text-xs text-foreground block mb-1">Icon (emoji)</label><Input value={collectionForm.icon} onChange={(e) => setCollectionForm({ ...collectionForm, icon: e.target.value })} placeholder="☀️" className="bg-background border-border" /></div>
+                     <div><label className="font-body text-xs text-foreground block mb-1">Display Order</label><Input type="number" value={collectionForm.display_order} onChange={(e) => setCollectionForm({ ...collectionForm, display_order: e.target.value })} className="bg-background border-border" /></div>
+                     <div className="md:col-span-2">
+                       {editingCollection && (
+                         <CollectionBannerUpload
+                           collectionId={editingCollection.id}
+                           currentBannerUrl={collectionForm.banner_image_url}
+                           onUploadComplete={handleBannerUploadComplete}
+                         />
+                       )}
+                     </div>
                     <div className="flex items-center gap-4">
                       <label className="flex items-center gap-2 font-body text-sm text-foreground cursor-pointer">
                         <input type="checkbox" checked={collectionForm.is_active} onChange={(e) => setCollectionForm({ ...collectionForm, is_active: e.target.checked })} /> Active
