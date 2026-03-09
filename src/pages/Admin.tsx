@@ -285,6 +285,10 @@ const Admin = () => {
     setShowCollectionForm(true);
   };
 
+  const handleBannerUploadComplete = (url: string) => {
+    setCollectionForm({ ...collectionForm, banner_image_url: url });
+  };
+
   const handleSubmitCollection = async (e: React.FormEvent) => {
     e.preventDefault();
     const payload = {
