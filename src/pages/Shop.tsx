@@ -295,6 +295,16 @@ const Shop = () => {
                             </span>
                           )}
                           <div className="absolute bottom-2 right-2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setQuickViewId(product.id);
+                              }}
+                              className="w-8 h-8 rounded-full bg-background/90 text-foreground hover:bg-primary hover:text-primary-foreground flex items-center justify-center transition-colors"
+                              title="Quick View"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                            </button>
                             <QuickAddToCart productId={product.id} productName={product.name} />
                             <button
                               onClick={(e) => {
