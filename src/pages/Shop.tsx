@@ -416,6 +416,7 @@ const Shop = () => {
         </div>
       </main>
       <Footer />
+      <QuickViewModal productId={quickViewId} open={!!quickViewId} onClose={() => setQuickViewId(null)} />
     </div>
   );
 };
