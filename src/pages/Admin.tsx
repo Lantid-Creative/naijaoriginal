@@ -1109,6 +1109,21 @@ const Admin = () => {
             />
           )}
 
+          {/* Sales Dashboard Tab */}
+          {tab === "sales" && (
+            <SalesDashboard orders={orders} products={products} />
+          )}
+
+          {/* Bulk Editor Tab */}
+          {tab === "bulk-edit" && (
+            <BulkProductEditor products={products} onUpdate={fetchData} />
+          )}
+
+          {/* Inventory Alerts Tab */}
+          {tab === "inventory" && (
+            <InventoryAlerts products={products} />
+          )}
+
           {/* Subscribers Tab */}
           {tab === "subscribers" && (
             <div>
