@@ -6,6 +6,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useCompare } from "@/contexts/CompareContext";
 import NotificationBell from "@/components/NotificationBell";
+import SearchAutocomplete from "@/components/SearchAutocomplete";
 import naijaLogo from "@/assets/naija-logo.png";
 
 const navLinks = [
@@ -48,6 +49,7 @@ const Navbar = () => {
 
         {/* Right nav */}
         <div className="hidden md:flex items-center gap-4">
+          <SearchAutocomplete />
           {isAdmin && (
             <Link to="/admin" className="font-accent text-sm font-medium text-primary hover:text-primary/80 transition-colors flex items-center gap-1 uppercase tracking-wide">
               <Shield className="w-3.5 h-3.5" /> Admin

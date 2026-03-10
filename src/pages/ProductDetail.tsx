@@ -16,6 +16,8 @@ import Footer from "@/components/Footer";
 import RecentlyViewed from "@/components/RecentlyViewed";
 import WhatsAppShare from "@/components/WhatsAppShare";
 import ProductReviews from "@/components/ProductReviews";
+import SizeGuide from "@/components/SizeGuide";
+import DeliveryEstimate from "@/components/DeliveryEstimate";
 
 interface Product {
   id: string;
@@ -206,7 +208,10 @@ const ProductDetail = () => {
               {/* Size */}
               {product.sizes.length > 0 && (
                 <div className="mb-5 md:mb-6">
-                  <label className="font-accent text-sm font-semibold text-foreground block mb-2">Size</label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="font-accent text-sm font-semibold text-foreground">Size</label>
+                    <SizeGuide categoryName={product.product_categories?.name} />
+                  </div>
                   <div className="flex flex-wrap gap-2">
                     {product.sizes.map((size) => (
                       <button
@@ -314,6 +319,11 @@ const ProductDetail = () => {
               <div className="mt-5 md:mt-6 flex items-center gap-2 text-muted-foreground font-body text-sm">
                 <ShieldCheck className="w-5 h-5 text-primary" />
                 QR Authenticated — Every piece na verified original 🔐
+              </div>
+
+              {/* Delivery Estimates */}
+              <div className="mt-5 md:mt-6">
+                <DeliveryEstimate />
               </div>
             </motion.div>
           </div>

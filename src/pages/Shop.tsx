@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { ShoppingBag, SlidersHorizontal, X, Search, Heart, Scale, Star } from "lucide-react";
+import { ShoppingBag, SlidersHorizontal, X, Search, Heart, Scale, Star, Eye } from "lucide-react";
 import { useProductRatings } from "@/hooks/useProductRatings";
 import { motion, AnimatePresence } from "framer-motion";
 import { useWishlist } from "@/contexts/WishlistContext";
@@ -13,6 +13,7 @@ import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import QuickAddToCart from "@/components/QuickAddToCart";
+import QuickViewModal from "@/components/QuickViewModal";
 import RecentlyViewed from "@/components/RecentlyViewed";
 
 interface Product {
@@ -53,6 +54,7 @@ const Shop = () => {
   const { addToCompare, removeFromCompare, isInCompare } = useCompare();
   const { toast } = useToast();
   const { recentProducts } = useRecentlyViewed();
+  const [quickViewId, setQuickViewId] = useState<string | null>(null);
   const productIds = useMemo(() => products.map(p => p.id), [products]);
   const ratings = useProductRatings(productIds);
   useEffect(() => {
@@ -293,6 +295,16 @@ const Shop = () => {
                             </span>
                           )}
                           <div className="absolute bottom-2 right-2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setQuickViewId(product.id);
+                              }}
+                              className="w-8 h-8 rounded-full bg-background/90 text-foreground hover:bg-primary hover:text-primary-foreground flex items-center justify-center transition-colors"
+                              title="Quick View"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                            </button>
                             <QuickAddToCart productId={product.id} productName={product.name} />
                             <button
                               onClick={(e) => {
@@ -404,6 +416,7 @@ const Shop = () => {
         </div>
       </main>
       <Footer />
+      <QuickViewModal productId={quickViewId} open={!!quickViewId} onClose={() => setQuickViewId(null)} />
     </div>
   );
 };
