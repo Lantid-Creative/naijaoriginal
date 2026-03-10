@@ -54,6 +54,7 @@ const Shop = () => {
   const { addToCompare, removeFromCompare, isInCompare } = useCompare();
   const { toast } = useToast();
   const { recentProducts } = useRecentlyViewed();
+  const [quickViewId, setQuickViewId] = useState<string | null>(null);
   const productIds = useMemo(() => products.map(p => p.id), [products]);
   const ratings = useProductRatings(productIds);
   useEffect(() => {
