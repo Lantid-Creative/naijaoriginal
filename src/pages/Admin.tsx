@@ -6,17 +6,20 @@ import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { formatNaira } from "@/lib/format";
-import { Package, ShoppingCart, Users, Plus, Pencil, Trash2, X, BarChart3, QrCode, Copy, MessageSquare, AlertCircle, Star, Check, Ban, Bell, Mail, Bot, TrendingUp } from "lucide-react";
+import { Package, ShoppingCart, Users, Plus, Pencil, Trash2, X, BarChart3, QrCode, Copy, MessageSquare, AlertCircle, Star, Check, Ban, Bell, Mail, Bot, TrendingUp, AlertTriangle } from "lucide-react";
 import AdminAIChat from "@/components/AdminAIChat";
 import AdminAnalytics from "@/components/AdminAnalytics";
 import CollectionAnalytics from "@/components/admin/CollectionAnalytics";
 import CollectionBannerUpload from "@/components/admin/CollectionBannerUpload";
 import DraggableProductList from "@/components/admin/DraggableProductList";
 import BulkProductImport from "@/components/admin/BulkProductImport";
+import SalesDashboard from "@/components/admin/SalesDashboard";
+import BulkProductEditor from "@/components/admin/BulkProductEditor";
+import InventoryAlerts from "@/components/admin/InventoryAlerts";
 import { Textarea } from "@/components/ui/textarea";
 import Navbar from "@/components/Navbar";
 
-type Tab = "products" | "orders" | "qr" | "tickets" | "reviews" | "analytics" | "subscribers" | "ai" | "collections";
+type Tab = "products" | "orders" | "qr" | "tickets" | "reviews" | "analytics" | "subscribers" | "ai" | "collections" | "sales" | "bulk-edit" | "inventory";
 
 const Admin = () => {
   const { user, isAdmin, loading: authLoading } = useAuth();
