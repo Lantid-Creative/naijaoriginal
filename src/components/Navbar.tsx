@@ -49,6 +49,7 @@ const Navbar = () => {
 
         {/* Right nav */}
         <div className="hidden md:flex items-center gap-4">
+          <SearchAutocomplete />
           {isAdmin && (
             <Link to="/admin" className="font-accent text-sm font-medium text-primary hover:text-primary/80 transition-colors flex items-center gap-1 uppercase tracking-wide">
               <Shield className="w-3.5 h-3.5" /> Admin
