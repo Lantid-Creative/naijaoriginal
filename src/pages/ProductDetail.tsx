@@ -208,7 +208,10 @@ const ProductDetail = () => {
               {/* Size */}
               {product.sizes.length > 0 && (
                 <div className="mb-5 md:mb-6">
-                  <label className="font-accent text-sm font-semibold text-foreground block mb-2">Size</label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="font-accent text-sm font-semibold text-foreground">Size</label>
+                    <SizeGuide categoryName={product.product_categories?.name} />
+                  </div>
                   <div className="flex flex-wrap gap-2">
                     {product.sizes.map((size) => (
                       <button
