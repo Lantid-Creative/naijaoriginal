@@ -6,17 +6,20 @@ import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { formatNaira } from "@/lib/format";
-import { Package, ShoppingCart, Users, Plus, Pencil, Trash2, X, BarChart3, QrCode, Copy, MessageSquare, AlertCircle, Star, Check, Ban, Bell, Mail, Bot, TrendingUp } from "lucide-react";
+import { Package, ShoppingCart, Users, Plus, Pencil, Trash2, X, BarChart3, QrCode, Copy, MessageSquare, AlertCircle, Star, Check, Ban, Bell, Mail, Bot, TrendingUp, AlertTriangle } from "lucide-react";
 import AdminAIChat from "@/components/AdminAIChat";
 import AdminAnalytics from "@/components/AdminAnalytics";
 import CollectionAnalytics from "@/components/admin/CollectionAnalytics";
 import CollectionBannerUpload from "@/components/admin/CollectionBannerUpload";
 import DraggableProductList from "@/components/admin/DraggableProductList";
 import BulkProductImport from "@/components/admin/BulkProductImport";
+import SalesDashboard from "@/components/admin/SalesDashboard";
+import BulkProductEditor from "@/components/admin/BulkProductEditor";
+import InventoryAlerts from "@/components/admin/InventoryAlerts";
 import { Textarea } from "@/components/ui/textarea";
 import Navbar from "@/components/Navbar";
 
-type Tab = "products" | "orders" | "qr" | "tickets" | "reviews" | "analytics" | "subscribers" | "ai" | "collections";
+type Tab = "products" | "orders" | "qr" | "tickets" | "reviews" | "analytics" | "subscribers" | "ai" | "collections" | "sales" | "bulk-edit" | "inventory";
 
 const Admin = () => {
   const { user, isAdmin, loading: authLoading } = useAuth();
@@ -413,7 +416,7 @@ const Admin = () => {
 
           {/* Tabs */}
           <div className="flex gap-2 mb-6 overflow-x-auto">
-            {(["ai", "products", "collections", "orders", "reviews", "tickets", "subscribers", "qr", "analytics"] as Tab[]).map((t) => (
+            {(["ai", "sales", "products", "bulk-edit", "inventory", "collections", "orders", "reviews", "tickets", "subscribers", "qr", "analytics"] as Tab[]).map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
@@ -422,7 +425,7 @@ const Admin = () => {
                 } ${t === "ai" ? "bg-gradient-to-r from-primary to-secondary text-primary-foreground font-bold" : ""}`}
               >
                 {t === "ai" && <Bot className="w-3.5 h-3.5" />}
-                {t === "ai" ? "AI Assistant" : t === "qr" ? "QR Codes" : t === "tickets" ? `Tickets${openTickets > 0 ? ` (${openTickets})` : ""}` : t === "reviews" ? `Reviews${pendingReviews.length > 0 ? ` (${pendingReviews.length})` : ""}` : t === "subscribers" ? `Subscribers (${subscribers.length})` : t}
+                {t === "ai" ? "AI Assistant" : t === "sales" ? "Sales Dashboard" : t === "bulk-edit" ? "Bulk Edit" : t === "inventory" ? `Inventory${products.filter(p => p.is_active && p.stock <= 5).length > 0 ? ` (${products.filter(p => p.is_active && p.stock <= 5).length})` : ""}` : t === "qr" ? "QR Codes" : t === "tickets" ? `Tickets${openTickets > 0 ? ` (${openTickets})` : ""}` : t === "reviews" ? `Reviews${pendingReviews.length > 0 ? ` (${pendingReviews.length})` : ""}` : t === "subscribers" ? `Subscribers (${subscribers.length})` : t}
               </button>
             ))}
           </div>
@@ -1104,6 +1107,21 @@ const Admin = () => {
               subscribers={subscribers}
               categories={categories}
             />
+          )}
+
+          {/* Sales Dashboard Tab */}
+          {tab === "sales" && (
+            <SalesDashboard orders={orders} products={products} />
+          )}
+
+          {/* Bulk Editor Tab */}
+          {tab === "bulk-edit" && (
+            <BulkProductEditor products={products} onUpdate={fetchData} />
+          )}
+
+          {/* Inventory Alerts Tab */}
+          {tab === "inventory" && (
+            <InventoryAlerts products={products} />
           )}
 
           {/* Subscribers Tab */}
