@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { ShoppingBag, SlidersHorizontal, X, Search, Heart, Scale, Star } from "lucide-react";
+import { ShoppingBag, SlidersHorizontal, X, Search, Heart, Scale, Star, Eye } from "lucide-react";
 import { useProductRatings } from "@/hooks/useProductRatings";
 import { motion, AnimatePresence } from "framer-motion";
 import { useWishlist } from "@/contexts/WishlistContext";
@@ -13,6 +13,7 @@ import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import QuickAddToCart from "@/components/QuickAddToCart";
+import QuickViewModal from "@/components/QuickViewModal";
 import RecentlyViewed from "@/components/RecentlyViewed";
 
 interface Product {
