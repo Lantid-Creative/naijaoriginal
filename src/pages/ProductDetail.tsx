@@ -320,6 +320,11 @@ const ProductDetail = () => {
                 <ShieldCheck className="w-5 h-5 text-primary" />
                 QR Authenticated — Every piece na verified original 🔐
               </div>
+
+              {/* Delivery Estimates */}
+              <div className="mt-5 md:mt-6">
+                <DeliveryEstimate />
+              </div>
             </motion.div>
           </div>
 
