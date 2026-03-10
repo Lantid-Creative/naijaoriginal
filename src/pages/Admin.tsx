@@ -425,7 +425,7 @@ const Admin = () => {
                 } ${t === "ai" ? "bg-gradient-to-r from-primary to-secondary text-primary-foreground font-bold" : ""}`}
               >
                 {t === "ai" && <Bot className="w-3.5 h-3.5" />}
-                {t === "ai" ? "AI Assistant" : t === "qr" ? "QR Codes" : t === "tickets" ? `Tickets${openTickets > 0 ? ` (${openTickets})` : ""}` : t === "reviews" ? `Reviews${pendingReviews.length > 0 ? ` (${pendingReviews.length})` : ""}` : t === "subscribers" ? `Subscribers (${subscribers.length})` : t}
+                {t === "ai" ? "AI Assistant" : t === "sales" ? "Sales Dashboard" : t === "bulk-edit" ? "Bulk Edit" : t === "inventory" ? `Inventory${products.filter(p => p.is_active && p.stock <= 5).length > 0 ? ` (${products.filter(p => p.is_active && p.stock <= 5).length})` : ""}` : t === "qr" ? "QR Codes" : t === "tickets" ? `Tickets${openTickets > 0 ? ` (${openTickets})` : ""}` : t === "reviews" ? `Reviews${pendingReviews.length > 0 ? ` (${pendingReviews.length})` : ""}` : t === "subscribers" ? `Subscribers (${subscribers.length})` : t}
               </button>
             ))}
           </div>
