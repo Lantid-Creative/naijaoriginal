@@ -129,7 +129,7 @@ const ProductDetail = () => {
     );
   }
 
-  const images = [...(product.product_images || [])].sort((a, b) => a.display_order - b.display_order);
+  const images = getFilteredImages();
   const mainImage = images[selectedImage]?.image_url || "/placeholder.svg";
 
   return (
