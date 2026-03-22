@@ -46,6 +46,17 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
   const [adding, setAdding] = useState(false);
+
+  // Filter images by selected color (match color name in alt_text)
+  const getFilteredImages = () => {
+    if (!product) return [];
+    const allImages = [...(product.product_images || [])].sort((a, b) => a.display_order - b.display_order);
+    if (!selectedColor || product.colors.length <= 1) return allImages;
+    const colorImages = allImages.filter(img => 
+      img.alt_text?.toLowerCase().includes(selectedColor.toLowerCase())
+    );
+    return colorImages.length > 0 ? colorImages : allImages;
+  };
   const { addToCart } = useCart();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -118,7 +129,7 @@ const ProductDetail = () => {
     );
   }
 
-  const images = [...(product.product_images || [])].sort((a, b) => a.display_order - b.display_order);
+  const images = getFilteredImages();
   const mainImage = images[selectedImage]?.image_url || "/placeholder.svg";
 
   return (
@@ -238,7 +249,10 @@ const ProductDetail = () => {
                     {product.colors.map((color) => (
                       <button
                         key={color}
-                        onClick={() => setSelectedColor(color)}
+                        onClick={() => {
+                          setSelectedColor(color);
+                          setSelectedImage(0);
+                        }}
                         className={`px-4 py-2 rounded-xl font-body text-sm border transition-all ${
                           selectedColor === color
                             ? "border-primary bg-primary/10 text-primary font-semibold"
