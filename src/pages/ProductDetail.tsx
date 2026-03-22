@@ -46,6 +46,17 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
   const [adding, setAdding] = useState(false);
+
+  // Filter images by selected color (match color name in alt_text)
+  const getFilteredImages = () => {
+    if (!product) return [];
+    const allImages = [...(product.product_images || [])].sort((a, b) => a.display_order - b.display_order);
+    if (!selectedColor || product.colors.length <= 1) return allImages;
+    const colorImages = allImages.filter(img => 
+      img.alt_text?.toLowerCase().includes(selectedColor.toLowerCase())
+    );
+    return colorImages.length > 0 ? colorImages : allImages;
+  };
   const { addToCart } = useCart();
   const { toast } = useToast();
   const { user } = useAuth();
