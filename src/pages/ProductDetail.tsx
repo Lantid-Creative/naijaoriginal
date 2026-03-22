@@ -249,7 +249,10 @@ const ProductDetail = () => {
                     {product.colors.map((color) => (
                       <button
                         key={color}
-                        onClick={() => setSelectedColor(color)}
+                        onClick={() => {
+                          setSelectedColor(color);
+                          setSelectedImage(0);
+                        }}
                         className={`px-4 py-2 rounded-xl font-body text-sm border transition-all ${
                           selectedColor === color
                             ? "border-primary bg-primary/10 text-primary font-semibold"
