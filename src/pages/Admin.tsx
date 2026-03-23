@@ -520,9 +520,15 @@ const Admin = () => {
                           <td className="p-4 font-body text-sm text-foreground">{formatNaira(Number(p.price))}</td>
                           <td className="p-4 font-body text-sm text-foreground">{p.stock}</td>
                           <td className="p-4">
-                            <span className={`px-2 py-0.5 rounded text-xs font-accent ${p.is_active ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
-                              {p.is_active ? "Active" : "Inactive"}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <Switch
+                                checked={p.is_active}
+                                onCheckedChange={() => handleToggleActive(p.id, p.is_active)}
+                              />
+                              <span className={`text-xs font-accent ${p.is_active ? "text-primary" : "text-muted-foreground"}`}>
+                                {p.is_active ? "Active" : "Off"}
+                              </span>
+                            </div>
                           </td>
                           <td className="p-4 text-right">
                             <div className="flex gap-2 justify-end">
