@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { formatNaira } from "@/lib/format";
 import { Package, ShoppingCart, Users, Plus, Pencil, Trash2, X, BarChart3, QrCode, Copy, MessageSquare, AlertCircle, Star, Check, Ban, Bell, Mail, Bot, TrendingUp, AlertTriangle } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import AdminAIChat from "@/components/AdminAIChat";
 import AdminAnalytics from "@/components/AdminAnalytics";
 import CollectionAnalytics from "@/components/admin/CollectionAnalytics";
