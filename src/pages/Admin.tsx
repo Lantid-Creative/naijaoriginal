@@ -172,7 +172,14 @@ const Admin = () => {
     fetchData();
   };
 
-  const handleUpdateOrderStatus = async (orderId: string, status: string) => {
+  const handleToggleActive = async (productId: string, currentActive: boolean) => {
+    const { error } = await supabase.from("products").update({ is_active: !currentActive }).eq("id", productId);
+    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    toast({ title: !currentActive ? "Product activated ✅" : "Product deactivated" });
+    fetchData();
+  };
+
+
     const { error } = await supabase.from("orders").update({ status, payment_status: status === "paid" ? "paid" : undefined }).eq("id", orderId);
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
     toast({ title: `Order ${status}` });
