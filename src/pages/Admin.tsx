@@ -180,6 +180,7 @@ const Admin = () => {
   };
 
 
+  const handleUpdateOrderStatus = async (orderId: string, status: string) => {
     const { error } = await supabase.from("orders").update({ status, payment_status: status === "paid" ? "paid" : undefined }).eq("id", orderId);
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
     toast({ title: `Order ${status}` });
