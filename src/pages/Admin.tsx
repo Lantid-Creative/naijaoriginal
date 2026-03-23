@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { formatNaira } from "@/lib/format";
 import { Package, ShoppingCart, Users, Plus, Pencil, Trash2, X, BarChart3, QrCode, Copy, MessageSquare, AlertCircle, Star, Check, Ban, Bell, Mail, Bot, TrendingUp, AlertTriangle } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import AdminAIChat from "@/components/AdminAIChat";
 import AdminAnalytics from "@/components/AdminAnalytics";
 import CollectionAnalytics from "@/components/admin/CollectionAnalytics";
@@ -171,7 +172,14 @@ const Admin = () => {
     fetchData();
   };
 
-  const handleUpdateOrderStatus = async (orderId: string, status: string) => {
+  const handleToggleActive = async (productId: string, currentActive: boolean) => {
+    const { error } = await supabase.from("products").update({ is_active: !currentActive }).eq("id", productId);
+    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    toast({ title: !currentActive ? "Product activated ✅" : "Product deactivated" });
+    fetchData();
+  };
+
+
     const { error } = await supabase.from("orders").update({ status, payment_status: status === "paid" ? "paid" : undefined }).eq("id", orderId);
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
     toast({ title: `Order ${status}` });
@@ -512,9 +520,15 @@ const Admin = () => {
                           <td className="p-4 font-body text-sm text-foreground">{formatNaira(Number(p.price))}</td>
                           <td className="p-4 font-body text-sm text-foreground">{p.stock}</td>
                           <td className="p-4">
-                            <span className={`px-2 py-0.5 rounded text-xs font-accent ${p.is_active ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
-                              {p.is_active ? "Active" : "Inactive"}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <Switch
+                                checked={p.is_active}
+                                onCheckedChange={() => handleToggleActive(p.id, p.is_active)}
+                              />
+                              <span className={`text-xs font-accent ${p.is_active ? "text-primary" : "text-muted-foreground"}`}>
+                                {p.is_active ? "Active" : "Off"}
+                              </span>
+                            </div>
                           </td>
                           <td className="p-4 text-right">
                             <div className="flex gap-2 justify-end">
