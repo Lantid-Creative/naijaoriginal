@@ -287,11 +287,14 @@ const Shop = () => {
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             loading="lazy"
                           />
-                          {product.is_limited_edition && (
-                            <span className="absolute top-2 left-2 md:top-3 md:left-3 px-2 py-1 rounded-lg bg-secondary text-secondary-foreground font-accent text-[10px] font-bold uppercase tracking-wider">
-                              Limited
-                            </span>
-                          )}
+                          <div className="absolute top-2 left-2 md:top-3 md:left-3 flex flex-col gap-1">
+                            {product.is_limited_edition && (
+                              <span className="px-2 py-1 rounded-lg bg-secondary text-secondary-foreground font-accent text-[10px] font-bold uppercase tracking-wider">
+                                Limited
+                              </span>
+                            )}
+                            <SeriesBadge seriesNumber={product.series_number} seriesYear={product.series_year} />
+                          </div>
                           {product.compare_at_price && (
                             <span className="absolute top-2 right-2 md:top-3 md:right-3 px-2 py-1 rounded-lg bg-destructive text-destructive-foreground font-accent text-[10px] font-bold">
                               SALE
