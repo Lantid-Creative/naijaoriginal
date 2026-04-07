@@ -15,6 +15,7 @@ import Footer from "@/components/Footer";
 import QuickAddToCart from "@/components/QuickAddToCart";
 import QuickViewModal from "@/components/QuickViewModal";
 import RecentlyViewed from "@/components/RecentlyViewed";
+import SeriesBadge from "@/components/SeriesBadge";
 
 interface Product {
   id: string;
@@ -27,6 +28,8 @@ interface Product {
   is_featured: boolean;
   category_id: string | null;
   product_images: { image_url: string; display_order: number }[];
+  series_number: number | null;
+  series_year: number | null;
 }
 
 interface Category {
@@ -70,7 +73,7 @@ const Shop = () => {
       const [productsRes, categoriesRes] = await Promise.all([
         supabase
           .from("products")
-          .select("id, name, slug, price, compare_at_price, pidgin_tagline, is_limited_edition, is_featured, category_id, product_images(image_url, display_order)")
+          .select("id, name, slug, price, compare_at_price, pidgin_tagline, is_limited_edition, is_featured, category_id, series_number, series_year, product_images(image_url, display_order)")
           .eq("is_active", true)
           .order("is_featured", { ascending: false })
           .order("created_at", { ascending: false }),
@@ -284,11 +287,14 @@ const Shop = () => {
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             loading="lazy"
                           />
-                          {product.is_limited_edition && (
-                            <span className="absolute top-2 left-2 md:top-3 md:left-3 px-2 py-1 rounded-lg bg-secondary text-secondary-foreground font-accent text-[10px] font-bold uppercase tracking-wider">
-                              Limited
-                            </span>
-                          )}
+                          <div className="absolute top-2 left-2 md:top-3 md:left-3 flex flex-col gap-1">
+                            {product.is_limited_edition && (
+                              <span className="px-2 py-1 rounded-lg bg-secondary text-secondary-foreground font-accent text-[10px] font-bold uppercase tracking-wider">
+                                Limited
+                              </span>
+                            )}
+                            <SeriesBadge seriesNumber={product.series_number} seriesYear={product.series_year} />
+                          </div>
                           {product.compare_at_price && (
                             <span className="absolute top-2 right-2 md:top-3 md:right-3 px-2 py-1 rounded-lg bg-destructive text-destructive-foreground font-accent text-[10px] font-bold">
                               SALE
