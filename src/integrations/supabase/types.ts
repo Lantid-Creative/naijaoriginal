@@ -478,6 +478,10 @@ export type Database = {
           name: string
           pidgin_tagline: string | null
           price: number
+          product_line: string | null
+          series_name: string | null
+          series_number: number | null
+          series_year: number | null
           sizes: string[] | null
           slug: string
           stock: number
@@ -497,6 +501,10 @@ export type Database = {
           name: string
           pidgin_tagline?: string | null
           price: number
+          product_line?: string | null
+          series_name?: string | null
+          series_number?: number | null
+          series_year?: number | null
           sizes?: string[] | null
           slug: string
           stock?: number
@@ -516,6 +524,10 @@ export type Database = {
           name?: string
           pidgin_tagline?: string | null
           price?: number
+          product_line?: string | null
+          series_name?: string | null
+          series_number?: number | null
+          series_year?: number | null
           sizes?: string[] | null
           slug?: string
           stock?: number
