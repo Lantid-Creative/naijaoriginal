@@ -18,6 +18,8 @@ import WhatsAppShare from "@/components/WhatsAppShare";
 import ProductReviews from "@/components/ProductReviews";
 import SizeGuide from "@/components/SizeGuide";
 import DeliveryEstimate from "@/components/DeliveryEstimate";
+import ProductEvolutionTimeline from "@/components/ProductEvolutionTimeline";
+import SeriesBadge from "@/components/SeriesBadge";
 
 interface Product {
   id: string;
@@ -33,6 +35,10 @@ interface Product {
   is_limited_edition: boolean;
   edition_total: number | null;
   category_id: string | null;
+  series_number: number | null;
+  series_year: number | null;
+  series_name: string | null;
+  product_line: string | null;
   product_images: { id: string; image_url: string; alt_text: string | null; display_order: number }[];
   product_categories: { name: string; slug: string } | null;
 }
@@ -190,11 +196,14 @@ const ProductDetail = () => {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="py-2 md:py-4"
             >
-              {product.is_limited_edition && (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary font-accent text-xs font-bold uppercase tracking-wider mb-4">
-                  <Sparkles className="w-3 h-3" /> Limited Edition — {product.edition_total} pieces only
-                </span>
-              )}
+              <div className="flex flex-wrap items-center gap-2 mb-4">
+                {product.is_limited_edition && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary font-accent text-xs font-bold uppercase tracking-wider">
+                    <Sparkles className="w-3 h-3" /> Limited Edition — {product.edition_total} pieces only
+                  </span>
+                )}
+                <SeriesBadge seriesNumber={product.series_number} seriesYear={product.series_year} seriesName={product.series_name} size="md" />
+              </div>
 
               <h1 className="font-accent text-2xl md:text-4xl font-black text-foreground mb-2">{product.name}</h1>
 
@@ -341,6 +350,9 @@ const ProductDetail = () => {
               </div>
             </motion.div>
           </div>
+
+          {/* Evolution Timeline */}
+          <ProductEvolutionTimeline productLine={product.product_line} currentProductId={product.id} />
 
           {/* Reviews */}
           <ProductReviews productId={product.id} />

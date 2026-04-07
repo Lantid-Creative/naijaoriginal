@@ -28,6 +28,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
 import Help from "./pages/Help";
+import SeriesArchive from "./pages/SeriesArchive";
 import OgaWahalaBubble from "./components/OgaWahalaBubble";
 
 const queryClient = new QueryClient();
@@ -63,6 +64,7 @@ const App = () => (
                   <Route path="/privacy" element={<PrivacyPolicy />} />
                   <Route path="/terms" element={<Terms />} />
                   <Route path="/help" element={<Help />} />
+                  <Route path="/series" element={<SeriesArchive />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
