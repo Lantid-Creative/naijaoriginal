@@ -15,6 +15,7 @@ import Footer from "@/components/Footer";
 import QuickAddToCart from "@/components/QuickAddToCart";
 import QuickViewModal from "@/components/QuickViewModal";
 import RecentlyViewed from "@/components/RecentlyViewed";
+import SeriesBadge from "@/components/SeriesBadge";
 
 interface Product {
   id: string;
@@ -27,6 +28,8 @@ interface Product {
   is_featured: boolean;
   category_id: string | null;
   product_images: { image_url: string; display_order: number }[];
+  series_number: number | null;
+  series_year: number | null;
 }
 
 interface Category {
@@ -70,7 +73,7 @@ const Shop = () => {
       const [productsRes, categoriesRes] = await Promise.all([
         supabase
           .from("products")
-          .select("id, name, slug, price, compare_at_price, pidgin_tagline, is_limited_edition, is_featured, category_id, product_images(image_url, display_order)")
+          .select("id, name, slug, price, compare_at_price, pidgin_tagline, is_limited_edition, is_featured, category_id, series_number, series_year, product_images(image_url, display_order)")
           .eq("is_active", true)
           .order("is_featured", { ascending: false })
           .order("created_at", { ascending: false }),
