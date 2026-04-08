@@ -76,12 +76,22 @@ const Collections = () => {
                           to={`/collections/${collection.slug}`}
                           className="bg-card rounded-2xl overflow-hidden border border-border group block hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
                         >
-                          <div className="aspect-[4/3] bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 flex items-center justify-center relative overflow-hidden">
-                            <div className="text-6xl md:text-7xl group-hover:scale-110 transition-transform duration-500">
-                              {collection.icon || "🎁"}
+                          {collection.banner_image_url ? (
+                            <div className="aspect-[4/3] relative overflow-hidden">
+                              <img
+                                src={collection.banner_image_url}
+                                alt={collection.name}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                loading="lazy"
+                              />
                             </div>
-                            <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                          </div>
+                          ) : (
+                            <div className="aspect-[4/3] bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 flex items-center justify-center relative overflow-hidden">
+                              <div className="text-6xl md:text-7xl group-hover:scale-110 transition-transform duration-500">
+                                {collection.icon || "🎁"}
+                              </div>
+                            </div>
+                          )}
                           <div className="p-5">
                             <h3 className="font-accent text-lg md:text-xl font-bold text-foreground mb-1 group-hover:text-primary transition-colors">
                               {collection.name}
@@ -125,12 +135,22 @@ const Collections = () => {
                           to={`/collections/${collection.slug}`}
                           className="bg-card rounded-2xl overflow-hidden border border-border group block hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
                         >
-                          <div className="aspect-[4/3] bg-gradient-to-br from-accent/10 via-primary/10 to-secondary/10 flex items-center justify-center relative overflow-hidden">
-                            <div className="text-6xl md:text-7xl group-hover:scale-110 transition-transform duration-500">
-                              {collection.icon || "🎁"}
+                          {collection.banner_image_url ? (
+                            <div className="aspect-[4/3] relative overflow-hidden">
+                              <img
+                                src={collection.banner_image_url}
+                                alt={collection.name}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                loading="lazy"
+                              />
                             </div>
-                            <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                          </div>
+                          ) : (
+                            <div className="aspect-[4/3] bg-gradient-to-br from-accent/10 via-primary/10 to-secondary/10 flex items-center justify-center relative overflow-hidden">
+                              <div className="text-6xl md:text-7xl group-hover:scale-110 transition-transform duration-500">
+                                {collection.icon || "🎁"}
+                              </div>
+                            </div>
+                          )}
                           <div className="p-5">
                             <h3 className="font-accent text-lg md:text-xl font-bold text-foreground mb-1 group-hover:text-primary transition-colors">
                               {collection.name}
