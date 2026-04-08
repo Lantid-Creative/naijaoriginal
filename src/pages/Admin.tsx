@@ -17,10 +17,11 @@ import BulkProductImport from "@/components/admin/BulkProductImport";
 import SalesDashboard from "@/components/admin/SalesDashboard";
 import BulkProductEditor from "@/components/admin/BulkProductEditor";
 import InventoryAlerts from "@/components/admin/InventoryAlerts";
+import SeriesManager from "@/components/admin/SeriesManager";
 import { Textarea } from "@/components/ui/textarea";
 import Navbar from "@/components/Navbar";
 
-type Tab = "products" | "orders" | "qr" | "tickets" | "reviews" | "analytics" | "subscribers" | "ai" | "collections" | "sales" | "bulk-edit" | "inventory";
+type Tab = "products" | "orders" | "qr" | "tickets" | "reviews" | "analytics" | "subscribers" | "ai" | "collections" | "sales" | "bulk-edit" | "inventory" | "series";
 
 const Admin = () => {
   const { user, isAdmin, loading: authLoading } = useAuth();
@@ -424,8 +425,8 @@ const Admin = () => {
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-2 mb-6 overflow-x-auto">
-            {(["ai", "sales", "products", "bulk-edit", "inventory", "collections", "orders", "reviews", "tickets", "subscribers", "qr", "analytics"] as Tab[]).map((t) => (
+          <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
+            {(["ai", "sales", "products", "series", "bulk-edit", "inventory", "collections", "orders", "reviews", "tickets", "subscribers", "qr", "analytics"] as Tab[]).map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
@@ -434,7 +435,7 @@ const Admin = () => {
                 } ${t === "ai" ? "bg-gradient-to-r from-primary to-secondary text-primary-foreground font-bold" : ""}`}
               >
                 {t === "ai" && <Bot className="w-3.5 h-3.5" />}
-                {t === "ai" ? "AI Assistant" : t === "sales" ? "Sales Dashboard" : t === "bulk-edit" ? "Bulk Edit" : t === "inventory" ? `Inventory${products.filter(p => p.is_active && p.stock <= 5).length > 0 ? ` (${products.filter(p => p.is_active && p.stock <= 5).length})` : ""}` : t === "qr" ? "QR Codes" : t === "tickets" ? `Tickets${openTickets > 0 ? ` (${openTickets})` : ""}` : t === "reviews" ? `Reviews${pendingReviews.length > 0 ? ` (${pendingReviews.length})` : ""}` : t === "subscribers" ? `Subscribers (${subscribers.length})` : t}
+                {t === "ai" ? "AI Assistant" : t === "sales" ? "Sales Dashboard" : t === "bulk-edit" ? "Bulk Edit" : t === "series" ? "Series" : t === "inventory" ? `Inventory${products.filter(p => p.is_active && p.stock <= 5).length > 0 ? ` (${products.filter(p => p.is_active && p.stock <= 5).length})` : ""}` : t === "qr" ? "QR Codes" : t === "tickets" ? `Tickets${openTickets > 0 ? ` (${openTickets})` : ""}` : t === "reviews" ? `Reviews${pendingReviews.length > 0 ? ` (${pendingReviews.length})` : ""}` : t === "subscribers" ? `Subscribers (${subscribers.length})` : t}
               </button>
             ))}
           </div>
@@ -1137,6 +1138,11 @@ const Admin = () => {
           {/* Inventory Alerts Tab */}
           {tab === "inventory" && (
             <InventoryAlerts products={products} />
+          )}
+
+          {/* Series Manager Tab */}
+          {tab === "series" && (
+            <SeriesManager products={products} onUpdate={fetchData} />
           )}
 
           {/* Subscribers Tab */}
