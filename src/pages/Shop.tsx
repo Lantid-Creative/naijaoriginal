@@ -185,7 +185,7 @@ const Shop = () => {
 
             <button
               onClick={() => setShowMobileFilters(!showMobileFilters)}
-              className="md:hidden flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-card border border-border text-foreground font-body text-sm"
+              className="lg:hidden flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-card border border-border text-foreground font-body text-sm"
             >
               <SlidersHorizontal className="w-4 h-4" /> Categories
             </button>
@@ -193,7 +193,7 @@ const Shop = () => {
 
           <div className="flex gap-8">
             {/* Desktop sidebar */}
-            <div className="hidden md:block w-52 flex-shrink-0">
+            <div className="hidden lg:block w-52 flex-shrink-0">
               <div className="sticky top-24 space-y-1">
                 <p className="font-accent text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">Categories</p>
                 <button
@@ -225,7 +225,7 @@ const Shop = () => {
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  className="md:hidden absolute left-0 right-0 z-20 bg-background border-b border-border px-4 pb-4 overflow-hidden"
+                  className="lg:hidden absolute left-0 right-0 z-20 bg-background border-b border-border px-4 pb-4 overflow-hidden"
                 >
                   <div className="flex flex-wrap gap-2 pt-2">
                     <button onClick={() => { handleCategoryChange(null); setShowMobileFilters(false); }} className={`px-3 py-1.5 rounded-lg font-body text-xs ${!selectedCategory ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>All</button>
@@ -246,7 +246,7 @@ const Shop = () => {
               </div>
 
               {loading ? (
-                <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
                   {Array.from({ length: 6 }).map((_, i) => (
                     <div key={i} className="bg-card rounded-2xl overflow-hidden border border-border animate-pulse">
                       <div className="aspect-square bg-muted" />
@@ -266,7 +266,7 @@ const Shop = () => {
               ) : (
                 <motion.div
                   layout
-                  className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
+                  className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6"
                 >
                   {paginatedProducts.map((product, i) => (
                     <motion.div
