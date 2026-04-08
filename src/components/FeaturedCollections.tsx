@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useCollections } from "@/hooks/useCollections";
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
+import { useMemo } from "react";
 import {
   Carousel,
   CarouselContent,
