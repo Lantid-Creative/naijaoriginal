@@ -1140,6 +1140,11 @@ const Admin = () => {
             <InventoryAlerts products={products} />
           )}
 
+          {/* Series Manager Tab */}
+          {tab === "series" && (
+            <SeriesManager products={products} onUpdate={fetchData} />
+          )}
+
           {/* Subscribers Tab */}
           {tab === "subscribers" && (
             <div>
