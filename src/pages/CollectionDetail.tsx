@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
-import { Heart, Scale, Star, ArrowLeft, ArrowRight } from "lucide-react";
+import { Heart, Scale, Star, ArrowLeft, ArrowRight, ChevronRight, Home } from "lucide-react";
 import { useCollections } from "@/hooks/useCollections";
 import { useAuth } from "@/contexts/AuthContext";
 import { useWishlist } from "@/contexts/WishlistContext";
@@ -162,12 +162,30 @@ const CollectionDetail = () => {
             transition={{ duration: 0.5 }}
             className="py-8 md:py-12"
           >
-            <Link
-              to="/collections"
-              className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground font-accent text-sm mb-4 transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" /> Back to Collections
-            </Link>
+            {/* Breadcrumb */}
+            <nav aria-label="Breadcrumb" className="mb-6">
+              <ol className="flex items-center gap-1 font-accent text-xs md:text-sm flex-wrap" itemScope itemType="https://schema.org/BreadcrumbList">
+                <li className="flex items-center gap-1" itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
+                  <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors" itemProp="item">
+                    <Home className="w-3.5 h-3.5" />
+                    <meta itemProp="name" content="Home" />
+                  </Link>
+                  <meta itemProp="position" content="1" />
+                  <ChevronRight className="w-3 h-3 text-muted-foreground/50" />
+                </li>
+                <li className="flex items-center gap-1" itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
+                  <Link to="/collections" className="text-muted-foreground hover:text-foreground transition-colors" itemProp="item">
+                    <span itemProp="name">Collections</span>
+                  </Link>
+                  <meta itemProp="position" content="2" />
+                  <ChevronRight className="w-3 h-3 text-muted-foreground/50" />
+                </li>
+                <li itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
+                  <span className="text-foreground font-semibold" itemProp="name">{collection.name}</span>
+                  <meta itemProp="position" content="3" />
+                </li>
+              </ol>
+            </nav>
             <div className="flex items-center gap-3 mb-3">
               <span className="text-4xl md:text-5xl">{collection.icon || "🎁"}</span>
               <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary font-accent text-xs font-semibold tracking-widest uppercase">
