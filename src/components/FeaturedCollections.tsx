@@ -98,6 +98,11 @@ const FeaturedCollections = () => {
                   to={`/collections/${collection.slug}`}
                   className="group block relative overflow-hidden rounded-2xl aspect-[4/3]"
                 >
+                  {collection.slug === getCurrentSeasonSlug() && (
+                    <span className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full bg-naija-gold text-secondary font-accent text-[10px] font-bold uppercase tracking-wider animate-pulse">
+                      🔥 This Season
+                    </span>
+                  )}
                   <img
                     src={collection.banner_image_url!}
                     alt={collection.name}
