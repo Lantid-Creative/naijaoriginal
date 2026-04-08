@@ -14,11 +14,35 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Autoplay from "embla-carousel-autoplay";
 import { useRef } from "react";
 
+const SEASON_SLUGS: Record<string, string> = {
+  "harmattan-season": "harmattan",
+  "dry-season": "dry",
+  "rainy-season": "rainy",
+  "festive-season": "festive",
+};
+
+function getCurrentSeasonSlug(): string {
+  const month = new Date().getMonth(); // 0-indexed
+  if (month >= 10 || month <= 1) return "harmattan-season"; // Nov-Feb
+  if (month >= 2 && month <= 4) return "dry-season";        // Mar-May
+  if (month >= 5 && month <= 8) return "rainy-season";      // Jun-Sep
+  return "festive-season";                                    // Oct
+}
+
 const FeaturedCollections = () => {
   const { collections, loading } = useCollections();
   const plugin = useRef(Autoplay({ delay: 4000, stopOnInteraction: true }));
 
-  const withBanners = collections.filter((c) => c.banner_image_url);
+  const withBanners = useMemo(() => {
+    const all = collections.filter((c) => c.banner_image_url);
+    const currentSlug = getCurrentSeasonSlug();
+    const idx = all.findIndex((c) => c.slug === currentSlug);
+    if (idx > 0) {
+      const [current] = all.splice(idx, 1);
+      all.unshift(current);
+    }
+    return all;
+  }, [collections]);
 
   if (loading) {
     return (
