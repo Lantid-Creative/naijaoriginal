@@ -35,12 +35,12 @@ const Navbar = () => {
             <img src={naijaLogo} alt="Naija Original" className="h-8 md:h-10" />
           </Link>
           
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden lg:flex items-center gap-4 xl:gap-6">
             {navLinks.map((link) => (
               <Link
                 key={link.label}
                 to={link.href}
-                className="font-accent text-sm font-medium text-muted-foreground hover:text-foreground transition-colors uppercase tracking-wide"
+                className="font-accent text-xs xl:text-sm font-medium text-muted-foreground hover:text-foreground transition-colors uppercase tracking-wide whitespace-nowrap"
               >
                 {link.label}
               </Link>
@@ -49,7 +49,7 @@ const Navbar = () => {
         </div>
 
         {/* Right nav */}
-        <div className="hidden md:flex items-center gap-4">
+        <div className="hidden lg:flex items-center gap-3 xl:gap-4">
           <SearchAutocomplete />
           {isAdmin && (
             <Link to="/admin" className="font-accent text-sm font-medium text-primary hover:text-primary/80 transition-colors flex items-center gap-1 uppercase tracking-wide">
@@ -105,7 +105,7 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Toggle */}
-        <div className="flex items-center gap-3 md:hidden">
+        <div className="flex items-center gap-3 lg:hidden">
           <Link to="/wishlist" className="relative text-foreground">
             <Heart className="w-5 h-5" />
             {wishlistCount > 0 && (
@@ -130,7 +130,7 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {open && (
-        <div className="md:hidden bg-background border-t border-border px-6 py-6 space-y-4">
+        <div className="lg:hidden bg-background border-t border-border px-6 py-6 space-y-4">
           {navLinks.map((link) => (
             <Link
               key={link.label}
