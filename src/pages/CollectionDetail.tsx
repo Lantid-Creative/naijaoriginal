@@ -307,6 +307,9 @@ const CollectionDetail = () => {
             </>
           )}
         </div>
+
+        {/* Related Collections */}
+        <RelatedCollections currentSlug={slug!} currentType={collection.type} />
       </main>
       <Footer />
     </div>
