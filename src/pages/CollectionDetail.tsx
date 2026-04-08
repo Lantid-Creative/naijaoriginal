@@ -2,7 +2,8 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
-import { Heart, Scale, Star, ArrowLeft } from "lucide-react";
+import { Heart, Scale, Star, ArrowLeft, ArrowRight } from "lucide-react";
+import { useCollections } from "@/hooks/useCollections";
 import { useAuth } from "@/contexts/AuthContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useCompare } from "@/contexts/CompareContext";
@@ -306,9 +307,75 @@ const CollectionDetail = () => {
             </>
           )}
         </div>
+
+        {/* Related Collections */}
+        <RelatedCollections currentSlug={slug!} currentType={collection.type} />
       </main>
       <Footer />
     </div>
+  );
+};
+
+
+const RelatedCollections = ({ currentSlug, currentType }: { currentSlug: string; currentType: string }) => {
+  const { collections } = useCollections();
+  const related = collections
+    .filter((c) => c.slug !== currentSlug)
+    .sort((a, b) => (a.type === currentType ? -1 : 1) - (b.type === currentType ? -1 : 1))
+    .slice(0, 4);
+
+  if (related.length === 0) return null;
+
+  return (
+    <section className="container mx-auto px-4 md:px-6 py-12 md:py-16 border-t border-border mt-12">
+      <h2 className="font-accent text-2xl md:text-3xl font-black text-foreground mb-6">
+        More Collections 🔥
+      </h2>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
+        {related.map((c, i) => (
+          <motion.div
+            key={c.id}
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.08, duration: 0.4 }}
+          >
+            <Link
+              to={`/collections/${c.slug}`}
+              className="group block overflow-hidden rounded-2xl border border-border hover:border-primary/30 hover:shadow-lg transition-all duration-300"
+            >
+              {c.banner_image_url ? (
+                <div className="aspect-[4/3] overflow-hidden">
+                  <img
+                    src={c.banner_image_url}
+                    alt={c.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                </div>
+              ) : (
+                <div className="aspect-[4/3] bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
+                  <span className="text-5xl">{c.icon || "🎁"}</span>
+                </div>
+              )}
+              <div className="p-3 md:p-4 bg-card">
+                <h3 className="font-accent text-sm md:text-base font-bold text-foreground group-hover:text-primary transition-colors truncate">
+                  {c.name}
+                </h3>
+                {c.pidgin_tagline && (
+                  <p className="font-body text-[10px] md:text-xs text-muted-foreground italic mt-0.5 truncate">
+                    {c.pidgin_tagline}
+                  </p>
+                )}
+                <div className="flex items-center gap-1 text-primary font-accent text-xs font-semibold mt-2">
+                  Explore <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </div>
+            </Link>
+          </motion.div>
+        ))}
+      </div>
+    </section>
   );
 };
 
