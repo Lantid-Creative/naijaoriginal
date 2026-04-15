@@ -30,6 +30,7 @@ import NotFound from "./pages/NotFound";
 import Help from "./pages/Help";
 import SeriesArchive from "./pages/SeriesArchive";
 import OgaWahalaBubble from "./components/OgaWahalaBubble";
+import BackToTop from "./components/BackToTop";
 
 const queryClient = new QueryClient();
 
