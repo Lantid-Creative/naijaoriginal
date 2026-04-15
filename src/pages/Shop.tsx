@@ -341,6 +341,24 @@ const Shop = () => {
                       </div>
                     </div>
                   )}
+                  <div className="pt-3">
+                    <p className="font-accent text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Rating</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {[4, 3, 2, 1].map((star) => (
+                        <button
+                          key={star}
+                          onClick={() => { setMinRating(minRating === star ? null : star); setVisibleCount(PRODUCTS_PER_PAGE); }}
+                          className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg font-body text-xs ${
+                            minRating === star ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                          }`}
+                        >
+                          {star}
+                          <Star className="w-3 h-3 fill-current" />
+                          +
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
