@@ -317,6 +317,15 @@ const Shop = () => {
                     </button>
                   )}
                 </div>
+
+                {hasActiveFilters && (
+                  <button
+                    onClick={clearAllFilters}
+                    className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-destructive/10 text-destructive hover:bg-destructive/20 font-body text-xs font-semibold transition-all"
+                  >
+                    <X className="w-3.5 h-3.5" /> Clear all filters
+                  </button>
+                )}
               </div>
             </div>
 
