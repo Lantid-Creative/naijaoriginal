@@ -160,6 +160,17 @@ const Shop = () => {
     return sorted[0]?.image_url || "/placeholder.svg";
   };
 
+  const hasActiveFilters = !!(selectedCategory || searchQuery || priceRange || minRating);
+
+  const clearAllFilters = useCallback(() => {
+    setSelectedCategory(null);
+    setSearchQuery("");
+    setPriceRange(null);
+    setMinRating(null);
+    setVisibleCount(PRODUCTS_PER_PAGE);
+    setSearchParams({});
+  }, [setSearchParams]);
+
   const selectedCatName = categories.find(c => c.id === selectedCategory)?.name;
 
   return (
@@ -306,6 +317,15 @@ const Shop = () => {
                     </button>
                   )}
                 </div>
+
+                {hasActiveFilters && (
+                  <button
+                    onClick={clearAllFilters}
+                    className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-destructive/10 text-destructive hover:bg-destructive/20 font-body text-xs font-semibold transition-all"
+                  >
+                    <X className="w-3.5 h-3.5" /> Clear all filters
+                  </button>
+                )}
               </div>
             </div>
 
@@ -359,6 +379,14 @@ const Shop = () => {
                       ))}
                     </div>
                   </div>
+                  {hasActiveFilters && (
+                    <button
+                      onClick={() => { clearAllFilters(); setShowMobileFilters(false); }}
+                      className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-destructive/10 text-destructive hover:bg-destructive/20 font-body text-xs font-semibold transition-all"
+                    >
+                      <X className="w-3.5 h-3.5" /> Clear all filters
+                    </button>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -372,6 +400,14 @@ const Shop = () => {
                   <p className="font-accent text-xs text-muted-foreground">
                     {filtered.length === 0 ? "0 products" : `Showing ${Math.min(visibleCount, filtered.length)} of ${filtered.length} product${filtered.length !== 1 ? "s" : ""}`}
                   </p>
+                )}
+                {!loading && hasActiveFilters && (
+                  <button
+                    onClick={clearAllFilters}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted hover:bg-muted/80 font-body text-xs text-muted-foreground hover:text-foreground transition-all"
+                  >
+                    <X className="w-3 h-3" /> Clear filters
+                  </button>
                 )}
               </div>
 
