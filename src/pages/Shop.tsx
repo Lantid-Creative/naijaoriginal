@@ -275,6 +275,37 @@ const Shop = () => {
                     )}
                   </div>
                 )}
+
+                {/* Rating Filter */}
+                <div>
+                  <p className="font-accent text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">Rating</p>
+                  <div className="space-y-1">
+                    {[4, 3, 2, 1].map((star) => (
+                      <button
+                        key={star}
+                        onClick={() => { setMinRating(minRating === star ? null : star); setVisibleCount(PRODUCTS_PER_PAGE); }}
+                        className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg font-body text-sm transition-all ${
+                          minRating === star ? "bg-primary text-primary-foreground font-semibold" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                        }`}
+                      >
+                        <span className="flex items-center gap-0.5">
+                          {Array.from({ length: star }).map((_, i) => (
+                            <Star key={i} className="w-3 h-3 fill-current" />
+                          ))}
+                        </span>
+                        <span>& up</span>
+                      </button>
+                    ))}
+                  </div>
+                  {minRating && (
+                    <button
+                      onClick={() => { setMinRating(null); setVisibleCount(PRODUCTS_PER_PAGE); }}
+                      className="mt-2 font-body text-xs text-primary hover:underline"
+                    >
+                      Reset rating
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
 
