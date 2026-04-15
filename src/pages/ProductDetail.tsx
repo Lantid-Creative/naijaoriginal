@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
-import { ShieldCheck, Minus, Plus, ShoppingCart, ArrowLeft, Sparkles, Heart, Scale } from "lucide-react";
+import { ShieldCheck, Minus, Plus, ShoppingCart, Sparkles, Heart, Scale, Home, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
@@ -144,23 +144,41 @@ const ProductDetail = () => {
       <main className="pt-20 pb-16">
         <div className="container mx-auto px-4 md:px-6">
           {/* Breadcrumb */}
-          <motion.div
+          <motion.nav
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="py-4 md:py-6 flex items-center gap-2 font-body text-sm text-muted-foreground"
+            className="py-4 md:py-6"
+            aria-label="Breadcrumb"
           >
-            <Link to="/shop" className="hover:text-primary transition-colors flex items-center gap-1">
-              <ArrowLeft className="w-4 h-4" /> Shop
-            </Link>
-            <span>/</span>
-            {product.product_categories && (
-              <>
-                <span>{(product.product_categories as any).name}</span>
-                <span>/</span>
-              </>
-            )}
-            <span className="text-foreground">{product.name}</span>
-          </motion.div>
+            <ol className="flex items-center gap-1 font-body text-xs md:text-sm flex-wrap" itemScope itemType="https://schema.org/BreadcrumbList">
+              <li className="flex items-center gap-1" itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
+                <Link to="/" className="text-muted-foreground hover:text-primary transition-colors" itemProp="item">
+                  <Home className="w-3.5 h-3.5" />
+                  <meta itemProp="name" content="Home" />
+                </Link>
+                <meta itemProp="position" content="1" />
+                <ChevronRight className="w-3 h-3 text-muted-foreground/50" />
+              </li>
+              <li className="flex items-center gap-1" itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
+                <Link to="/shop" className="text-muted-foreground hover:text-primary transition-colors" itemProp="item">
+                  <span itemProp="name">Shop</span>
+                </Link>
+                <meta itemProp="position" content="2" />
+                <ChevronRight className="w-3 h-3 text-muted-foreground/50" />
+              </li>
+              {product.product_categories && (
+                <li className="flex items-center gap-1" itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
+                  <span className="text-muted-foreground" itemProp="name">{(product.product_categories as any).name}</span>
+                  <meta itemProp="position" content="3" />
+                  <ChevronRight className="w-3 h-3 text-muted-foreground/50" />
+                </li>
+              )}
+              <li itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
+                <span className="text-foreground font-medium" itemProp="name">{product.name}</span>
+                <meta itemProp="position" content={product.product_categories ? "4" : "3"} />
+              </li>
+            </ol>
+          </motion.nav>
 
           <div className="grid lg:grid-cols-2 gap-8 md:gap-12">
             {/* Images */}
