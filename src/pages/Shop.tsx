@@ -119,11 +119,24 @@ const Shop = () => {
     }
   });
 
-  const totalPages = Math.ceil(filtered.length / PRODUCTS_PER_PAGE);
-  const paginatedProducts = filtered.slice(
-    (currentPage - 1) * PRODUCTS_PER_PAGE,
-    currentPage * PRODUCTS_PER_PAGE
-  );
+  const hasMore = visibleCount < filtered.length;
+  const visibleProducts = filtered.slice(0, visibleCount);
+
+  // Infinite scroll observer
+  useEffect(() => {
+    if (!hasMore) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisibleCount((prev) => Math.min(prev + PRODUCTS_PER_PAGE, filtered.length));
+        }
+      },
+      { rootMargin: "200px" }
+    );
+    const el = sentinelRef.current;
+    if (el) observer.observe(el);
+    return () => { if (el) observer.unobserve(el); };
+  }, [hasMore, filtered.length]);
 
   const getImage = (p: Product) => {
     const sorted = [...(p.product_images || [])].sort((a, b) => a.display_order - b.display_order);
