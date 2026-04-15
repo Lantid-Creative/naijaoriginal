@@ -309,9 +309,13 @@ const Shop = () => {
             {/* Product Grid */}
             <div className="flex-1">
               <div className="flex items-center justify-between mb-4">
-                <p className="font-accent text-xs text-muted-foreground">
-                  {filtered.length === 0 ? "0 products" : `Showing ${Math.min(visibleCount, filtered.length)} of ${filtered.length} product${filtered.length !== 1 ? "s" : ""}`}
-                </p>
+                {loading ? (
+                  <div className="h-4 w-40 bg-muted rounded animate-pulse" />
+                ) : (
+                  <p className="font-accent text-xs text-muted-foreground">
+                    {filtered.length === 0 ? "0 products" : `Showing ${Math.min(visibleCount, filtered.length)} of ${filtered.length} product${filtered.length !== 1 ? "s" : ""}`}
+                  </p>
+                )}
               </div>
 
               {loading ? (
