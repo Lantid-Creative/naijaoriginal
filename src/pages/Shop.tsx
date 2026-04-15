@@ -40,7 +40,7 @@ interface Category {
 }
 
 type SortOption = "featured" | "price-low" | "price-high" | "newest";
-const PRODUCTS_PER_PAGE = 24;
+const PRODUCTS_PER_PAGE = 12;
 
 const Shop = () => {
   const [products, setProducts] = useState<Product[]>([]);
