@@ -217,27 +217,56 @@ const Shop = () => {
           <div className="flex gap-8">
             {/* Desktop sidebar */}
             <div className="hidden lg:block w-52 flex-shrink-0">
-              <div className="sticky top-24 space-y-1">
-                <p className="font-accent text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">Categories</p>
-                <button
-                  onClick={() => handleCategoryChange(null)}
-                  className={`w-full text-left px-3 py-2 rounded-lg font-body text-sm transition-all ${
-                    !selectedCategory ? "bg-primary text-primary-foreground font-semibold" : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                  }`}
-                >
-                  All Products
-                </button>
-                {categories.map((cat) => (
+              <div className="sticky top-24 space-y-6">
+                <div className="space-y-1">
+                  <p className="font-accent text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">Categories</p>
                   <button
-                    key={cat.id}
-                    onClick={() => handleCategoryChange(cat.id)}
+                    onClick={() => handleCategoryChange(null)}
                     className={`w-full text-left px-3 py-2 rounded-lg font-body text-sm transition-all ${
-                      selectedCategory === cat.id ? "bg-primary text-primary-foreground font-semibold" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                      !selectedCategory ? "bg-primary text-primary-foreground font-semibold" : "text-muted-foreground hover:text-foreground hover:bg-muted"
                     }`}
                   >
-                    {cat.name}
+                    All Products
                   </button>
-                ))}
+                  {categories.map((cat) => (
+                    <button
+                      key={cat.id}
+                      onClick={() => handleCategoryChange(cat.id)}
+                      className={`w-full text-left px-3 py-2 rounded-lg font-body text-sm transition-all ${
+                        selectedCategory === cat.id ? "bg-primary text-primary-foreground font-semibold" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                      }`}
+                    >
+                      {cat.name}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Price Range Filter */}
+                {products.length > 0 && (
+                  <div>
+                    <p className="font-accent text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">Price Range</p>
+                    <Slider
+                      min={priceMin}
+                      max={priceMax}
+                      step={500}
+                      value={priceRange || [priceMin, priceMax]}
+                      onValueChange={(v) => { setPriceRange([v[0], v[1]]); setVisibleCount(PRODUCTS_PER_PAGE); }}
+                      className="mb-2"
+                    />
+                    <div className="flex items-center justify-between font-body text-xs text-muted-foreground">
+                      <span>{formatNaira(priceRange?.[0] ?? priceMin)}</span>
+                      <span>{formatNaira(priceRange?.[1] ?? priceMax)}</span>
+                    </div>
+                    {priceRange && (
+                      <button
+                        onClick={() => { setPriceRange(null); setVisibleCount(PRODUCTS_PER_PAGE); }}
+                        className="mt-2 font-body text-xs text-primary hover:underline"
+                      >
+                        Reset price
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
