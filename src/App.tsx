@@ -70,6 +70,7 @@ const App = () => (
                   <Route path="*" element={<NotFound />} />
                 </Routes>
                 <OgaWahalaBubble />
+                <BackToTop />
               </CompareProvider>
             </WishlistProvider>
           </CartProvider>
