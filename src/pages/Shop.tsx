@@ -401,6 +401,14 @@ const Shop = () => {
                     {filtered.length === 0 ? "0 products" : `Showing ${Math.min(visibleCount, filtered.length)} of ${filtered.length} product${filtered.length !== 1 ? "s" : ""}`}
                   </p>
                 )}
+                {!loading && hasActiveFilters && (
+                  <button
+                    onClick={clearAllFilters}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted hover:bg-muted/80 font-body text-xs text-muted-foreground hover:text-foreground transition-all"
+                  >
+                    <X className="w-3 h-3" /> Clear filters
+                  </button>
+                )}
               </div>
 
               {loading ? (
