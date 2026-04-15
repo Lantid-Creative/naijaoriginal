@@ -53,6 +53,7 @@ const Shop = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("featured");
   const [visibleCount, setVisibleCount] = useState(PRODUCTS_PER_PAGE);
+  const [priceRange, setPriceRange] = useState<[number, number] | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   const { toggleWishlist, isInWishlist } = useWishlist();
