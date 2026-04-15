@@ -379,6 +379,14 @@ const Shop = () => {
                       ))}
                     </div>
                   </div>
+                  {hasActiveFilters && (
+                    <button
+                      onClick={() => { clearAllFilters(); setShowMobileFilters(false); }}
+                      className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-destructive/10 text-destructive hover:bg-destructive/20 font-body text-xs font-semibold transition-all"
+                    >
+                      <X className="w-3.5 h-3.5" /> Clear all filters
+                    </button>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
