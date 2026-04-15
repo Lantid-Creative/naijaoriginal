@@ -176,11 +176,11 @@ const Shop = () => {
                 type="text"
                 placeholder="Search products... wetin you dey find?"
                 value={searchQuery}
-                onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+                onChange={(e) => { setSearchQuery(e.target.value); setVisibleCount(PRODUCTS_PER_PAGE); }}
                 className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-card border border-border font-body text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
               />
               {searchQuery && (
-                <button onClick={() => { setSearchQuery(""); setCurrentPage(1); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                <button onClick={() => { setSearchQuery(""); setVisibleCount(PRODUCTS_PER_PAGE); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                   <X className="w-4 h-4" />
                 </button>
               )}
@@ -255,7 +255,7 @@ const Shop = () => {
             <div className="flex-1">
               <div className="flex items-center justify-between mb-4">
                 <p className="font-accent text-xs text-muted-foreground">
-                  {filtered.length === 0 ? "0 products" : `Showing ${(currentPage - 1) * PRODUCTS_PER_PAGE + 1}–${Math.min(currentPage * PRODUCTS_PER_PAGE, filtered.length)} of ${filtered.length} product${filtered.length !== 1 ? "s" : ""}`}
+                  {filtered.length === 0 ? "0 products" : `Showing ${Math.min(visibleCount, filtered.length)} of ${filtered.length} product${filtered.length !== 1 ? "s" : ""}`}
                 </p>
               </div>
 
@@ -282,7 +282,7 @@ const Shop = () => {
                   layout
                   className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6"
                 >
-                  {paginatedProducts.map((product, i) => (
+                  {visibleProducts.map((product, i) => (
                     <motion.div
                       key={product.id}
                       layout
@@ -387,46 +387,20 @@ const Shop = () => {
                 </motion.div>
               )}
 
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-2 mt-8">
-                  <button
-                    onClick={() => { setCurrentPage(p => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                    disabled={currentPage === 1}
-                    className="px-3 py-2 rounded-lg font-body text-sm border border-border bg-card text-foreground disabled:opacity-40 disabled:cursor-not-allowed hover:bg-muted transition-colors"
-                  >
-                    Previous
-                  </button>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1)
-                    .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
-                    .reduce<(number | string)[]>((acc, p, i, arr) => {
-                      if (i > 0 && typeof arr[i - 1] === 'number' && (p as number) - (arr[i - 1] as number) > 1) acc.push('...');
-                      acc.push(p);
-                      return acc;
-                    }, [])
-                    .map((p, i) =>
-                      typeof p === 'string' ? (
-                        <span key={`ellipsis-${i}`} className="px-2 text-muted-foreground">…</span>
-                      ) : (
-                        <button
-                          key={p}
-                          onClick={() => { setCurrentPage(p); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                          className={`w-9 h-9 rounded-lg font-accent text-sm font-semibold transition-colors ${
-                            currentPage === p ? "bg-primary text-primary-foreground" : "border border-border bg-card text-foreground hover:bg-muted"
-                          }`}
-                        >
-                          {p}
-                        </button>
-                      )
-                    )}
-                  <button
-                    onClick={() => { setCurrentPage(p => Math.min(totalPages, p + 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                    disabled={currentPage === totalPages}
-                    className="px-3 py-2 rounded-lg font-body text-sm border border-border bg-card text-foreground disabled:opacity-40 disabled:cursor-not-allowed hover:bg-muted transition-colors"
-                  >
-                    Next
-                  </button>
+              {/* Infinite scroll sentinel */}
+              {hasMore && (
+                <div ref={sentinelRef} className="flex items-center justify-center py-8">
+                  <div className="flex items-center gap-2 text-muted-foreground font-body text-sm">
+                    <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                    Loading more products...
+                  </div>
                 </div>
+              )}
+
+              {!hasMore && filtered.length > PRODUCTS_PER_PAGE && (
+                <p className="text-center text-muted-foreground font-body text-sm py-8">
+                  You don see all {filtered.length} products 🎉
+                </p>
               )}
             </div>
           </div>
