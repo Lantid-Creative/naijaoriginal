@@ -51,6 +51,10 @@ const CollectionDetail = () => {
   const ratings = useProductRatings(productIds);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [slug]);
+
+  useEffect(() => {
     const fetchCollectionAndProducts = async () => {
       if (!slug) return;
 
