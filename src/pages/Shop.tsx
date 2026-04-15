@@ -160,6 +160,17 @@ const Shop = () => {
     return sorted[0]?.image_url || "/placeholder.svg";
   };
 
+  const hasActiveFilters = !!(selectedCategory || searchQuery || priceRange || minRating);
+
+  const clearAllFilters = useCallback(() => {
+    setSelectedCategory(null);
+    setSearchQuery("");
+    setPriceRange(null);
+    setMinRating(null);
+    setVisibleCount(PRODUCTS_PER_PAGE);
+    setSearchParams({});
+  }, [setSearchParams]);
+
   const selectedCatName = categories.find(c => c.id === selectedCategory)?.name;
 
   return (
