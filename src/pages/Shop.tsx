@@ -89,7 +89,7 @@ const Shop = () => {
 
   const handleCategoryChange = (catId: string | null) => {
     setSelectedCategory(catId);
-    setCurrentPage(1);
+    setVisibleCount(PRODUCTS_PER_PAGE);
     if (catId) {
       setSearchParams({ category: catId });
     } else {
