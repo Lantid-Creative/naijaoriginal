@@ -107,8 +107,15 @@ const Shop = () => {
     ? products.filter((p) => p.category_id === selectedCategory)
     : products;
 
-  if (priceRange) {
+   if (priceRange) {
     filtered = filtered.filter((p) => p.price >= priceRange[0] && p.price <= priceRange[1]);
+  }
+
+  if (minRating) {
+    filtered = filtered.filter((p) => {
+      const r = ratings[p.id];
+      return r && r.count > 0 && r.avg >= minRating;
+    });
   }
 
   if (searchQuery.trim()) {
