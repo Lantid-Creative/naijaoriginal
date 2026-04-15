@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
-import { ShieldCheck, Minus, Plus, ShoppingCart, ArrowLeft, Sparkles, Heart, Scale } from "lucide-react";
+import { ShieldCheck, Minus, Plus, ShoppingCart, Sparkles, Heart, Scale, Home, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
