@@ -99,9 +99,16 @@ const Shop = () => {
     }
   };
 
+  const priceMin = useMemo(() => products.length ? Math.min(...products.map(p => p.price)) : 0, [products]);
+  const priceMax = useMemo(() => products.length ? Math.max(...products.map(p => p.price)) : 100000, [products]);
+
   let filtered = selectedCategory
     ? products.filter((p) => p.category_id === selectedCategory)
     : products;
+
+  if (priceRange) {
+    filtered = filtered.filter((p) => p.price >= priceRange[0] && p.price <= priceRange[1]);
+  }
 
   if (searchQuery.trim()) {
     const q = searchQuery.toLowerCase();
