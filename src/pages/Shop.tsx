@@ -285,6 +285,23 @@ const Shop = () => {
                       <button key={cat.id} onClick={() => { handleCategoryChange(cat.id); setShowMobileFilters(false); }} className={`px-3 py-1.5 rounded-lg font-body text-xs ${selectedCategory === cat.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>{cat.name}</button>
                     ))}
                   </div>
+                  {products.length > 0 && (
+                    <div className="pt-3">
+                      <p className="font-accent text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Price Range</p>
+                      <Slider
+                        min={priceMin}
+                        max={priceMax}
+                        step={500}
+                        value={priceRange || [priceMin, priceMax]}
+                        onValueChange={(v) => { setPriceRange([v[0], v[1]]); setVisibleCount(PRODUCTS_PER_PAGE); }}
+                        className="mb-2"
+                      />
+                      <div className="flex items-center justify-between font-body text-xs text-muted-foreground">
+                        <span>{formatNaira(priceRange?.[0] ?? priceMin)}</span>
+                        <span>{formatNaira(priceRange?.[1] ?? priceMax)}</span>
+                      </div>
+                    </div>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
