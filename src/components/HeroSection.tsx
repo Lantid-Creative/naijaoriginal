@@ -65,13 +65,13 @@ const HeroSection = () => {
               >
                 <Link
                   to="/shop"
-                  className="px-8 py-3.5 md:py-4 rounded-full font-accent font-semibold text-sm bg-primary text-primary-foreground hover:bg-naija-green-glow transition-all duration-300 uppercase tracking-wide flex items-center justify-center gap-2"
+                  className="px-6 md:px-8 py-3.5 md:py-4 rounded-full font-accent font-semibold text-sm bg-primary text-primary-foreground hover:bg-naija-green-glow transition-all duration-300 uppercase tracking-wide flex items-center justify-center gap-2 whitespace-nowrap"
                 >
                   Shop Now <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link
                   to="/verify"
-                  className="px-8 py-3.5 md:py-4 rounded-full font-accent font-semibold text-sm border-2 border-foreground text-foreground hover:bg-foreground hover:text-background transition-all duration-300 uppercase tracking-wide text-center"
+                  className="px-6 md:px-8 py-3.5 md:py-4 rounded-full font-accent font-semibold text-sm border-2 border-foreground text-foreground hover:bg-foreground hover:text-background transition-all duration-300 uppercase tracking-wide text-center whitespace-nowrap"
                 >
                   Verify Product
                 </Link>
