@@ -190,7 +190,7 @@ const Account = () => {
 
   const quickLinks = [
     { label: "My Orders", to: "/orders", icon: Package, desc: "Track all your orders" },
-    { label: "Wishlist", to: "/wishlist", icon: Heart, desc: `${wishlist.length} saved item${wishlist.length === 1 ? "" : "s"}` },
+    { label: "Wishlist", to: "/wishlist", icon: Heart, desc: `${wishlistIds.length} saved item${wishlistIds.length === 1 ? "" : "s"}` },
   ];
 
   return (
@@ -333,7 +333,7 @@ const Account = () => {
                           <StatCard
                             icon={Heart}
                             label="Wishlist"
-                            value={wishlist.length.toString()}
+                            value={wishlistIds.length.toString()}
                             accent="from-rose-500/20 to-rose-500/5"
                           />
                         </div>
