@@ -43,7 +43,7 @@ const Account = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { wishlist } = useWishlist();
+  const { wishlistIds } = useWishlist();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeSection, setActiveSection] = useState<SectionId>("dashboard");
