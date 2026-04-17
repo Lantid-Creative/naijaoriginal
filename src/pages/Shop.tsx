@@ -40,7 +40,7 @@ interface Category {
   pidgin: string | null;
 }
 
-type SortOption = "featured" | "price-low" | "price-high" | "newest";
+type SortOption = "featured" | "price-low" | "price-high" | "newest" | "popular";
 const PRODUCTS_PER_PAGE = 12;
 
 const Shop = () => {
@@ -132,6 +132,11 @@ const Shop = () => {
       case "price-low": return a.price - b.price;
       case "price-high": return b.price - a.price;
       case "newest": return 0;
+      case "popular": {
+        const aCount = ratings[a.id]?.count ?? 0;
+        const bCount = ratings[b.id]?.count ?? 0;
+        return bCount - aCount;
+      }
       default: return 0;
     }
   });
@@ -220,6 +225,7 @@ const Shop = () => {
               className="px-4 py-2.5 rounded-xl bg-card border border-border font-body text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
             >
               <option value="featured">Featured</option>
+              <option value="popular">Most Reviewed</option>
               <option value="price-low">Price: Low → High</option>
               <option value="price-high">Price: High → Low</option>
               <option value="newest">Newest</option>
