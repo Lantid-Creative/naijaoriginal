@@ -19,15 +19,34 @@ import BulkProductEditor from "@/components/admin/BulkProductEditor";
 import InventoryAlerts from "@/components/admin/InventoryAlerts";
 import SeriesManager from "@/components/admin/SeriesManager";
 import { Textarea } from "@/components/ui/textarea";
-import Navbar from "@/components/Navbar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import AdminSidebar, { type AdminSection } from "@/components/admin/AdminSidebar";
+import AdminOverview from "@/components/admin/AdminOverview";
 
-type Tab = "products" | "orders" | "qr" | "tickets" | "reviews" | "analytics" | "subscribers" | "ai" | "collections" | "sales" | "bulk-edit" | "inventory" | "series";
+type Tab = AdminSection;
+
+const SECTION_TITLES: Record<AdminSection, string> = {
+  overview: "Overview",
+  ai: "AI Assistant",
+  sales: "Sales Dashboard",
+  analytics: "Analytics",
+  products: "Products",
+  "bulk-edit": "Bulk Edit",
+  inventory: "Inventory",
+  series: "Series",
+  collections: "Collections",
+  orders: "Orders",
+  qr: "QR Codes",
+  reviews: "Reviews",
+  tickets: "Support Tickets",
+  subscribers: "Subscribers",
+};
 
 const Admin = () => {
   const { user, isAdmin, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [tab, setTab] = useState<Tab>("ai");
+  const [tab, setTab] = useState<Tab>("overview");
   const [products, setProducts] = useState<any[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
@@ -381,69 +400,60 @@ const Admin = () => {
   const pendingOrders = orders.filter((o) => o.status === "pending").length;
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <main className="pt-20 pb-16">
-        <div className="container mx-auto px-6">
-          <div className="py-8 flex items-start justify-between">
-            <div>
-              <h1 className="font-display text-3xl font-black text-foreground mb-2">Admin Dashboard 🔐</h1>
-              <p className="font-body text-muted-foreground">Manage your Naija Original store</p>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-background">
+        <AdminSidebar
+          active={tab}
+          onChange={(s) => setTab(s)}
+          badges={{
+            inventory: products.filter((p) => p.is_active && p.stock <= 5).length,
+            reviews: pendingReviews.length,
+            tickets: openTickets,
+            orders: pendingOrders,
+          }}
+        />
+
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Sticky header */}
+          <header className="h-14 sticky top-0 z-30 flex items-center gap-3 px-4 md:px-6 border-b border-border bg-background/80 backdrop-blur">
+            <SidebarTrigger />
+            <div className="h-6 w-px bg-border" />
+            <div className="flex-1 min-w-0">
+              <h1 className="font-display text-base md:text-lg font-bold text-foreground truncate">
+                {SECTION_TITLES[tab]} <span className="text-muted-foreground">·</span>{" "}
+                <span className="font-body text-sm text-muted-foreground font-normal">Admin</span>
+              </h1>
             </div>
             {notifications.length > 0 && (
               <button
                 onClick={() => setTab("reviews")}
-                className="relative p-2 rounded-xl bg-card border border-border hover:bg-muted transition-colors"
-                title={`${notifications.length} unread notification${notifications.length !== 1 ? 's' : ''}`}
+                className="relative p-2 rounded-lg hover:bg-muted transition-colors"
+                title={`${notifications.length} unread notification${notifications.length !== 1 ? "s" : ""}`}
               >
-                <Bell className="w-5 h-5 text-foreground" />
-                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-accent font-bold flex items-center justify-center">
+                <Bell className="w-4 h-4 text-foreground" />
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-destructive text-destructive-foreground text-[9px] font-accent font-bold flex items-center justify-center">
                   {notifications.length}
                 </span>
               </button>
             )}
-          </div>
+          </header>
 
-          {/* Stats */}
-          <div className="grid md:grid-cols-4 gap-4 mb-8">
-            {[
-              { label: "Products", value: products.length, icon: Package, color: "text-primary" },
-              { label: "Total Orders", value: orders.length, icon: ShoppingCart, color: "text-secondary" },
-              { label: "Pending", value: pendingOrders, icon: Users, color: "text-destructive" },
-              { label: "Revenue", value: formatNaira(totalRevenue), icon: BarChart3, color: "text-primary" },
-            ].map((stat) => (
-              <div key={stat.label} className="naija-card p-4">
-                <div className="flex items-center gap-3">
-                  <stat.icon className={`w-8 h-8 ${stat.color}`} />
-                  <div>
-                    <p className="font-accent text-xs text-muted-foreground uppercase">{stat.label}</p>
-                    <p className="font-display text-2xl font-bold text-foreground">{stat.value}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Tabs */}
-          <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
-            {(["ai", "sales", "products", "series", "bulk-edit", "inventory", "collections", "orders", "reviews", "tickets", "subscribers", "qr", "analytics"] as Tab[]).map((t) => (
-              <button
-                key={t}
-                onClick={() => setTab(t)}
-                className={`px-4 py-2 rounded-lg font-body text-sm capitalize transition-all whitespace-nowrap flex items-center gap-1.5 ${
-                  tab === t ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
-                } ${t === "ai" ? "bg-gradient-to-r from-primary to-secondary text-primary-foreground font-bold" : ""}`}
-              >
-                {t === "ai" && <Bot className="w-3.5 h-3.5" />}
-                {t === "ai" ? "AI Assistant" : t === "sales" ? "Sales Dashboard" : t === "bulk-edit" ? "Bulk Edit" : t === "series" ? "Series" : t === "inventory" ? `Inventory${products.filter(p => p.is_active && p.stock <= 5).length > 0 ? ` (${products.filter(p => p.is_active && p.stock <= 5).length})` : ""}` : t === "qr" ? "QR Codes" : t === "tickets" ? `Tickets${openTickets > 0 ? ` (${openTickets})` : ""}` : t === "reviews" ? `Reviews${pendingReviews.length > 0 ? ` (${pendingReviews.length})` : ""}` : t === "subscribers" ? `Subscribers (${subscribers.length})` : t}
-              </button>
-            ))}
-          </div>
+          <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-x-hidden">
+          {/* Overview Tab */}
+          {tab === "overview" && (
+            <AdminOverview
+              products={products}
+              orders={orders}
+              reviews={reviews}
+              subscribers={subscribers}
+              tickets={tickets}
+              onJump={(s) => setTab(s)}
+            />
+          )}
 
           {/* AI Assistant Tab */}
           {tab === "ai" && <AdminAIChat />}
 
-          {/* Products Tab */}
           {tab === "products" && (
             <div>
               <div className="flex justify-between items-center mb-4">
@@ -1191,9 +1201,10 @@ const Admin = () => {
               )}
             </div>
           )}
+          </main>
         </div>
-      </main>
-    </div>
+      </div>
+    </SidebarProvider>
   );
 };
 
