@@ -42,11 +42,13 @@ const QrScanner = ({ onScan }: QrScannerProps) => {
   };
 
   useEffect(() => {
+    startScanner();
     return () => {
       if (scannerRef.current?.isScanning) {
         scannerRef.current.stop().catch(() => {});
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
