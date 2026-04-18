@@ -156,7 +156,7 @@ const Navbar = () => {
       {/* Mobile Menu */}
       {open && (
         <div className="lg:hidden bg-background border-t border-border px-6 py-6 space-y-4">
-          {navLinks.map((link) => (
+          {[...primaryLinks, ...moreLinks].map((link) => (
             <Link
               key={link.label}
               to={link.href}
