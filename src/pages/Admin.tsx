@@ -19,9 +19,28 @@ import BulkProductEditor from "@/components/admin/BulkProductEditor";
 import InventoryAlerts from "@/components/admin/InventoryAlerts";
 import SeriesManager from "@/components/admin/SeriesManager";
 import { Textarea } from "@/components/ui/textarea";
-import Navbar from "@/components/Navbar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import AdminSidebar, { type AdminSection } from "@/components/admin/AdminSidebar";
+import AdminOverview from "@/components/admin/AdminOverview";
 
-type Tab = "products" | "orders" | "qr" | "tickets" | "reviews" | "analytics" | "subscribers" | "ai" | "collections" | "sales" | "bulk-edit" | "inventory" | "series";
+type Tab = AdminSection;
+
+const SECTION_TITLES: Record<AdminSection, string> = {
+  overview: "Overview",
+  ai: "AI Assistant",
+  sales: "Sales Dashboard",
+  analytics: "Analytics",
+  products: "Products",
+  "bulk-edit": "Bulk Edit",
+  inventory: "Inventory",
+  series: "Series",
+  collections: "Collections",
+  orders: "Orders",
+  qr: "QR Codes",
+  reviews: "Reviews",
+  tickets: "Support Tickets",
+  subscribers: "Subscribers",
+};
 
 const Admin = () => {
   const { user, isAdmin, loading: authLoading } = useAuth();
