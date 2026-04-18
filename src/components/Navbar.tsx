@@ -1,22 +1,31 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, ShoppingCart, User, LogOut, Shield, Heart, Scale, Calculator } from "lucide-react";
+import { Menu, X, ShoppingCart, User, LogOut, Shield, Heart, Scale, ChevronDown, ShieldCheck, Truck, Calculator, HelpCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useCompare } from "@/contexts/CompareContext";
 import NotificationBell from "@/components/NotificationBell";
 import SearchAutocomplete from "@/components/SearchAutocomplete";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import naijaLogo from "@/assets/naija-logo.png";
 
-const navLinks = [
+const primaryLinks = [
   { label: "Shop", href: "/shop" },
   { label: "Collections", href: "/collections" },
   { label: "Series", href: "/series" },
-  { label: "Verify", href: "/verify" },
-  { label: "Track Order", href: "/track" },
-  { label: "Custom Orders", href: "/estimate" },
-  { label: "Help", href: "/help" },
+];
+
+const moreLinks = [
+  { label: "Verify Product", href: "/verify", icon: ShieldCheck },
+  { label: "Track Order", href: "/track", icon: Truck },
+  { label: "Custom Orders", href: "/estimate", icon: Calculator },
+  { label: "Help Center", href: "/help", icon: HelpCircle },
 ];
 
 const Navbar = () => {
@@ -34,9 +43,9 @@ const Navbar = () => {
           <Link to="/" className="flex items-center flex-shrink-0">
             <img src={naijaLogo} alt="Naija Original" className="h-8 md:h-10" />
           </Link>
-          
+
           <div className="hidden lg:flex items-center gap-4 xl:gap-6">
-            {navLinks.map((link) => (
+            {primaryLinks.map((link) => (
               <Link
                 key={link.label}
                 to={link.href}
@@ -45,6 +54,22 @@ const Navbar = () => {
                 {link.label}
               </Link>
             ))}
+
+            <DropdownMenu>
+              <DropdownMenuTrigger className="font-accent text-xs xl:text-sm font-medium text-muted-foreground hover:text-foreground transition-colors uppercase tracking-wide whitespace-nowrap flex items-center gap-1 outline-none">
+                More <ChevronDown className="w-3 h-3" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56 bg-background border-border">
+                {moreLinks.map((link) => (
+                  <DropdownMenuItem key={link.href} asChild>
+                    <Link to={link.href} className="font-body text-sm cursor-pointer flex items-center gap-2">
+                      <link.icon className="w-4 h-4 text-muted-foreground" />
+                      {link.label}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
@@ -131,7 +156,7 @@ const Navbar = () => {
       {/* Mobile Menu */}
       {open && (
         <div className="lg:hidden bg-background border-t border-border px-6 py-6 space-y-4">
-          {navLinks.map((link) => (
+          {[...primaryLinks, ...moreLinks].map((link) => (
             <Link
               key={link.label}
               to={link.href}
