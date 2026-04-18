@@ -451,7 +451,9 @@ const Admin = () => {
             />
           )}
 
-          {/* Products Tab */}
+          {/* AI Assistant Tab */}
+          {tab === "ai" && <AdminAIChat />}
+
           {tab === "products" && (
             <div>
               <div className="flex justify-between items-center mb-4">
@@ -1199,9 +1201,10 @@ const Admin = () => {
               )}
             </div>
           )}
+          </main>
         </div>
-      </main>
-    </div>
+      </div>
+    </SidebarProvider>
   );
 };
 
