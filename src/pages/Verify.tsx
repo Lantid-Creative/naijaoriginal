@@ -49,6 +49,17 @@ const Verify = () => {
     setLoading(false);
   }, []);
 
+  useEffect(() => {
+    const urlCode = searchParams.get("code");
+    if (urlCode && urlCode.trim()) {
+      verifyCode(urlCode);
+      // Clean URL after triggering
+      searchParams.delete("code");
+      setSearchParams(searchParams, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     verifyCode(code);
