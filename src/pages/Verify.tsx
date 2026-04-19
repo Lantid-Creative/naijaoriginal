@@ -18,6 +18,7 @@ const Verify = () => {
   const [notFound, setNotFound] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const verifyCode = useCallback(async (qrCode: string) => {
     if (!qrCode.trim()) return;
