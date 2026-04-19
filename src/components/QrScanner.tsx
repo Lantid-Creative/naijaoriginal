@@ -40,6 +40,9 @@ const QrScanner = ({ onScan }: QrScannerProps) => {
         { facingMode: "environment" },
         { fps: 10, qrbox: { width: 250, height: 250 } },
         (decodedText) => {
+          if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+            navigator.vibrate([100, 50, 100]);
+          }
           onScan(decodedText);
           stopScanner();
         },
