@@ -1,4 +1,5 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { ShieldAlert, Search } from "lucide-react";
@@ -17,6 +18,7 @@ const Verify = () => {
   const [notFound, setNotFound] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const verifyCode = useCallback(async (qrCode: string) => {
     if (!qrCode.trim()) return;
@@ -45,6 +47,17 @@ const Verify = () => {
       setResult(data);
     }
     setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    const urlCode = searchParams.get("code");
+    if (urlCode && urlCode.trim()) {
+      verifyCode(urlCode);
+      // Clean URL after triggering
+      searchParams.delete("code");
+      setSearchParams(searchParams, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleVerify = async (e: React.FormEvent) => {
