@@ -94,6 +94,38 @@ export function welcomeEmail(data: { customerName: string }): string {
   `);
 }
 
+export function ownershipClaimedEmail(data: {
+  customerName: string;
+  productName: string;
+  qrCode: string;
+  editionNumber?: number | null;
+  editionTotal?: number | null;
+}): string {
+  const editionLine =
+    data.editionNumber && data.editionTotal
+      ? `<p style="font-size:13px;color:#1a7a3d;font-weight:600;">Edition #${data.editionNumber} of ${data.editionTotal} 🏆</p>`
+      : "";
+  return wrap(`
+    ${header}
+    <div class="body">
+      <h2>Ownership Registered! 🎉</h2>
+      <p>Hey ${data.customerName || "there"}, your product don officially register for your name!</p>
+      <p style="font-size:13px;color:#1a7a3d;font-weight:600;">Code: ${data.qrCode}</p>
+      ${editionLine}
+      <div style="margin:20px 0;">
+        <div class="detail-row"><span class="detail-label">Product</span><span class="detail-value">${data.productName}</span></div>
+        <div class="detail-row"><span class="detail-label">Owner</span><span class="detail-value">${data.customerName || "You"}</span></div>
+        <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">✅ Verified Original</span></div>
+      </div>
+      <p>Anytime person scan this QR code, e go show say na you be the original owner. Keep am safe!</p>
+      <div style="text-align:center;margin:24px 0;">
+        <a href="https://naijaoriginal.lovable.app/verify?code=${encodeURIComponent(data.qrCode)}" class="btn">View My Product</a>
+      </div>
+    </div>
+    ${footer}
+  `);
+}
+
 export function newsletterWelcomeEmail(data: { name?: string }): string {
   return wrap(`
     ${header}
