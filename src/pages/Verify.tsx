@@ -20,7 +20,7 @@ const Verify = () => {
   const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const verifyCode = useCallback(async (qrCode: string) => {
+  const verifyCode = useCallback(async (qrCode: string, autoClaim = false) => {
     if (!qrCode.trim()) return;
     setCode(qrCode.trim());
     setLoading(true);
@@ -44,15 +44,31 @@ const Verify = () => {
       if (data.products?.product_images) {
         data.products.product_images.sort((a: any, b: any) => (a.display_order || 0) - (b.display_order || 0));
       }
+
+      // Auto-claim ownership if triggered via URL param and user is logged in & product is unclaimed
+      if (autoClaim && user && !data.owner_id) {
+        const ownerName = user.user_metadata?.full_name || user.email;
+        const { error } = await supabase
+          .from("product_authentications")
+          .update({ owner_id: user.id, owner_name: ownerName, is_verified: true })
+          .eq("id", data.id);
+        if (!error) {
+          data.owner_id = user.id;
+          data.owner_name = ownerName;
+          data.is_verified = true;
+          toast({ title: "Ownership claimed! 🎉", description: "This product don register for your name automatically!" });
+        }
+      }
+
       setResult(data);
     }
     setLoading(false);
-  }, []);
+  }, [user, toast]);
 
   useEffect(() => {
     const urlCode = searchParams.get("code");
     if (urlCode && urlCode.trim()) {
-      verifyCode(urlCode);
+      verifyCode(urlCode, true);
       // Clean URL after triggering
       searchParams.delete("code");
       setSearchParams(searchParams, { replace: true });
