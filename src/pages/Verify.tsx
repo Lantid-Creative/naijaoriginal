@@ -57,6 +57,29 @@ const Verify = () => {
           data.owner_name = ownerName;
           data.is_verified = true;
           toast({ title: "Ownership claimed! 🎉", description: "This product don register for your name automatically!" });
+
+          // Fire-and-forget confirmation email
+          if (user.email) {
+            try {
+              const { ownershipClaimedEmail } = await import("@/lib/email-templates");
+              const html = ownershipClaimedEmail({
+                customerName: ownerName,
+                productName: data.products?.name || "Your Naija Original product",
+                qrCode: data.qr_code,
+                editionNumber: data.edition_number,
+                editionTotal: data.products?.edition_total,
+              });
+              supabase.functions.invoke("send-email", {
+                body: {
+                  to: user.email,
+                  subject: "Ownership Registered ✅ — Naija Original",
+                  html,
+                },
+              }).catch((err) => console.error("Ownership email error:", err));
+            } catch (err) {
+              console.error("Email template error:", err);
+            }
+          }
         }
       }
 
