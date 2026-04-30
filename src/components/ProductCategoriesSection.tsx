@@ -28,21 +28,26 @@ const ProductCategoriesSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.5 }}
-          className="flex flex-col md:flex-row md:items-end md:justify-between mb-10 md:mb-12 gap-4"
+          className="mb-10 md:mb-16"
         >
-          <div>
-            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary font-accent text-xs font-semibold tracking-widest uppercase mb-4">
-              Our Top Picks
+          <div className="flex items-start justify-between mb-6 md:mb-10">
+            <span className="font-accent text-[10px] md:text-xs font-medium tracking-[0.2em] text-foreground/60">
+              //CATEGORIES
             </span>
-            <h2 className="font-accent text-3xl md:text-5xl font-black text-foreground">
-              Top Culture Gear For
-              <br />
-              <span className="text-primary">Peak</span> Performance!
-            </h2>
+            <span className="font-accent text-[10px] md:text-xs font-medium tracking-[0.2em] text-foreground/60">
+              /03
+            </span>
           </div>
-          <p className="font-body text-muted-foreground max-w-sm text-sm md:text-base">
-            Discover the best of our collection, designed to power your cultural expression all year round.
-          </p>
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+            <h2 className="font-accent font-black tracking-[-0.04em] leading-[0.9] text-foreground text-5xl md:text-7xl lg:text-8xl">
+              top culture
+              <br />
+              <span className="text-primary">— gear.</span>
+            </h2>
+            <p className="font-body text-foreground/70 max-w-sm text-sm md:text-base leading-relaxed">
+              Curated drops designed to power your cultural expression all year round.
+            </p>
+          </div>
         </motion.div>
 
         {/* Featured cards */}
