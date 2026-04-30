@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { motion } from "framer-motion";
-import communityImage from "@/assets/community.jpg";
+import NaijaArt from "@/components/NaijaArt";
 
 const features = [
   "Post your drip for community wall",
@@ -58,14 +58,9 @@ const CommunitySection = () => {
               </Link>
             </div>
 
-            {/* Image */}
+            {/* Illustration */}
             <div className="relative min-h-[280px] md:min-h-[400px]">
-              <img
-                src={communityImage}
-                alt="Naija Original community dey rock cultural fashion"
-                className="absolute inset-0 w-full h-full object-cover"
-                loading="lazy"
-              />
+              <NaijaArt variant="community" label="The Movement" />
             </div>
           </div>
         </motion.div>

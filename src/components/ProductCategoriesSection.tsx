@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Shirt, Watch, Backpack, Footprints, Home, Sparkles, ArrowRight, type LucideIcon } from "lucide-react";
 import { motion } from "framer-motion";
-import productsShowcase from "@/assets/products-showcase.jpg";
+import NaijaArt from "@/components/NaijaArt";
 
 const iconMap: Record<string, LucideIcon> = {
   Shirt, Watch, Backpack, Footprints, Home, Sparkles,
@@ -61,12 +61,9 @@ const ProductCategoriesSection = () => {
                   to={`/shop?category=${cat.id}`}
                   className="group relative rounded-2xl md:rounded-3xl overflow-hidden min-h-[280px] md:min-h-[400px] bg-secondary flex flex-col justify-end p-6 md:p-8 border border-border block"
                 >
-                  <img
-                    src={productsShowcase}
-                    alt={cat.name}
-                    className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-50 transition-opacity"
-                    loading="lazy"
-                  />
+                  <div className="absolute inset-0 opacity-70 group-hover:opacity-90 transition-opacity">
+                    <NaijaArt variant="category" label={cat.pidgin || "Shop"} />
+                  </div>
                   <div className="relative z-10">
                     <span className="font-accent text-xs text-secondary-foreground/60 uppercase tracking-wider mb-2 block">
                       {cat.pidgin || "Explore"}
