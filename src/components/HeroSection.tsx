@@ -1,7 +1,7 @@
 import { ArrowRight, Play } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion, type Easing } from "framer-motion";
-import heroImage from "@/assets/hero-image.jpg";
+import NaijaArt from "@/components/NaijaArt";
 
 const easeOut: Easing = [0, 0, 0.2, 1];
 
@@ -105,11 +105,7 @@ const HeroSection = () => {
               transition={{ duration: 0.8, ease: "easeOut" }}
               className="relative order-1 md:order-2 min-h-[280px] md:min-h-[400px]"
             >
-              <img
-                src={heroImage}
-                alt="Nigerian fashion model in Ankara streetwear"
-                className="absolute inset-0 w-full h-full object-cover"
-              />
+              <NaijaArt variant="hero" label="Verified Original" />
               <div className="absolute bottom-4 right-4 md:bottom-6 md:right-6 w-28 h-20 md:w-36 md:h-24 rounded-xl bg-secondary/80 backdrop-blur-sm flex items-center justify-center cursor-pointer hover:bg-secondary/90 transition-colors border border-border/20 overflow-hidden">
                 <Play className="w-6 h-6 md:w-8 md:h-8 text-secondary-foreground" />
               </div>
