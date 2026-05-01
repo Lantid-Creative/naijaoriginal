@@ -1,6 +1,7 @@
 import { ArrowRight, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion, type Easing } from "framer-motion";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const easeOut: Easing = [0, 0, 0.2, 1];
 
@@ -18,6 +19,7 @@ const fadeUp = {
  * framing a central subject mark, micro // labels, single accent color.
  */
 const HeroSection = () => {
+  const { t } = useLanguage();
   return (
     <section className="relative pt-24 md:pt-28 pb-10 md:pb-16 overflow-hidden bg-background">
       <div className="container mx-auto px-4 md:px-6">
@@ -25,12 +27,10 @@ const HeroSection = () => {
           {/* Top meta bar */}
           <div className="absolute top-5 md:top-8 left-5 md:left-10 right-5 md:right-10 flex items-start justify-between z-20 pointer-events-none">
             <span className="font-accent text-[10px] md:text-xs font-medium tracking-[0.2em] text-foreground/70">
-              //CULTURE
+              {t("hero.tag1")}
             </span>
-            <span className="font-accent text-[10px] md:text-xs font-medium tracking-[0.2em] text-foreground/70 text-right leading-relaxed">
-              //AUTHENTICATED
-              <br />
-              FOR LIFE.
+            <span className="font-accent text-[10px] md:text-xs font-medium tracking-[0.2em] text-foreground/70 text-right leading-relaxed whitespace-pre-line">
+              {t("hero.tag2")}
             </span>
           </div>
 
@@ -45,9 +45,9 @@ const HeroSection = () => {
               className="col-span-12 md:col-span-4 z-10"
             >
               <h1 className="font-accent font-black tracking-[-0.04em] leading-[0.85] text-foreground text-[18vw] md:text-[9vw] lg:text-[8.5vw]">
-                where
+                {t("hero.left.l1")}
                 <br />
-                <span className="text-foreground">— style</span>
+                <span className="text-foreground">{t("hero.left.l2")}</span>
               </h1>
             </motion.div>
 
@@ -93,9 +93,9 @@ const HeroSection = () => {
               className="col-span-12 md:col-span-4 z-10 md:text-right"
             >
               <h2 className="font-accent font-black tracking-[-0.04em] leading-[0.85] text-foreground text-[18vw] md:text-[9vw] lg:text-[8.5vw]">
-                lives
+                {t("hero.right.l1")}
                 <br />
-                <span className="text-primary">— now.</span>
+                <span className="text-primary">{t("hero.right.l2")}</span>
               </h2>
             </motion.div>
           </div>
@@ -114,20 +114,20 @@ const HeroSection = () => {
                 //FASHION
               </span>
               <p className="font-body text-sm md:text-[15px] text-foreground/80 leading-snug">
-                Wearable Naija culture wey you fit prove. Curated drops, QR-verified, every piece numbered.
+                {t("hero.desc")}
               </p>
               <div className="mt-5 flex flex-col sm:flex-row gap-3">
                 <Link
                   to="/shop"
                   className="px-6 py-3 rounded-full font-accent font-semibold text-xs bg-secondary text-secondary-foreground hover:bg-foreground transition-colors uppercase tracking-[0.15em] inline-flex items-center justify-center gap-2"
                 >
-                  Shop now <ArrowRight className="w-3.5 h-3.5" />
+                  {t("hero.shop")} <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
                 <Link
                   to="/verify"
                   className="px-6 py-3 rounded-full font-accent font-semibold text-xs border border-foreground/30 text-foreground hover:bg-foreground hover:text-background transition-colors uppercase tracking-[0.15em] inline-flex items-center justify-center"
                 >
-                  Verify product
+                  {t("hero.verify")}
                 </Link>
               </div>
             </motion.div>
@@ -160,7 +160,7 @@ const HeroSection = () => {
                 15M<span className="text-primary">+</span>
               </p>
               <span className="font-accent text-[10px] md:text-xs font-medium tracking-[0.2em] text-foreground/60 uppercase">
-                Diaspora we inspire
+                {t("hero.diaspora")}
               </span>
             </motion.div>
           </div>
