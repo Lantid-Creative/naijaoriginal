@@ -20,6 +20,8 @@ import SizeGuide from "@/components/SizeGuide";
 import DeliveryEstimate from "@/components/DeliveryEstimate";
 import ProductEvolutionTimeline from "@/components/ProductEvolutionTimeline";
 import SeriesBadge from "@/components/SeriesBadge";
+import StickyMobileAddToCart from "@/components/StickyMobileAddToCart";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Product {
   id: string;
@@ -69,6 +71,7 @@ const ProductDetail = () => {
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { addToCompare, removeFromCompare, isInCompare } = useCompare();
   const { recentProducts, addToRecentlyViewed } = useRecentlyViewed();
+  const { t } = useLanguage();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -100,7 +103,7 @@ const ProductDetail = () => {
     if (!product) return;
     setAdding(true);
     await addToCart(product.id, selectedSize, selectedColor, quantity);
-    toast({ title: "E don enter cart! 🛒", description: `${product.name} don enter your cart.` });
+    toast({ title: t("pd.added"), description: `${product.name} ✓` });
     setAdding(false);
   };
 
@@ -247,7 +250,7 @@ const ProductDetail = () => {
               {product.sizes.length > 0 && (
                 <div className="mb-5 md:mb-6">
                   <div className="flex items-center justify-between mb-2">
-                    <label className="font-accent text-sm font-semibold text-foreground">Size</label>
+                    <label className="font-accent text-sm font-semibold text-foreground">{t("pd.size")}</label>
                     <SizeGuide categoryName={product.product_categories?.name} />
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -271,7 +274,7 @@ const ProductDetail = () => {
               {/* Color */}
               {product.colors.length > 0 && (
                 <div className="mb-5 md:mb-6">
-                  <label className="font-accent text-sm font-semibold text-foreground block mb-2">Color</label>
+                  <label className="font-accent text-sm font-semibold text-foreground block mb-2">{t("pd.color")}</label>
                   <div className="flex flex-wrap gap-2">
                     {product.colors.map((color) => (
                       <button
@@ -295,7 +298,7 @@ const ProductDetail = () => {
 
               {/* Quantity */}
               <div className="mb-6 md:mb-8">
-                <label className="font-accent text-sm font-semibold text-foreground block mb-2">Quantity</label>
+                <label className="font-accent text-sm font-semibold text-foreground block mb-2">{t("pd.quantity")}</label>
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -310,7 +313,7 @@ const ProductDetail = () => {
                   >
                     <Plus className="w-4 h-4" />
                   </button>
-                  <span className="font-accent text-xs text-muted-foreground">{product.stock} dey stock</span>
+                  <span className="font-accent text-xs text-muted-foreground">{product.stock} {t("pd.inStock")}</span>
                 </div>
               </div>
 
@@ -322,7 +325,7 @@ const ProductDetail = () => {
                   size="lg"
                 >
                   <ShoppingCart className="w-5 h-5" />
-                  {product.stock === 0 ? "E Don Finish" : adding ? "Dey Add..." : "Add to Cart"}
+                  {product.stock === 0 ? t("pd.outOfStock") : adding ? t("pd.adding") : t("pd.addToCart")}
                 </Button>
                 <Button
                   variant="outline"
@@ -359,7 +362,7 @@ const ProductDetail = () => {
 
               <div className="mt-5 md:mt-6 flex items-center gap-2 text-muted-foreground font-body text-sm">
                 <ShieldCheck className="w-5 h-5 text-primary" />
-                QR Authenticated — Every piece na verified original 🔐
+                {t("pd.qrAuth")}
               </div>
 
               {/* Delivery Estimates */}
@@ -380,6 +383,14 @@ const ProductDetail = () => {
         </div>
       </main>
       <Footer />
+      {/* Mobile sticky CTA */}
+      <StickyMobileAddToCart
+        price={product.price}
+        comparePrice={product.compare_at_price}
+        stock={product.stock}
+        adding={adding}
+        onAdd={handleAddToCart}
+      />
     </div>
   );
 };
