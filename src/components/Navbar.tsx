@@ -7,6 +7,7 @@ import { useWishlist } from "@/contexts/WishlistContext";
 import { useCompare } from "@/contexts/CompareContext";
 import NotificationBell from "@/components/NotificationBell";
 import SearchAutocomplete from "@/components/SearchAutocomplete";
+import LanguageToggle from "@/components/LanguageToggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -76,6 +77,7 @@ const Navbar = () => {
         {/* Right nav */}
         <div className="hidden lg:flex items-center gap-3 xl:gap-4">
           <SearchAutocomplete />
+          <LanguageToggle variant="compact" />
           {isAdmin && (
             <Link to="/admin" className="font-accent text-sm font-medium text-primary hover:text-primary/80 transition-colors flex items-center gap-1 uppercase tracking-wide">
               <Shield className="w-3.5 h-3.5" /> Admin
@@ -131,6 +133,7 @@ const Navbar = () => {
 
         {/* Mobile Toggle */}
         <div className="flex items-center gap-3 lg:hidden">
+          <LanguageToggle variant="compact" />
           <Link to="/wishlist" className="relative text-foreground">
             <Heart className="w-5 h-5" />
             {wishlistCount > 0 && (
