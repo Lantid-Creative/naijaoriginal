@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
-import { ShieldCheck, QrCode, Hash, Calendar, User, Crown, Star, ExternalLink, Sparkles, Award, Eye } from "lucide-react";
+import { ShieldCheck, QrCode, Hash, Calendar, User, Crown, Star, ExternalLink, Sparkles, Award, Eye, Share2, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 interface VerifyResultProps {
   result: any;
@@ -13,6 +14,26 @@ const VerifyResult = ({ result, user, onClaimOwnership }: VerifyResultProps) => 
   const product = result.products;
   const images = product?.product_images || [];
   const isOwner = result.owner_id && user && result.owner_id === user.id;
+  const { toast } = useToast();
+
+  const publicUrl = `${window.location.origin}/verify?code=${encodeURIComponent(result.qr_code)}`;
+
+  const handleShare = async () => {
+    const shareText = `Check my authenticated Naija Original piece — "${product?.name}"${result.edition_number ? ` #${result.edition_number}${product?.edition_total ? `/${product.edition_total}` : ""}` : ""} 🇳🇬\n\n${publicUrl}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: `My ${product?.name}`, text: shareText, url: publicUrl });
+      } catch { /* user cancelled */ }
+    } else {
+      await navigator.clipboard.writeText(shareText);
+      toast({ title: "Link copied! 🔗", description: "Share am with your people." });
+    }
+  };
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(publicUrl);
+    toast({ title: "Public link copied ✅", description: publicUrl });
+  };
 
   return (
     <motion.div
@@ -208,8 +229,19 @@ const VerifyResult = ({ result, user, onClaimOwnership }: VerifyResultProps) => 
               <div className="p-4 rounded-xl bg-primary/10 border border-primary/20 text-center">
                 <Award className="w-8 h-8 text-primary mx-auto mb-2" />
                 <h4 className="font-accent text-sm font-bold text-primary mb-1">This Na Your Piece! 👑</h4>
-                <p className="font-body text-xs text-muted-foreground">
+                <p className="font-body text-xs text-muted-foreground mb-4">
                   You are the verified owner of this authentic Naija Original product.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                  <Button onClick={handleShare} size="sm" className="font-body gap-2">
+                    <Share2 className="w-4 h-4" /> Share My Piece
+                  </Button>
+                  <Button onClick={handleCopy} size="sm" variant="outline" className="font-body gap-2">
+                    <Copy className="w-4 h-4" /> Copy Public Link
+                  </Button>
+                </div>
+                <p className="font-body text-[11px] text-muted-foreground/70 mt-3">
+                  Anyone wey open this link go see say na you own this original piece.
                 </p>
               </div>
             )}
