@@ -22,6 +22,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import AdminSidebar, { type AdminSection } from "@/components/admin/AdminSidebar";
 import AdminOverview from "@/components/admin/AdminOverview";
+import ProductImagesManager from "@/components/admin/ProductImagesManager";
 
 type Tab = AdminSection;
 
@@ -504,6 +505,16 @@ const Admin = () => {
                       <Button type="submit" className="font-body">{editingProduct ? "Update Product" : "Create Product"}</Button>
                     </div>
                   </form>
+                  {editingProduct && (
+                    <div className="mt-6 pt-6 border-t border-border">
+                      <ProductImagesManager productId={editingProduct.id} />
+                    </div>
+                  )}
+                  {!editingProduct && (
+                    <p className="mt-4 text-xs text-muted-foreground font-body">
+                      💡 Save the product first, then reopen it to upload images.
+                    </p>
+                  )}
                 </div>
               )}
 
