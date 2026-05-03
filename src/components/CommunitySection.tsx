@@ -11,73 +11,51 @@ const features = [
 
 const CommunitySection = () => {
   return (
-    <section id="story" className="py-16 md:py-28 bg-background">
-      <div className="container mx-auto px-4 md:px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.6 }}
-          className="bg-card rounded-2xl md:rounded-[2rem] border border-border overflow-hidden p-6 md:p-12 lg:p-16"
-        >
-          {/* Top meta */}
-          <div className="flex items-start justify-between mb-10 md:mb-16">
-            <span className="font-accent text-[10px] md:text-xs font-medium tracking-[0.2em] text-foreground/60">
-              //THE MOVEMENT
-            </span>
-            <span className="font-accent text-[10px] md:text-xs font-medium tracking-[0.2em] text-foreground/60 text-right">
-              /02
-            </span>
-          </div>
+    <section id="story" className="py-16 md:py-24 bg-background border-t border-border">
+      <div className="container mx-auto px-4 sm:px-6">
+        <div className="max-w-3xl mx-auto text-center mb-12 md:mb-16">
+          <span className="font-accent text-xs font-semibold tracking-[0.25em] text-primary uppercase mb-4 block">
+            // The Movement
+          </span>
+          <h2 className="font-accent font-black tracking-[-0.03em] leading-[0.95] text-foreground text-4xl sm:text-5xl md:text-6xl">
+            Join the <span className="text-primary">culture.</span>
+          </h2>
+          <p className="font-body text-muted-foreground text-base sm:text-lg mt-5 leading-relaxed">
+            Nigeria no be just country — na feeling, na spirit, na vibe. And e just dey one QR scan to prove am.
+          </p>
+        </div>
 
-          <div className="grid lg:grid-cols-12 gap-10 md:gap-16">
-            {/* Headline */}
-            <div className="lg:col-span-7">
-              <h2 className="font-accent font-black tracking-[-0.04em] leading-[0.9] text-foreground text-5xl md:text-7xl lg:text-[6.5rem]">
-                join the
-                <br />
-                <span className="text-primary">— culture.</span>
-              </h2>
-              <p className="font-body text-foreground/70 text-base md:text-lg mt-8 max-w-md leading-relaxed">
-                Nigeria no be just country — na feeling, na spirit, na vibe. And e just dey one QR scan to prove am.
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-12">
+          {features.map((f, i) => (
+            <motion.div
+              key={f.n}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ delay: i * 0.08, duration: 0.5 }}
+              className="bg-card border border-border rounded-2xl p-6 hover:border-primary/40 transition-colors"
+            >
+              <span className="font-accent text-xs font-bold text-primary tracking-wider block mb-3">
+                {f.n}
+              </span>
+              <h3 className="font-accent text-lg font-bold text-foreground mb-2">
+                {f.t}
+              </h3>
+              <p className="font-body text-sm text-muted-foreground leading-snug">
+                {f.d}
               </p>
-              <Link
-                to="/auth"
-                className="mt-8 inline-flex px-7 py-3.5 rounded-full font-accent font-semibold text-xs bg-secondary text-secondary-foreground hover:bg-foreground transition-colors uppercase tracking-[0.15em] items-center gap-2"
-              >
-                Join the community <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
+            </motion.div>
+          ))}
+        </div>
 
-            {/* Numbered list */}
-            <div className="lg:col-span-5 lg:border-l lg:border-border lg:pl-10">
-              <div className="divide-y divide-border">
-                {features.map((f, i) => (
-                  <motion.div
-                    key={f.n}
-                    initial={{ opacity: 0, y: 12 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.08, duration: 0.5 }}
-                    className="py-5 first:pt-0 flex gap-5 group"
-                  >
-                    <span className="font-accent text-xs font-medium text-foreground/40 tracking-wider mt-1">
-                      {f.n}
-                    </span>
-                    <div className="flex-1">
-                      <h3 className="font-accent text-lg md:text-xl font-bold text-foreground tracking-tight mb-1 group-hover:text-primary transition-colors">
-                        {f.t}
-                      </h3>
-                      <p className="font-body text-sm text-foreground/60 leading-snug">
-                        {f.d}
-                      </p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </motion.div>
+        <div className="text-center">
+          <Link
+            to="/auth"
+            className="inline-flex px-7 py-3.5 rounded-full font-accent font-semibold text-sm bg-secondary text-secondary-foreground hover:bg-foreground transition-colors uppercase tracking-[0.15em] items-center gap-2"
+          >
+            Join the community <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
       </div>
     </section>
   );
