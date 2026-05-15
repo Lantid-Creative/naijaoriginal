@@ -7,7 +7,7 @@ import { formatNaira } from "@/lib/format";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-const MIN_ORDER_AMOUNT = 30000;
+const MIN_ORDER_AMOUNT = 0;
 
 const Cart = () => {
   const { items, loading, updateQuantity, removeFromCart, itemCount, total } = useCart();
