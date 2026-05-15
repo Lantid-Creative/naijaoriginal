@@ -47,13 +47,12 @@ const Terms = () => {
             <section className="bg-card rounded-2xl border border-border p-6 md:p-8">
               <h2 className="font-accent text-lg font-bold text-foreground mb-3">4. Shipping and Delivery</h2>
               <p className="text-muted-foreground leading-relaxed">
-                We dey ship within Nigeria and internationally. Delivery within Nigeria takes about 2 weeks. Minimum order amount na ₦30,000.
+                We dey ship within Nigeria and internationally. Delivery within Nigeria takes about 2 weeks.
               </p>
               <ul className="list-disc list-inside text-muted-foreground space-y-1 mt-2">
                 <li>Standard shipping within Nigeria: ₦5,000</li>
                 <li>Fast shipping within Nigeria: ₦10,000 (3–5 days delivery)</li>
                 <li>International shipping: We go calculate based on your location and contact you with the cost</li>
-                <li>Minimum order total na ₦30,000 before you fit checkout</li>
                 <li>Risk of loss pass to you once the carrier collect the package</li>
                 <li>You fit track your order using your order number on our platform</li>
               </ul>
