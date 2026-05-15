@@ -60,7 +60,7 @@ const Shop = () => {
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { addToCompare, removeFromCompare, isInCompare } = useCompare();
   const { toast } = useToast();
-  const { recentProducts } = useRecentlyViewed();
+  const { recentIds } = useRecentlyViewed();
   const [quickViewId, setQuickViewId] = useState<string | null>(null);
   const productIds = useMemo(() => products.map(p => p.id), [products]);
   const ratings = useProductRatings(productIds);
@@ -564,7 +564,7 @@ const Shop = () => {
           </div>
 
           {/* Recently Viewed */}
-          <RecentlyViewed products={recentProducts} />
+          <RecentlyViewed products={recentIds} />
         </div>
       </main>
       <Footer />

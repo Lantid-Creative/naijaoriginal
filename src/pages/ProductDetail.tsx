@@ -70,7 +70,7 @@ const ProductDetail = () => {
   const { user } = useAuth();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { addToCompare, removeFromCompare, isInCompare } = useCompare();
-  const { recentProducts, addToRecentlyViewed } = useRecentlyViewed();
+  const { recentIds, addToRecentlyViewed } = useRecentlyViewed();
   const { t } = useLanguage();
 
   useEffect(() => {
@@ -84,15 +84,8 @@ const ProductDetail = () => {
         setProduct(data as any);
         if (data.sizes?.length) setSelectedSize(data.sizes[0]);
         if (data.colors?.length) setSelectedColor(data.colors[0]);
-        // Track recently viewed
-        const images = [...(data.product_images || [])].sort((a: any, b: any) => a.display_order - b.display_order);
-        addToRecentlyViewed({
-          id: data.id,
-          slug: data.slug,
-          name: data.name,
-          price: data.price,
-          image_url: images[0]?.image_url || "/placeholder.svg",
-        });
+        // Track recently viewed (id only — live data fetched on render)
+        addToRecentlyViewed({ id: data.id });
       }
       setLoading(false);
     };
@@ -379,7 +372,7 @@ const ProductDetail = () => {
           <ProductReviews productId={product.id} />
 
           {/* Recently Viewed */}
-          <RecentlyViewed products={recentProducts} currentProductId={product.id} />
+          <RecentlyViewed products={recentIds} currentProductId={product.id} />
         </div>
       </main>
       <Footer />
