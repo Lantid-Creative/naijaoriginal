@@ -81,10 +81,14 @@ const Checkout = () => {
     setLoading(true);
 
     try {
+      const orderId = crypto.randomUUID();
+      const orderNumber = getOrderNumber(orderId);
       const orderPayload: any = {
+        id: orderId,
+        order_number: orderNumber,
         subtotal: total,
         shipping_cost: shipping,
-        total: isInternational ? total : orderTotal,
+        total: orderTotal,
         shipping_address: {
           full_name: form.fullName,
           address: form.address,
@@ -93,10 +97,12 @@ const Checkout = () => {
           country: form.country,
           zip: form.zip,
           phone: form.phone,
+          preferred_contact_day: form.preferredContactDay,
+          preferred_contact_time: form.preferredContactTime,
         },
-        notes: isInternational
-          ? `INTERNATIONAL ORDER — Shipping to ${form.country}. Shipping cost needs to be calculated and sent to customer.`
-          : `Shipping: ${SHIPPING_OPTIONS[shippingOption].label}`,
+        notes: isNigeria
+          ? `Shipping quote pending — Nigeria delivery usually ranges from ₦5,000 to ₦10,000 depending on distance and weight. Contact customer by phone/WhatsApp on ${form.preferredContactDay || "their preferred day"} at ${form.preferredContactTime || "their preferred time"} to confirm exact location and quote.`
+          : `Shipping quote pending — ${form.country}. Contact customer by phone/WhatsApp on ${form.preferredContactDay || "their preferred day"} at ${form.preferredContactTime || "their preferred time"} to confirm exact location and quote.`,
       };
       if (user) {
         orderPayload.user_id = user.id;
@@ -105,20 +111,12 @@ const Checkout = () => {
         orderPayload.guest_name = form.fullName;
       }
 
-      if (isInternational) {
-        orderPayload.status = "pending_shipping_quote";
-      }
-
-      const { data: order, error: orderError } = await supabase
-        .from("orders")
-        .insert(orderPayload)
-        .select()
-        .single();
+      const { error: orderError } = await supabase.from("orders").insert(orderPayload);
 
       if (orderError) throw orderError;
 
       const orderItems = items.map((item) => ({
-        order_id: order.id,
+        order_id: orderId,
         product_id: item.product_id,
         product_name: item.product?.name || "Product",
         quantity: item.quantity,
@@ -130,44 +128,12 @@ const Checkout = () => {
       const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
       if (itemsError) throw itemsError;
 
-      // Alert admin for international orders
-      if (isInternational) {
-        await supabase.from("admin_notifications").insert({
-          type: "international_order",
-          title: "International Order — Shipping Quote Needed! 🌍",
-          message: `Order #${order.order_number} needs international shipping quote. Customer: ${form.fullName}, Country: ${form.country}, City: ${form.city}. Email: ${form.email || user?.email}. Subtotal: ₦${total.toLocaleString()}.`,
-          metadata: { order_id: order.id, order_number: order.order_number, country: form.country, email: form.email || user?.email },
-        });
-
-        // Send email to customer about pending quote
-        const emailTo = user?.email || form.email;
-        if (emailTo) {
-          supabase.functions.invoke("send-email", {
-            body: {
-              to: emailTo,
-              subject: `Order Received! #${order.order_number} — Shipping Quote Coming 🌍`,
-              html: orderConfirmationEmail({
-                orderNumber: order.order_number,
-                customerName: form.fullName || user?.user_metadata?.full_name || "",
-                total,
-                items: orderItems.map(i => ({ name: i.product_name, quantity: i.quantity, price: i.price * i.quantity })),
-              }),
-            },
-          });
-        }
-
-        toast({ title: "Order don receive! 🌍", description: `We go calculate your international shipping and contact you with the total.` });
-        await clearCart();
-        navigate(`/order-confirmation/${order.order_number}`);
-        return;
-      }
-
       const { data: paymentData, error: paymentError } = await supabase.functions.invoke("initialize-payment", {
         body: {
           email: user?.email || form.email,
-          amount: Math.round(orderTotal * 100),
-          order_id: order.id,
-          order_number: order.order_number,
+          amount: Math.round(total * 100),
+          order_id: orderId,
+          order_number: orderNumber,
         },
       });
 
@@ -177,19 +143,19 @@ const Checkout = () => {
           supabase.functions.invoke("send-email", {
             body: {
               to: emailTo,
-              subject: `Order Confirmed! #${order.order_number} 🎉`,
+              subject: `Order Confirmed! #${orderNumber} 🎉`,
               html: orderConfirmationEmail({
-                orderNumber: order.order_number,
+                orderNumber,
                 customerName: form.fullName || user?.user_metadata?.full_name || "",
-                total: orderTotal,
+                total,
                 items: orderItems.map(i => ({ name: i.product_name, quantity: i.quantity, price: i.price * i.quantity })),
               }),
             },
           });
         }
-        toast({ title: "Order don place! 🎉", description: `Order ${order.order_number} don create. Payment processing dey come soon!` });
+        toast({ title: "Order don place! 🎉", description: `Order ${orderNumber} don create. Shipping quote no dey inside payment.` });
         await clearCart();
-        navigate(`/order-confirmation/${order.order_number}`);
+        navigate(`/order-confirmation/${orderNumber}`);
         return;
       }
 
