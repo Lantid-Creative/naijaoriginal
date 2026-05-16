@@ -6,7 +6,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CalendarDays, Lock, MessageCircle, Truck } from "lucide-react";
+import { ArrowLeft, Lock, Truck } from "lucide-react";
 import { formatNaira } from "@/lib/format";
 import { orderConfirmationEmail } from "@/lib/email-templates";
 import Navbar from "@/components/Navbar";
