@@ -52,7 +52,7 @@ export function orderConfirmationEmail(data: {
         </div>
       </div>
       <p>Wetin go happen next:</p>
-      <p>✅ We go verify your payment<br>📦 We go prepare your order with care<br>🚚 Shipping confirmation go reach your email<br>📱 Scan your QR code when e arrive!</p>
+      <p>✅ We go verify your payment<br>📦 We go prepare your order with care<br>📞 We go call or WhatsApp you to confirm location and shipping quote<br>📱 Scan your QR code when e arrive!</p>
       <div style="text-align:center;margin:24px 0;">
         <a href="https://naijaoriginal.lovable.app/orders" class="btn">View My Orders</a>
       </div>

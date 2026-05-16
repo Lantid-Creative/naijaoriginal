@@ -1,10 +1,9 @@
 import { addDays, format } from "date-fns";
-import { Truck, Zap, Globe } from "lucide-react";
+import { Globe, MessageCircle, Truck } from "lucide-react";
 
 const DeliveryEstimate = () => {
   const now = new Date();
   const standardDate = format(addDays(now, 14), "EEEE, MMM d");
-  const fastDate = format(addDays(now, 5), "EEEE, MMM d");
 
   return (
     <div className="rounded-xl border border-border p-4 space-y-3">
@@ -17,17 +16,17 @@ const DeliveryEstimate = () => {
             <Truck className="w-4 h-4 text-muted-foreground" />
           </div>
           <div>
-            <p className="font-accent text-xs font-semibold text-foreground">Standard Delivery — ₦5,000</p>
-            <p className="font-body text-xs text-muted-foreground">Estimated by {standardDate}</p>
+            <p className="font-accent text-xs font-semibold text-foreground">Nigeria Delivery — ₦5,000–₦10,000 quote</p>
+            <p className="font-body text-xs text-muted-foreground">Around {standardDate}, depending on distance and weight</p>
           </div>
         </div>
         <div className="flex items-start gap-3">
           <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-            <Zap className="w-4 h-4 text-primary" />
+            <MessageCircle className="w-4 h-4 text-primary" />
           </div>
           <div>
-            <p className="font-accent text-xs font-semibold text-foreground">Fast Delivery — ₦10,000</p>
-            <p className="font-body text-xs text-muted-foreground">Estimated by {fastDate}</p>
+            <p className="font-accent text-xs font-semibold text-foreground">Phone / WhatsApp confirmation</p>
+            <p className="font-body text-xs text-muted-foreground">We reach out at your preferred time before final quote</p>
           </div>
         </div>
         <div className="flex items-start gap-3">

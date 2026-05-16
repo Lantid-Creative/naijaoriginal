@@ -26,7 +26,7 @@ const OrderConfirmation = () => {
             <ul className="space-y-2 font-body text-sm text-muted-foreground">
               <li>✅ We go verify your payment</li>
               <li>📦 We go prepare your order with care</li>
-              <li>🚚 Shipping confirmation go reach your email</li>
+              <li>📞 We go call or WhatsApp you to confirm location and shipping quote</li>
               <li>📱 Scan your QR code when e arrive to register ownership!</li>
             </ul>
           </div>
