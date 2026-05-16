@@ -99,11 +99,11 @@ const Cart = () => {
                     </div>
                     <div className="flex justify-between font-body text-sm">
                       <span className="text-muted-foreground">Shipping</span>
-                      <span className="text-foreground">From {formatNaira(5000)}</span>
+                      <span className="text-foreground">Quote later</span>
                     </div>
                     <div className="flex justify-between font-body text-sm">
-                      <span className="text-muted-foreground">Delivery</span>
-                      <span className="text-foreground">~2 weeks 📦</span>
+                      <span className="text-muted-foreground">Nigeria estimate</span>
+                      <span className="text-foreground">₦5k–₦10k</span>
                     </div>
                     <div className="naija-section-divider" />
                     <div className="flex justify-between font-body font-bold">
@@ -146,7 +146,7 @@ const Cart = () => {
 
                   {total >= MIN_ORDER_AMOUNT && (
                     <p className="font-accent text-xs text-muted-foreground text-center mt-3">
-                      Standard (~2 weeks): {formatNaira(5000)} | Fast (3–5 days): {formatNaira(10000)} 🚚
+                      Shipping no dey inside payment. We go quote by distance and weight after checkout.
                     </p>
                   )}
                 </div>
