@@ -6,7 +6,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Lock, Truck, Zap, Globe } from "lucide-react";
+import { ArrowLeft, CalendarDays, Lock, MessageCircle, Truck } from "lucide-react";
 import { formatNaira } from "@/lib/format";
 import { orderConfirmationEmail } from "@/lib/email-templates";
 import Navbar from "@/components/Navbar";
@@ -14,12 +14,9 @@ import Footer from "@/components/Footer";
 
 const MIN_ORDER_AMOUNT = 0;
 
-type ShippingOption = "standard" | "fast" | "international";
-
-const SHIPPING_OPTIONS = {
-  standard: { label: "Standard Shipping", price: 5000, icon: Truck, description: "~2 weeks delivery within Nigeria" },
-  fast: { label: "Fast Shipping", price: 10000, icon: Zap, description: "3–5 days delivery within Nigeria ⚡" },
-  international: { label: "International Shipping", price: 0, icon: Globe, description: "We go calculate and contact you with the cost" },
+const getOrderNumber = (orderId: string) => {
+  const date = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  return `NO-${date}-${orderId.slice(0, 6).toUpperCase()}`;
 };
 
 const Checkout = () => {
@@ -28,7 +25,6 @@ const Checkout = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [shippingOption, setShippingOption] = useState<ShippingOption>("standard");
   const [form, setForm] = useState({
     fullName: "",
     email: "",
@@ -38,18 +34,11 @@ const Checkout = () => {
     state: "",
     country: "Nigeria",
     zip: "",
+    preferredContactDay: "",
+    preferredContactTime: "",
   });
 
   const isNigeria = form.country.toLowerCase().trim() === "nigeria";
-
-  // Auto-select international when country changes
-  useEffect(() => {
-    if (!isNigeria) {
-      setShippingOption("international");
-    } else if (shippingOption === "international") {
-      setShippingOption("standard");
-    }
-  }, [isNigeria]);
 
   // Auto-fill from profile for logged-in users
   useEffect(() => {
@@ -78,9 +67,9 @@ const Checkout = () => {
     fetchProfile();
   }, [user]);
 
-  const shipping = shippingOption === "international" ? 0 : SHIPPING_OPTIONS[shippingOption].price;
-  const orderTotal = total + shipping;
-  const isInternational = shippingOption === "international";
+  const shipping = 0;
+  const orderTotal = total;
+  const shippingQuoteLabel = isNigeria ? "₦5,000–₦10,000 quote" : "Custom quote";
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
