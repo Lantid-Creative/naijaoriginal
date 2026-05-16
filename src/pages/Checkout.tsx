@@ -12,8 +12,6 @@ import { orderConfirmationEmail } from "@/lib/email-templates";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-const MIN_ORDER_AMOUNT = 0;
-
 const getOrderNumber = (orderId: string) => {
   const date = new Date().toISOString().slice(0, 10).replace(/-/g, "");
   return `NO-${date}-${orderId.slice(0, 6).toUpperCase()}`;
@@ -175,20 +173,6 @@ const Checkout = () => {
         <div className="pt-24 container mx-auto px-6 text-center py-20">
           <h1 className="font-display text-3xl font-black text-foreground mb-4">Nothing dey here to checkout</h1>
           <Link to="/shop" className="text-primary hover:underline font-body">← Back to Shop</Link>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-
-  if (total < MIN_ORDER_AMOUNT) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="pt-24 container mx-auto px-6 text-center py-20">
-          <h1 className="font-display text-3xl font-black text-foreground mb-4">Cart never reach minimum o! 😅</h1>
-          <p className="font-body text-muted-foreground mb-6">Minimum order na {formatNaira(MIN_ORDER_AMOUNT)}. You still need {formatNaira(MIN_ORDER_AMOUNT - total)} more.</p>
-          <Link to="/cart" className="text-primary hover:underline font-body">← Back to Cart</Link>
         </div>
         <Footer />
       </div>
