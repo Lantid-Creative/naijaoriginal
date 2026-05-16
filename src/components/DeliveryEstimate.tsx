@@ -4,7 +4,6 @@ import { Globe, MessageCircle, Truck } from "lucide-react";
 const DeliveryEstimate = () => {
   const now = new Date();
   const standardDate = format(addDays(now, 14), "EEEE, MMM d");
-  const fastDate = format(addDays(now, 5), "EEEE, MMM d");
 
   return (
     <div className="rounded-xl border border-border p-4 space-y-3">
