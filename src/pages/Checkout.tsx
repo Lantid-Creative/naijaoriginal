@@ -68,6 +68,17 @@ const Checkout = () => {
   const orderTotal = total;
   const shippingQuoteLabel = isNigeria ? "₦5,000–₦10,000 quote" : "Custom quote";
 
+  useEffect(() => {
+    if (!authLoading && !user) {
+      toast({
+        title: "Create account first",
+        description: "You need account before checkout. Product money go pass Paystack first.",
+        variant: "destructive",
+      });
+      navigate("/auth?redirect=/checkout", { replace: true });
+    }
+  }, [authLoading, user, navigate, toast]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -75,17 +86,25 @@ const Checkout = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (items.length === 0) return;
+    if (!user) {
+      toast({ title: "Sign in required", description: "Create account or sign in before checkout.", variant: "destructive" });
+      navigate("/auth?redirect=/checkout");
+      return;
+    }
     setLoading(true);
 
     try {
       const orderId = crypto.randomUUID();
       const orderNumber = getOrderNumber(orderId);
-      const orderPayload: any = {
+      const orderPayload = {
         id: orderId,
         order_number: orderNumber,
+        user_id: user.id,
         subtotal: total,
         shipping_cost: shipping,
         total: orderTotal,
+        status: "paid",
+        payment_status: "paid",
         shipping_address: {
           full_name: form.fullName,
           address: form.address,
@@ -101,16 +120,6 @@ const Checkout = () => {
           ? `Shipping quote pending — Nigeria delivery usually ranges from ₦5,000 to ₦10,000 depending on distance and weight. Contact customer by phone/WhatsApp on ${form.preferredContactDay || "their preferred day"} at ${form.preferredContactTime || "their preferred time"} to confirm exact location and quote.`
           : `Shipping quote pending — ${form.country}. Contact customer by phone/WhatsApp on ${form.preferredContactDay || "their preferred day"} at ${form.preferredContactTime || "their preferred time"} to confirm exact location and quote.`,
       };
-      if (user) {
-        orderPayload.user_id = user.id;
-      } else {
-        orderPayload.guest_email = form.email;
-        orderPayload.guest_name = form.fullName;
-      }
-
-      const { error: orderError } = await supabase.from("orders").insert(orderPayload);
-
-      if (orderError) throw orderError;
 
       const orderItems = items.map((item) => ({
         order_id: orderId,
@@ -122,12 +131,9 @@ const Checkout = () => {
         selected_color: item.selected_color,
       }));
 
-      const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
-      if (itemsError) throw itemsError;
-
       const { data: paymentData, error: paymentError } = await supabase.functions.invoke("initialize-payment", {
         body: {
-          email: user?.email || form.email,
+          email: user.email || form.email,
           amount: Math.round(total * 100),
           order_id: orderId,
           order_number: orderNumber,
@@ -135,28 +141,13 @@ const Checkout = () => {
       });
 
       if (paymentError || !paymentData?.authorization_url) {
-        const emailTo = user?.email || form.email;
-        if (emailTo) {
-          supabase.functions.invoke("send-email", {
-            body: {
-              to: emailTo,
-              subject: `Order Confirmed! #${orderNumber} 🎉`,
-              html: orderConfirmationEmail({
-                orderNumber,
-                customerName: form.fullName || user?.user_metadata?.full_name || "",
-                total,
-                items: orderItems.map(i => ({ name: i.product_name, quantity: i.quantity, price: i.price * i.quantity })),
-              }),
-            },
-          });
-        }
-        toast({ title: "Order don place! 🎉", description: `Order ${orderNumber} don create. Shipping quote no dey inside payment.` });
-        await clearCart();
-        navigate(`/order-confirmation/${orderNumber}`);
-        return;
+        throw new Error(paymentData?.error || paymentError?.message || "Paystack payment no start. No order was placed.");
       }
 
-      await clearCart();
+      localStorage.setItem(
+        `pending_checkout_${orderNumber}`,
+        JSON.stringify({ order: orderPayload, orderItems, customerName: form.fullName, total })
+      );
       window.location.href = paymentData.authorization_url;
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
