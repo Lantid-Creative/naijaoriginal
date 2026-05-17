@@ -32,9 +32,14 @@ serve(async (req) => {
     const port = parseInt(Deno.env.get("SMTP_PORT") || "465");
     const username = Deno.env.get("SMTP_USER")!;
     const password = Deno.env.get("SMTP_PASS")!;
-    const fromEmail = Deno.env.get("SMTP_FROM_EMAIL") || username;
-    const fromName = Deno.env.get("SMTP_FROM_NAME") || "Naija Original";
-    
+    const rawFromEmail = Deno.env.get("SMTP_FROM_EMAIL") || username;
+    const rawFromName = Deno.env.get("SMTP_FROM_NAME") || "Naija Original";
+    // Guard against swapped/invalid SMTP_FROM_EMAIL — must be a real email
+    const isEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+    const fromEmail = isEmail(rawFromEmail) ? rawFromEmail : username;
+    const fromName = isEmail(rawFromName) ? rawFromEmail : rawFromName;
+    const fromHeader = `${fromName} <${fromEmail}>`;
+
     console.log("SMTP config:", { host, port, username, fromEmail, fromName });
 
     const client = new SMTPClient({
@@ -50,7 +55,7 @@ serve(async (req) => {
     });
 
     await client.send({
-      from: fromEmail,
+      from: fromHeader,
       to,
       subject,
       content: text || "",
