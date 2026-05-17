@@ -63,7 +63,7 @@ const Auth = () => {
         toast({ title: "Login failed", description: error.message, variant: "destructive" });
       } else {
         toast({ title: "Welcome back! 🇳🇬" });
-        navigate("/");
+        navigate(redirectTo, { replace: true });
       }
     } else {
       const { error } = await signUp(email, password, fullName);
