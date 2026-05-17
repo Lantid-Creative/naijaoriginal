@@ -103,7 +103,7 @@ const Checkout = () => {
         subtotal: total,
         shipping_cost: shipping,
         total: orderTotal,
-        status: "paid",
+        status: "pending",
         payment_status: "paid",
         shipping_address: {
           full_name: form.fullName,
@@ -137,6 +137,7 @@ const Checkout = () => {
           amount: Math.round(total * 100),
           order_id: orderId,
           order_number: orderNumber,
+          metadata: { order_id: orderId, order_number: orderNumber },
         },
       });
 
