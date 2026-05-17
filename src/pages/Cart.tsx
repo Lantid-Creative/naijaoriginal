@@ -112,14 +112,16 @@ const Cart = () => {
                     </div>
                   </div>
 
-                  <Link to="/checkout">
+                  <Link to={checkoutHref}>
                     <Button className="w-full font-body font-semibold gap-2" size="lg">
-                      Proceed to Checkout <ArrowRight className="w-4 h-4" />
+                      {user ? <>Proceed to Checkout <ArrowRight className="w-4 h-4" /></> : <><Lock className="w-4 h-4" /> Sign in to Checkout</>}
                     </Button>
                   </Link>
 
                   <p className="font-accent text-xs text-muted-foreground text-center mt-3">
-                    Shipping no dey inside payment. We go quote by distance and weight after checkout.
+                    {user
+                      ? "Product money go pass Paystack now. Shipping fee we go quote separately by call/WhatsApp."
+                      : "You need account to checkout. Product payment via Paystack; shipping quoted separately."}
                   </p>
                 </div>
               </div>
