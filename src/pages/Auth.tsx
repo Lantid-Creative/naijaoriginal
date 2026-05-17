@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
-import { useAuth as useAuthCtx } from "@/contexts/AuthContext";
+
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
