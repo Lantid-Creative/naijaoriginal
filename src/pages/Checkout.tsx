@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Lock, Truck } from "lucide-react";
 import { formatNaira } from "@/lib/format";
-import { orderConfirmationEmail } from "@/lib/email-templates";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -18,7 +17,7 @@ const getOrderNumber = (orderId: string) => {
 };
 
 const Checkout = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { items, total, clearCart } = useCart();
   const { toast } = useToast();
   const navigate = useNavigate();
