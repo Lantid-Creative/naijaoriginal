@@ -37,9 +37,15 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/";
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (user) navigate(redirectTo, { replace: true });
+  }, [user, redirectTo, navigate]);
 
   const strength = useMemo(() => getPasswordStrength(password), [password]);
 
