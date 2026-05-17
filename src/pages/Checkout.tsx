@@ -103,8 +103,6 @@ const Checkout = () => {
         subtotal: total,
         shipping_cost: shipping,
         total: orderTotal,
-        status: "pending",
-        payment_status: "paid",
         shipping_address: {
           full_name: form.fullName,
           address: form.address,
