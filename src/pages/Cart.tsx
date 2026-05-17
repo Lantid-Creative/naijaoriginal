@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
-import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatNaira } from "@/lib/format";
 import Navbar from "@/components/Navbar";
@@ -8,6 +9,8 @@ import Footer from "@/components/Footer";
 
 const Cart = () => {
   const { items, loading, updateQuantity, removeFromCart, itemCount, total } = useCart();
+  const { user } = useAuth();
+  const checkoutHref = user ? "/checkout" : "/auth?redirect=/checkout";
 
   return (
     <div className="min-h-screen bg-background">
