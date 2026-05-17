@@ -131,24 +131,33 @@ const Checkout = () => {
         selected_color: item.selected_color,
       }));
 
+      // 1. Initialize Paystack BEFORE creating any order
       const { data: paymentData, error: paymentError } = await supabase.functions.invoke("initialize-payment", {
         body: {
           email: user.email || form.email,
           amount: Math.round(total * 100),
           order_id: orderId,
           order_number: orderNumber,
-          metadata: { order_id: orderId, order_number: orderNumber },
         },
       });
 
       if (paymentError || !paymentData?.authorization_url) {
-        throw new Error(paymentData?.error || paymentError?.message || "Paystack payment no start. No order was placed.");
+        throw new Error(paymentData?.error || paymentError?.message || "Paystack no start. No order was placed.");
       }
 
-      localStorage.setItem(
-        `pending_checkout_${orderNumber}`,
-        JSON.stringify({ order: orderPayload, orderItems, customerName: form.fullName, total })
-      );
+      // 2. Now create the order (status pending, unpaid until Paystack verifies)
+      const { error: orderError } = await supabase.from("orders").insert({
+        ...orderPayload,
+        status: "pending",
+        payment_status: "unpaid",
+        payment_reference: paymentData.reference,
+      });
+      if (orderError) throw orderError;
+
+      const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
+      if (itemsError) throw itemsError;
+
+      // 3. Redirect to Paystack. Cart cleared on confirmation page after verify.
       window.location.href = paymentData.authorization_url;
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
