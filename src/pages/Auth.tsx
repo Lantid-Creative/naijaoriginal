@@ -1,5 +1,6 @@
-import { useState, useMemo } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
+
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,9 +37,15 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/";
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (user) navigate(redirectTo, { replace: true });
+  }, [user, redirectTo, navigate]);
 
   const strength = useMemo(() => getPasswordStrength(password), [password]);
 
@@ -56,7 +63,7 @@ const Auth = () => {
         toast({ title: "Login failed", description: error.message, variant: "destructive" });
       } else {
         toast({ title: "Welcome back! 🇳🇬" });
-        navigate("/");
+        navigate(redirectTo, { replace: true });
       }
     } else {
       const { error } = await signUp(email, password, fullName);
