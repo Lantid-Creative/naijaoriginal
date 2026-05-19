@@ -52,6 +52,7 @@ const groups: { label: string; items: { id: AdminSection; title: string; icon: a
   {
     label: "Community",
     items: [
+      { id: "customers", title: "Customers", icon: UserCircle },
       { id: "reviews", title: "Reviews", icon: Star },
       { id: "tickets", title: "Tickets", icon: MessageSquare },
       { id: "subscribers", title: "Subscribers", icon: Mail },
