@@ -1,7 +1,7 @@
 import {
   LayoutDashboard, Package, Layers, Boxes, FileEdit, Sparkles,
   ShoppingCart, Star, MessageSquare, Mail, Users, QrCode,
-  BarChart3, TrendingUp, Bot, ArrowLeft,
+  BarChart3, TrendingUp, Bot, ArrowLeft, UserCircle,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
@@ -14,7 +14,7 @@ export type AdminSection =
   | "overview" | "ai" | "sales" | "analytics"
   | "products" | "bulk-edit" | "inventory" | "series" | "collections"
   | "orders" | "qr"
-  | "reviews" | "tickets" | "subscribers";
+  | "customers" | "reviews" | "tickets" | "subscribers";
 
 interface AdminSidebarProps {
   active: AdminSection;
