@@ -18,7 +18,7 @@ const getOrderNumber = (orderId: string) => {
 
 const Checkout = () => {
   const { user, loading: authLoading } = useAuth();
-  const { items, total, clearCart } = useCart();
+  const { items, total, loading: cartLoading, clearCart } = useCart();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -163,6 +163,18 @@ const Checkout = () => {
       setLoading(false);
     }
   };
+
+  if (authLoading || cartLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="pt-24 container mx-auto px-6 py-20 flex items-center justify-center">
+          <div className="animate-pulse font-body text-muted-foreground">Loading checkout…</div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (
