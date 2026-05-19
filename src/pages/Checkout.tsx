@@ -164,6 +164,18 @@ const Checkout = () => {
     }
   };
 
+  if (authLoading || cartLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="pt-24 container mx-auto px-6 py-20 flex items-center justify-center">
+          <div className="animate-pulse font-body text-muted-foreground">Loading checkout…</div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
   if (items.length === 0) {
     return (
       <div className="min-h-screen bg-background">
