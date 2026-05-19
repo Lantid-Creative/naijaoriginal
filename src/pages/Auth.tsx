@@ -70,7 +70,8 @@ const Auth = () => {
       if (error) {
         toast({ title: "Sign up failed", description: error.message, variant: "destructive" });
       } else {
-        toast({ title: "Check your email!", description: "We sent you a verification link. Click am to continue! 📧" });
+        toast({ title: "Welcome to the family! 🇳🇬", description: "Account ready. Carry go!" });
+        navigate(redirectTo, { replace: true });
       }
     }
     setLoading(false);

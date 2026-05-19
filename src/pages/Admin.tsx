@@ -38,6 +38,7 @@ const SECTION_TITLES: Record<AdminSection, string> = {
   collections: "Collections",
   orders: "Orders",
   qr: "QR Codes",
+  customers: "Customers",
   reviews: "Reviews",
   tickets: "Support Tickets",
   subscribers: "Subscribers",
@@ -80,6 +81,8 @@ const Admin = () => {
   const [reviewFilter, setReviewFilter] = useState<"pending" | "approved" | "all">("pending");
   const [notifications, setNotifications] = useState<any[]>([]);
   const [subscribers, setSubscribers] = useState<any[]>([]);
+  const [customers, setCustomers] = useState<any[]>([]);
+  const [customerSearch, setCustomerSearch] = useState("");
 
   // Collections state
   const [collections, setCollections] = useState<any[]>([]);
@@ -107,7 +110,7 @@ const Admin = () => {
   }, []);
 
   const fetchData = async () => {
-    const [productsRes, ordersRes, categoriesRes, ticketsRes, reviewsRes, notificationsRes, subscribersRes, collectionsRes] = await Promise.all([
+    const [productsRes, ordersRes, categoriesRes, ticketsRes, reviewsRes, notificationsRes, subscribersRes, collectionsRes, customersRes] = await Promise.all([
       supabase.from("products").select("*, product_categories:category_id(name)").order("created_at", { ascending: false }),
       supabase.from("orders").select("*, order_items(count)").order("created_at", { ascending: false }).limit(50),
       supabase.from("product_categories").select("*").order("name"),
@@ -116,6 +119,7 @@ const Admin = () => {
       supabase.from("admin_notifications").select("*").eq("is_read", false).order("created_at", { ascending: false }).limit(20),
       supabase.from("newsletter_subscribers").select("*").order("subscribed_at", { ascending: false }),
       supabase.from("product_collections").select("*").order("display_order", { ascending: true }),
+      supabase.from("profiles").select("*").order("created_at", { ascending: false }),
     ]);
     setProducts(productsRes.data || []);
     setOrders(ordersRes.data || []);
@@ -125,6 +129,7 @@ const Admin = () => {
     setNotifications(notificationsRes.data || []);
     setSubscribers(subscribersRes.data || []);
     setCollections(collectionsRes.data || []);
+    setCustomers(customersRes.data || []);
     setLoading(false);
   };
 
@@ -571,6 +576,100 @@ const Admin = () => {
               </div>
             </div>
           )}
+
+          {/* Customers Tab */}
+          {tab === "customers" && (() => {
+            const ordersByUser = orders.reduce((acc: Record<string, { count: number; spent: number }>, o: any) => {
+              if (!o.user_id) return acc;
+              if (!acc[o.user_id]) acc[o.user_id] = { count: 0, spent: 0 };
+              acc[o.user_id].count++;
+              if (o.payment_status === "paid") acc[o.user_id].spent += Number(o.total || 0);
+              return acc;
+            }, {});
+            const q = customerSearch.toLowerCase();
+            const filtered = customers.filter((c: any) =>
+              !q ||
+              (c.full_name || "").toLowerCase().includes(q) ||
+              (c.email || "").toLowerCase().includes(q) ||
+              (c.phone || "").toLowerCase().includes(q)
+            );
+            return (
+              <div>
+                <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
+                  <div>
+                    <h2 className="font-display text-xl font-bold text-foreground">Customers 👥</h2>
+                    <p className="font-body text-sm text-muted-foreground">All signed-up users — for follow up.</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="font-accent text-xs text-muted-foreground">{filtered.length} of {customers.length}</span>
+                    <Input
+                      placeholder="Search name, email, phone…"
+                      value={customerSearch}
+                      onChange={(e) => setCustomerSearch(e.target.value)}
+                      className="bg-background border-border w-64 max-w-full"
+                    />
+                  </div>
+                </div>
+                <div className="naija-card overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b border-border">
+                          <th className="text-left p-4 font-body text-xs text-muted-foreground uppercase">Name</th>
+                          <th className="text-left p-4 font-body text-xs text-muted-foreground uppercase">Email</th>
+                          <th className="text-left p-4 font-body text-xs text-muted-foreground uppercase">Phone</th>
+                          <th className="text-left p-4 font-body text-xs text-muted-foreground uppercase">Joined</th>
+                          <th className="text-left p-4 font-body text-xs text-muted-foreground uppercase">Orders</th>
+                          <th className="text-left p-4 font-body text-xs text-muted-foreground uppercase">Spent</th>
+                          <th className="text-right p-4 font-body text-xs text-muted-foreground uppercase">Contact</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filtered.map((c: any) => {
+                          const stats = ordersByUser[c.id] || { count: 0, spent: 0 };
+                          const phone = c.phone || (c.shipping_address as any)?.phone || "";
+                          const waNumber = (phone || "").replace(/[^0-9]/g, "");
+                          return (
+                            <tr key={c.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
+                              <td className="p-4 font-body text-sm font-semibold text-foreground">{c.full_name || "—"}</td>
+                              <td className="p-4 font-body text-sm text-foreground">
+                                {c.email ? (
+                                  <a href={`mailto:${c.email}`} className="hover:text-primary">{c.email}</a>
+                                ) : "—"}
+                              </td>
+                              <td className="p-4 font-body text-sm text-foreground">{phone || "—"}</td>
+                              <td className="p-4 font-body text-sm text-muted-foreground">
+                                {c.created_at ? new Date(c.created_at).toLocaleDateString() : "—"}
+                              </td>
+                              <td className="p-4 font-body text-sm text-foreground">{stats.count}</td>
+                              <td className="p-4 font-body text-sm text-foreground">{formatNaira(stats.spent)}</td>
+                              <td className="p-4 text-right">
+                                <div className="flex gap-2 justify-end">
+                                  {c.email && (
+                                    <a href={`mailto:${c.email}`} className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground" title="Email">
+                                      <Mail className="w-4 h-4" />
+                                    </a>
+                                  )}
+                                  {waNumber && (
+                                    <a href={`https://wa.me/${waNumber}`} target="_blank" rel="noreferrer" className="p-1.5 rounded hover:bg-primary/10 text-muted-foreground hover:text-primary" title="WhatsApp">
+                                      <MessageSquare className="w-4 h-4" />
+                                    </a>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                        {filtered.length === 0 && (
+                          <tr><td colSpan={7} className="p-8 text-center font-body text-sm text-muted-foreground">No customers found.</td></tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Orders Tab */}
           {tab === "orders" && (
