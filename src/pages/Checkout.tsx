@@ -18,7 +18,7 @@ const getOrderNumber = (orderId: string) => {
 
 const Checkout = () => {
   const { user, loading: authLoading } = useAuth();
-  const { items, total, clearCart } = useCart();
+  const { items, total, loading: cartLoading, clearCart } = useCart();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
