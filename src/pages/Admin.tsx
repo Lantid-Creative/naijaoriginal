@@ -81,6 +81,8 @@ const Admin = () => {
   const [reviewFilter, setReviewFilter] = useState<"pending" | "approved" | "all">("pending");
   const [notifications, setNotifications] = useState<any[]>([]);
   const [subscribers, setSubscribers] = useState<any[]>([]);
+  const [customers, setCustomers] = useState<any[]>([]);
+  const [customerSearch, setCustomerSearch] = useState("");
 
   // Collections state
   const [collections, setCollections] = useState<any[]>([]);
