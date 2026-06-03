@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -6,10 +6,19 @@ import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Lock, Truck } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { ArrowLeft, Lock, Truck, MapPin } from "lucide-react";
 import { formatNaira } from "@/lib/format";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import {
+  NIGERIAN_STATES,
+  SHIPPING_RATES,
+  getShippingFee,
+  type ShippingMethod,
+} from "@/lib/shipping-rates";
 
 const getOrderNumber = (orderId: string) => {
   const date = new Date().toISOString().slice(0, 10).replace(/-/g, "");
@@ -18,7 +27,7 @@ const getOrderNumber = (orderId: string) => {
 
 const Checkout = () => {
   const { user, loading: authLoading } = useAuth();
-  const { items, total, loading: cartLoading, clearCart } = useCart();
+  const { items, total, loading: cartLoading } = useCart();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -26,18 +35,27 @@ const Checkout = () => {
     fullName: "",
     email: "",
     phone: "",
+    whatsapp: "",
     address: "",
-    city: "",
     state: "",
+    city: "",
     country: "Nigeria",
     zip: "",
+    shippingMethod: "doorstep" as ShippingMethod,
     preferredContactDay: "",
     preferredContactTime: "",
   });
 
   const isNigeria = form.country.toLowerCase().trim() === "nigeria";
+  const cityOptions = isNigeria && form.state ? SHIPPING_RATES[form.state] || [] : [];
 
-  // Auto-fill from profile for logged-in users
+  const shipping = useMemo(() => {
+    if (!isNigeria || !form.state || !form.city) return 0;
+    return getShippingFee(form.state, form.city, form.shippingMethod);
+  }, [isNigeria, form.state, form.city, form.shippingMethod]);
+
+  const orderTotal = total + shipping;
+
   useEffect(() => {
     if (!user) return;
     const fetchProfile = async () => {
@@ -53,9 +71,10 @@ const Checkout = () => {
           fullName: data.full_name || prev.fullName,
           email: data.email || user.email || prev.email,
           phone: data.phone || prev.phone,
+          whatsapp: addr.whatsapp || prev.whatsapp,
           address: addr.address || prev.address,
+          state: addr.state && (NIGERIAN_STATES.includes(addr.state) || prev.country !== "Nigeria") ? addr.state : prev.state,
           city: addr.city || prev.city,
-          state: addr.state || prev.state,
           country: addr.country || prev.country,
           zip: addr.zip || prev.zip,
         }));
@@ -64,15 +83,11 @@ const Checkout = () => {
     fetchProfile();
   }, [user]);
 
-  const shipping = 0;
-  const orderTotal = total;
-  const shippingQuoteLabel = isNigeria ? "₦5,000–₦10,000 quote" : "Custom quote";
-
   useEffect(() => {
     if (!authLoading && !user) {
       toast({
         title: "Create account first",
-        description: "You need account before checkout. Product money go pass Paystack first.",
+        description: "You need account before checkout. Product + shipping money go pass Paystack.",
         variant: "destructive",
       });
       navigate("/auth?redirect=/checkout", { replace: true });
@@ -91,11 +106,24 @@ const Checkout = () => {
       navigate("/auth?redirect=/checkout");
       return;
     }
+
+    if (isNigeria) {
+      if (!form.state || !form.city) {
+        toast({ title: "Pick state and city", description: "We need your delivery city to calculate shipping.", variant: "destructive" });
+        return;
+      }
+      if (form.shippingMethod === "doorstep" && !form.address.trim()) {
+        toast({ title: "Address needed", description: "For doorstep delivery, enter your full address.", variant: "destructive" });
+        return;
+      }
+    }
+
     setLoading(true);
 
     try {
       const orderId = crypto.randomUUID();
       const orderNumber = getOrderNumber(orderId);
+      const methodLabel = form.shippingMethod === "doorstep" ? "Doorstep delivery" : "Park pickup";
       const orderPayload = {
         id: orderId,
         order_number: orderNumber,
@@ -111,12 +139,14 @@ const Checkout = () => {
           country: form.country,
           zip: form.zip,
           phone: form.phone,
+          whatsapp: form.whatsapp,
+          shipping_method: form.shippingMethod,
           preferred_contact_day: form.preferredContactDay,
           preferred_contact_time: form.preferredContactTime,
         },
         notes: isNigeria
-          ? `Shipping quote pending — Nigeria delivery usually ranges from ₦5,000 to ₦10,000 depending on distance and weight. Contact customer by phone/WhatsApp on ${form.preferredContactDay || "their preferred day"} at ${form.preferredContactTime || "their preferred time"} to confirm exact location and quote.`
-          : `Shipping quote pending — ${form.country}. Contact customer by phone/WhatsApp on ${form.preferredContactDay || "their preferred day"} at ${form.preferredContactTime || "their preferred time"} to confirm exact location and quote.`,
+          ? `${methodLabel} — ${form.city}, ${form.state}. Shipping fee ₦${shipping.toLocaleString()} included in payment. ${form.shippingMethod === "park" ? `Contact customer via WhatsApp (${form.whatsapp || form.phone}) on ${form.preferredContactDay || "preferred day"} at ${form.preferredContactTime || "preferred time"} with the nearest park address.` : `Deliver to: ${form.address}. Confirm via WhatsApp (${form.whatsapp || form.phone}) on ${form.preferredContactDay || "preferred day"} at ${form.preferredContactTime || "preferred time"}.`}`
+          : `International order — ${form.country}. Shipping quote pending. Contact customer via WhatsApp (${form.whatsapp || form.phone}) on ${form.preferredContactDay || "preferred day"} at ${form.preferredContactTime || "preferred time"} to confirm location and final shipping quote.`,
       };
 
       const orderItems = items.map((item) => ({
@@ -129,11 +159,10 @@ const Checkout = () => {
         selected_color: item.selected_color,
       }));
 
-      // 1. Initialize Paystack BEFORE creating any order
       const { data: paymentData, error: paymentError } = await supabase.functions.invoke("initialize-payment", {
         body: {
           email: user.email || form.email,
-          amount: Math.round(total * 100),
+          amount: Math.round(orderTotal * 100),
           order_id: orderId,
           order_number: orderNumber,
         },
@@ -143,7 +172,6 @@ const Checkout = () => {
         throw new Error(paymentData?.error || paymentError?.message || "Paystack no start. No order was placed.");
       }
 
-      // 2. Now create the order (status pending, unpaid until Paystack verifies)
       const { error: orderError } = await supabase.from("orders").insert({
         ...orderPayload,
         status: "pending",
@@ -155,7 +183,6 @@ const Checkout = () => {
       const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
       if (itemsError) throw itemsError;
 
-      // 3. Redirect to Paystack. Cart cleared on confirmation page after verify.
       window.location.href = paymentData.authorization_url;
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -202,85 +229,155 @@ const Checkout = () => {
 
           <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-6">
-              {!user && (
-                <div className="naija-card p-6">
-                  <p className="font-body text-sm text-muted-foreground mb-3">
-                    You get account?{" "}
-                    <Link to="/auth" className="text-primary hover:underline font-semibold">Sign in</Link>
-                    {" "}make checkout fast!
-                  </p>
-                </div>
-              )}
-
               <div className="naija-card p-6">
-                <h2 className="font-display text-lg font-bold text-foreground mb-4">Shipping Information</h2>
+                <h2 className="font-display text-lg font-bold text-foreground mb-4">Your Details</h2>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="font-body text-sm text-foreground block mb-1.5">Full Name *</label>
-                    <Input name="fullName" value={form.fullName} onChange={handleChange} required className="bg-background border-border" />
+                    <Label className="font-body text-sm">Full Name *</Label>
+                    <Input name="fullName" value={form.fullName} onChange={handleChange} required className="mt-1.5" />
                   </div>
                   <div>
-                    <label className="font-body text-sm text-foreground block mb-1.5">Email *</label>
-                    <Input name="email" type="email" value={form.email} onChange={handleChange} required className="bg-background border-border" />
+                    <Label className="font-body text-sm">Email *</Label>
+                    <Input name="email" type="email" value={form.email} onChange={handleChange} required className="mt-1.5" />
                   </div>
                   <div>
-                    <label className="font-body text-sm text-foreground block mb-1.5">Phone *</label>
-                    <Input name="phone" value={form.phone} onChange={handleChange} required placeholder="+234..." className="bg-background border-border" />
+                    <Label className="font-body text-sm">Phone *</Label>
+                    <Input name="phone" value={form.phone} onChange={handleChange} required placeholder="+234..." className="mt-1.5" />
                   </div>
                   <div>
-                    <label className="font-body text-sm text-foreground block mb-1.5">Country *</label>
-                    <Input name="country" value={form.country} onChange={handleChange} required className="bg-background border-border" />
+                    <Label className="font-body text-sm">WhatsApp Number *</Label>
+                    <Input name="whatsapp" value={form.whatsapp} onChange={handleChange} required placeholder="+234..." className="mt-1.5" />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="font-body text-sm text-foreground block mb-1.5">Address *</label>
-                    <Input name="address" value={form.address} onChange={handleChange} required className="bg-background border-border" />
+                    <Label className="font-body text-sm">Country *</Label>
+                    <Input name="country" value={form.country} onChange={handleChange} required className="mt-1.5" />
                   </div>
-                  <div>
-                    <label className="font-body text-sm text-foreground block mb-1.5">City *</label>
-                    <Input name="city" value={form.city} onChange={handleChange} required className="bg-background border-border" />
-                  </div>
-                  <div>
-                    <label className="font-body text-sm text-foreground block mb-1.5">State / Region *</label>
-                    <Input name="state" value={form.state} onChange={handleChange} required className="bg-background border-border" />
-                  </div>
-                  {!isNigeria && (
-                    <div>
-                      <label className="font-body text-sm text-foreground block mb-1.5">Zip / Postal Code</label>
-                      <Input name="zip" value={form.zip} onChange={handleChange} className="bg-background border-border" />
-                    </div>
-                  )}
                 </div>
               </div>
 
-              <div className="naija-card p-6">
-                <h2 className="font-display text-lg font-bold text-foreground mb-4">Shipping Quote 🚚</h2>
-                <div className="flex items-start gap-4 rounded-xl border border-border bg-accent/50 p-4">
-                  <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0">
-                    <Truck className="w-5 h-5" />
+              {isNigeria ? (
+                <div className="naija-card p-6 space-y-5">
+                  <div>
+                    <h2 className="font-display text-lg font-bold text-foreground mb-1">Delivery in Nigeria 🇳🇬</h2>
+                    <p className="font-body text-xs text-muted-foreground">Pick your state, city, and how you want to receive your order. Shipping fee na fixed per city.</p>
                   </div>
-                  <div className="space-y-2">
-                    <p className="font-body text-sm font-semibold text-foreground">Shipping no dey inside payment.</p>
-                    <p className="font-body text-sm text-muted-foreground">
-                      {isNigeria
-                        ? "Delivery anywhere within Nigeria usually dey between ₦5,000 and ₦10,000 depending on distance and weight."
-                        : "For your country, shipping go get custom quote based on location, distance, and weight."}
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="font-body text-sm">State *</Label>
+                      <Select
+                        value={form.state}
+                        onValueChange={(v) => setForm((p) => ({ ...p, state: v, city: "" }))}
+                      >
+                        <SelectTrigger className="mt-1.5"><SelectValue placeholder="Select state" /></SelectTrigger>
+                        <SelectContent className="max-h-72">
+                          {NIGERIAN_STATES.map((s) => (
+                            <SelectItem key={s} value={s}>{s}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="font-body text-sm">City *</Label>
+                      <Select
+                        value={form.city}
+                        onValueChange={(v) => setForm((p) => ({ ...p, city: v }))}
+                        disabled={!form.state}
+                      >
+                        <SelectTrigger className="mt-1.5"><SelectValue placeholder={form.state ? "Select city" : "Pick state first"} /></SelectTrigger>
+                        <SelectContent className="max-h-72">
+                          {cityOptions.map((c) => (
+                            <SelectItem key={c.city} value={c.city}>{c.city}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {form.city && (
+                    <div>
+                      <Label className="font-body text-sm mb-2 block">Delivery method *</Label>
+                      <RadioGroup
+                        value={form.shippingMethod}
+                        onValueChange={(v) => setForm((p) => ({ ...p, shippingMethod: v as ShippingMethod }))}
+                        className="grid sm:grid-cols-2 gap-3"
+                      >
+                        <Label htmlFor="m-door" className="naija-card p-4 cursor-pointer flex items-start gap-3 hover:border-primary transition-colors [&:has([data-state=checked])]:border-primary [&:has([data-state=checked])]:bg-primary/5">
+                          <RadioGroupItem value="doorstep" id="m-door" className="mt-1" />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 font-accent text-sm font-bold text-foreground"><Truck className="w-4 h-4" /> Doorstep</div>
+                            <p className="font-body text-xs text-muted-foreground mt-1">We deliver to your address</p>
+                            <p className="font-accent text-sm font-bold text-primary mt-2">{formatNaira(getShippingFee(form.state, form.city, "doorstep"))}</p>
+                          </div>
+                        </Label>
+                        <Label htmlFor="m-park" className="naija-card p-4 cursor-pointer flex items-start gap-3 hover:border-primary transition-colors [&:has([data-state=checked])]:border-primary [&:has([data-state=checked])]:bg-primary/5">
+                          <RadioGroupItem value="park" id="m-park" className="mt-1" />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 font-accent text-sm font-bold text-foreground"><MapPin className="w-4 h-4" /> Park pickup</div>
+                            <p className="font-body text-xs text-muted-foreground mt-1">Collect from park near you (we WhatsApp you the address)</p>
+                            <p className="font-accent text-sm font-bold text-primary mt-2">{formatNaira(getShippingFee(form.state, form.city, "park"))}</p>
+                          </div>
+                        </Label>
+                      </RadioGroup>
+                    </div>
+                  )}
+
+                  {form.shippingMethod === "doorstep" && (
+                    <div>
+                      <Label className="font-body text-sm">Full delivery address *</Label>
+                      <Input name="address" value={form.address} onChange={handleChange} required={form.shippingMethod === "doorstep"} placeholder="House number, street, landmark..." className="mt-1.5" />
+                    </div>
+                  )}
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="font-body text-sm">Preferred contact day</Label>
+                      <Input name="preferredContactDay" value={form.preferredContactDay} onChange={handleChange} placeholder="e.g. Monday" className="mt-1.5" />
+                    </div>
+                    <div>
+                      <Label className="font-body text-sm">Preferred contact time</Label>
+                      <Input name="preferredContactTime" value={form.preferredContactTime} onChange={handleChange} placeholder="e.g. 10am–2pm" className="mt-1.5" />
+                    </div>
+                  </div>
+
+                  {form.shippingMethod === "park" && form.city && (
+                    <p className="font-body text-xs text-muted-foreground rounded-lg bg-muted/50 p-3">
+                      📞 After payment, we go reach you on WhatsApp at your preferred time with the exact park address in {form.city}.
                     </p>
-                    <p className="font-body text-sm text-muted-foreground">
-                      We go reach out by phone call or WhatsApp for your preferred day/time to confirm exact location and give you the final quote.
-                    </p>
+                  )}
+                </div>
+              ) : (
+                <div className="naija-card p-6 space-y-4">
+                  <h2 className="font-display text-lg font-bold text-foreground">International Shipping 🌍</h2>
+                  <p className="font-body text-sm text-muted-foreground">For your country, shipping fee no dey inside this payment. You go pay for the product only. We go reach you on WhatsApp with a custom shipping quote based on location and weight.</p>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="md:col-span-2">
+                      <Label className="font-body text-sm">Address *</Label>
+                      <Input name="address" value={form.address} onChange={handleChange} required className="mt-1.5" />
+                    </div>
+                    <div>
+                      <Label className="font-body text-sm">City *</Label>
+                      <Input name="city" value={form.city} onChange={handleChange} required className="mt-1.5" />
+                    </div>
+                    <div>
+                      <Label className="font-body text-sm">State / Region *</Label>
+                      <Input name="state" value={form.state} onChange={handleChange} required className="mt-1.5" />
+                    </div>
+                    <div>
+                      <Label className="font-body text-sm">Zip / Postal Code</Label>
+                      <Input name="zip" value={form.zip} onChange={handleChange} className="mt-1.5" />
+                    </div>
+                    <div>
+                      <Label className="font-body text-sm">Preferred contact day</Label>
+                      <Input name="preferredContactDay" value={form.preferredContactDay} onChange={handleChange} placeholder="e.g. Monday" className="mt-1.5" />
+                    </div>
+                    <div>
+                      <Label className="font-body text-sm">Preferred contact time</Label>
+                      <Input name="preferredContactTime" value={form.preferredContactTime} onChange={handleChange} placeholder="e.g. 10am–2pm" className="mt-1.5" />
+                    </div>
                   </div>
                 </div>
-                <div className="grid md:grid-cols-2 gap-4 mt-4">
-                  <div>
-                    <label className="font-body text-sm text-foreground block mb-1.5">Preferred contact day</label>
-                    <Input name="preferredContactDay" value={form.preferredContactDay} onChange={handleChange} placeholder="e.g. Monday" className="bg-background border-border" />
-                  </div>
-                  <div>
-                    <label className="font-body text-sm text-foreground block mb-1.5">Preferred contact time</label>
-                    <Input name="preferredContactTime" value={form.preferredContactTime} onChange={handleChange} placeholder="e.g. 10am–2pm" className="bg-background border-border" />
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
 
             <div className="lg:col-span-1">
@@ -303,27 +400,29 @@ const Checkout = () => {
                     <span className="text-foreground">{formatNaira(total)}</span>
                   </div>
                   <div className="flex justify-between font-body text-sm">
-                    <span className="text-muted-foreground">Shipping</span>
-                    <span className="text-foreground">Quote later</span>
-                  </div>
-                  <div className="flex justify-between font-body text-sm">
-                    <span className="text-muted-foreground">Shipping estimate</span>
-                    <span className="text-foreground">{shippingQuoteLabel}</span>
+                    <span className="text-muted-foreground">
+                      Shipping {isNigeria && form.shippingMethod === "park" ? "(Park pickup)" : isNigeria ? "(Doorstep)" : ""}
+                    </span>
+                    <span className="text-foreground">
+                      {isNigeria
+                        ? (shipping > 0 ? formatNaira(shipping) : "Pick city")
+                        : "Quote later"}
+                    </span>
                   </div>
                   <div className="naija-section-divider" />
                   <div className="flex justify-between font-body font-bold text-lg">
                     <span className="text-foreground">Total</span>
-                    <span className="text-foreground">
-                      {formatNaira(orderTotal)}
-                    </span>
+                    <span className="text-foreground">{formatNaira(orderTotal)}</span>
                   </div>
                 </div>
                 <Button type="submit" className="w-full font-body font-semibold gap-2" size="lg" disabled={loading}>
                   <Lock className="w-4 h-4" />
-                  {loading ? "Dey process..." : "Pay for Items Only"}
+                  {loading ? "Dey process..." : "Pay with Paystack"}
                 </Button>
                 <p className="font-accent text-xs text-muted-foreground text-center mt-3">
-                  Shipping quote no dey included for this payment.
+                  {isNigeria
+                    ? "Product + shipping fee na inside this payment."
+                    : "Only product fee dey inside. Shipping quote go come via WhatsApp."}
                 </p>
               </div>
             </div>
