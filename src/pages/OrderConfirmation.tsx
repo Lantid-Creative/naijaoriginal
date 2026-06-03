@@ -62,10 +62,10 @@ const OrderConfirmation = () => {
               <div className="naija-card p-6 text-left mb-8">
                 <h3 className="font-display text-base font-bold text-foreground mb-3">Wetin go happen next?</h3>
                 <ul className="space-y-2 font-body text-sm text-muted-foreground">
-                  <li>✅ Product payment don confirm</li>
+                  <li>✅ Product + shipping payment don confirm</li>
                   <li>📦 We go prepare your order with care</li>
-                  <li>📞 We go call or WhatsApp you for shipping quote (₦5k–₦10k Nigeria, paid separately)</li>
-                  <li>📱 Scan your QR code when e arrive to register ownership!</li>
+                  <li>📱 We go WhatsApp you at your preferred time to confirm delivery / park pickup details</li>
+                  <li>🔐 Scan your QR code when e arrive to register ownership!</li>
                 </ul>
               </div>
             </>
